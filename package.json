@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js 'bundle.css:npm run build-css'",
-    "build-css": "stylus -u nib -r app.styl -o bundle.css",
+    "start": "cd demo && node ../index.js 'bundle.css:npm run watch-css'",
+    "watch-css": "cd demo && stylus -u nib -w -r app.styl -o bundle.css",
+    "build-css": "cd demo && stylus -u nib -r app.styl -o bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chokidar": "^1.6.0",
     "express": "^4.14.0",
