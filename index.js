@@ -4,6 +4,14 @@ var cp = require('child_process')
 
 var parseArgs = require('minimist')
 
+var app = express()
+var http = require('http')
+var server = http.createServer(app)
+var io = require('socket.io')(server) // livereload
+
+var host = '0.0.0.0'
+var port = 4040
+
 var c = {
   'cyan': '36m',
   'magenta': '35m',
@@ -26,23 +34,29 @@ function clearConsole() {
 
 var args = process.argv.slice(2)
 
-var split = args[0].split(':')
+args.forEach(function (arg) {
+  var split = arg.split(':')
 
-var config = {
-  target: split[0],
-  cmd: split[1]
-}
+  var config = {
+    target: split[0],
+    cmd: split[1]
+  }
 
-console.log(config)
+  console.log(config)
 
-watch(config.target)
-exec(config.cmd) // TODO
+  watch(config.target)
+  exec(config.cmd) // TODO
+})
 
 function watch (target) {
   chokidar.watch(target).on('change', function () {
     console.log('change on target [' + target + ']')
   })
-}
+} // watch
+
+function handleError (log) {
+  io.emit('error', { log: log })
+} // handleError
 
 function exec (cmd) {
   if (typeof cmd === 'string') cmd = cmd.split(' ')
@@ -87,4 +101,39 @@ function exec (cmd) {
   child.on('close', function (code) {
     console.log('SPAWN CLOSED')
   })
+} // exec
+
+// change host to 0.0.0.0 to access it on other machines on the same network
+// (when testing on a tablet, mobile app or another computer (on the same network))
+server.listen(port, host, function () {
+  clearConsole()
+  setTimeout(function () {
+    console.log('server listening on %s:%s', host, port)
+    if (host === '0.0.0.0') {
+      var addresses = getNetworkIpAddresses()
+
+      // host was set to 0.0.0.0, access it on other machines
+      // on the same network (using your machines network ip address of)
+      console.log(
+        'host was set to 0.0.0.0\n' +
+        ' -> access from other machines on the same network' +
+        ' by your machines network' +
+        ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
+      )
+    }
+  }, 100)
+})
+
+function getNetworkIpAddresses () {
+  var interfaces = require('os').networkInterfaces()
+  var addresses = []
+  for (var k in interfaces) {
+    for (var k2 in interfaces[k]) {
+      var address = interfaces[k][k2]
+      if (address.family === 'IPv4' && !address.internal) {
+        addresses.push(address.address)
+      }
+    }
+  }
+  return addresses
 }

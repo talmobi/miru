@@ -4,9 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cd demo && node ../index.js 'bundle.css:npm run watch-css'",
-    "watch-css": "cd demo && stylus -u nib -w -r app.styl -o bundle.css",
-    "build-css": "cd demo && stylus -u nib -r app.styl -o bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
@@ -17,7 +14,5 @@
     "minimist": "^1.2.0"
   },
   "devDependencies": {
-    "nib": "^1.1.2",
-    "stylus": "^0.54.5"
   }
 }

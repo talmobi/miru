@@ -2,3 +2,5 @@ node_modules
 
 *.sw?
 *.DS_Store
+
+npm-debug*
