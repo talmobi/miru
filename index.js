@@ -66,8 +66,20 @@ args.forEach(function (arg) {
 var emit_timeouts = {}
 function emit (target) {
   clearTimeout(emit_timeouts[target])
+
   emit_timeouts[target] = setTimeout(function () {
     targetHasError[target] = false
+
+    clearConsole()
+
+    var addresses = getNetworkIpAddresses()
+    console.log(
+      'host was set to 0.0.0.0\n' +
+      ' -> access from other machines on the same network' +
+      ' by your machines network' +
+      ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
+    )
+    console.log()
 
     var msg = ('modification on target [' + chalk.magenta(target) + ']')
     console.log(msg + chalk.cyan(' [' + new Date().toLocaleTimeString() + ']'))
@@ -289,6 +301,7 @@ server.listen(port, host, function () {
         ' by your machines network' +
         ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
       )
+      console.log()
     }
   }, 100)
 })
