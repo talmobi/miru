@@ -83,7 +83,8 @@ function emit (target) {
       // TODO
       if (err) {
         console.log('  remaining error found at target [' + chalk.magenta(target) + ']')
-        console.log(err)
+        handleError(err, target)
+        // console.log(err)
       }
     }
   }, 5)
@@ -91,7 +92,7 @@ function emit (target) {
 
 function watch (target) {
   chokidar.watch(target).on('change', function () {
-    debug && console.log('change on target [' + target + ']')
+    debug && console.log(chalk.yellow('change on target [' + chalk.magenta(target) + ']'))
     fs.stat(target, function (err, stats) {
       if (err) throw err
 
@@ -107,8 +108,28 @@ function watch (target) {
   })
 } // watch
 
-function handleError (err) {
+
+var errorTimeouts = {}
+var previousErrors = {}
+function handleError (err, target) {
+  if (previousErrors[target] == err) {
+    // verbose && console.log(chalk.yellow('skipping error print (same error)'))
+    // return // dont reprint same error
+  }
+
+  clearTimeout(errorTimeouts[target])
   // io.emit('error', { log: log })
+
+  errorTimeouts[target] = setTimeout(function () {
+    clearConsole()
+
+    previousErrors[target] = err
+    console.log('')
+    console.log(' >> error detected [' + chalk.magenta(target) + '] << ')
+    console.log('')
+    targetHasError[target] = err
+    console.log(err)
+  }, 100)
 } // handleError
 
 function parseError (lines) {
@@ -212,15 +233,10 @@ function exec (cmd, target) {
       pipe && console.log(lines.join('\n'))
 
       if (isError) {
-        console.log('')
-        console.log(' >> error detected [' + chalk.magenta(target) + '] << ')
-        console.log('')
         // console.log(result.join('\n'))
         var err = parseError(lines)
-        targetHasError[target] = err
-        console.log(err)
+        handleError(err, target)
 
-        handleError(err)
         // TODO emit error log to clients
         // handleError fn
       }
