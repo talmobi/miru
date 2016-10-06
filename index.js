@@ -3,6 +3,7 @@
 var chokidar = require('chokidar')
 var express = require('express')
 var cp = require('child_process')
+
 var chalk = require('chalk')
 
 var mtimes = {}
@@ -19,8 +20,9 @@ var host = '0.0.0.0'
 var port = 4040
 
 var debug = false
-var verbose = true
 var pipe = false
+
+var targetHasError = {}
 
 var c = {
   'cyan': '36m',
@@ -44,6 +46,8 @@ function clearConsole() {
 
 var args = process.argv.slice(2)
 
+var verbose = true // TODO !!args.verbose
+
 args.forEach(function (arg) {
   var split = arg.split(':')
 
@@ -55,7 +59,7 @@ args.forEach(function (arg) {
   console.log(config)
 
   watch(config.target)
-  exec(config.cmd) // TODO
+  exec(config.cmd, config.target) // TODO
 })
 
 // send reload/inject to client
@@ -63,7 +67,8 @@ var emit_timeouts = {}
 function emit (target) {
   clearTimeout(emit_timeouts[target])
   emit_timeouts[target] = setTimeout(function () {
-    var msg = ('modification on target [' + target + ']')
+    if (targetHasError[target]) return // TODO
+    var msg = ('modification on target [' + chalk.magenta(target) + ']')
     console.log(msg + chalk.cyan(' [' + new Date().toLocaleTimeString() + ']'))
     io.emit('modification', target)
   }, 5)
@@ -76,6 +81,7 @@ function watch (target) {
       if (err) throw err
 
       if (mtimes[target] === undefined || stats.mtime > mtimes[target]) {
+        if (mtimes[target] !== undefined) targetHasError[target] = false
         mtimes[target] = stats.mtime
         emit(target)
       } else {
@@ -149,11 +155,20 @@ function removeColors (lines) {
   return parsedLines
 }
 
-function exec (cmd) {
+function recover (cmd, target) {
+  console.log(chalk.yellow('attatching recovery watcher for [' + cmd + '] (' + target + ')'))
+  var watcher = chokidar.watch('*').on('change', function () {
+    watcher.close()
+    console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
+    exec(cmd, target)
+  })
+}
+
+function exec (cmd, target) {
   if (typeof cmd === 'string') cmd = cmd.split(' ')
 
   var child = cp.spawn(cmd[0], cmd.slice(1))
-  console.log('exec cmd [' + cmd + ']')
+  console.log(chalk.yellow('exec cmd [' + cmd + ']'))
 
   // TODO check for error, send error log to client through sockets
   var buffer = ''
@@ -180,12 +195,11 @@ function exec (cmd) {
 
       if (isError) {
         console.log('')
-        console.log(' >> error detected << ')
+        console.log(' >> error detected [' + chalk.magenta(target) + '] << ')
         console.log('')
         // console.log(result.join('\n'))
         var err = parseError(lines)
         handleError(err)
-        console.log('')
         // TODO emit error log to clients
         // handleError fn
       }
@@ -200,9 +214,24 @@ function exec (cmd) {
   child.stdout.on('data', process)
   child.stderr.on('data', process)
 
+  var destroyTimeout = undefined
+  function destroy () {
+    clearTimeout(destroyTimeout)
+    destroyTimeout = setTimeout(function () {
+      child.kill()
+
+      recover(cmd, target)
+    }, 500)
+  }
+
+  child.on('exit', function (code) {
+    console.log(chalk.grey('SPAWN EXITED'))
+    destroy()
+  })
+
   child.on('close', function (code) {
-    console.log('')
-    console.log('SPAWN CLOSED')
+    console.log(chalk.grey('SPAWN CLOSED'))
+    destroy()
   })
 } // exec
 

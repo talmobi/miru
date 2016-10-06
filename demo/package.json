@@ -1,11 +1,12 @@
 {
   "name": "demo",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "small demo using 'miru'",
   "scripts": {
     "start": "node ../index.js 'bundle.js:npm run watch-js' 'bundle.css:npm run watch-css'",
     "build-js": "rollup -c rollup.config.js",
     "watch-js": "wrollup -c rollup.config.js",
+    "watch-js-local": "node ~/code/wrollup/cli.js -c rollup.config.js",
     "build-css": "stylus -u nib -r app.styl -o bundle.css",
     "watch-css": "stylus -u nib -w -r app.styl -o bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,9 +15,9 @@
   "license": "MIT",
   "devDependencies": {
     "nib": "^1.1.2",
-    "rollup": "^0.36.1",
+    "rollup": "^0.34.13",
     "stylus": "^0.54.5",
-    "wrollup": "^0.1.4"
+    "wrollup": "^0.1.8"
   },
   "dependencies": {}
 }

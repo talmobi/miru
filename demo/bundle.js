@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
-console.log('app')
+var module$1 = 'module'
+
+console.log('app: ' + module$1)
 
 }());

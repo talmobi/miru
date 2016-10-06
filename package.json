@@ -1,7 +1,7 @@
 {
   "name": "miru",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.5.1",
+  "description": "bare bones dev server with live hotish reloads",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
