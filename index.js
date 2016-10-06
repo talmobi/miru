@@ -19,7 +19,7 @@ var io = require('socket.io')(server) // livereload
 var host = '0.0.0.0'
 var port = 4040
 
-var debug = false
+var debug = true
 var pipe = false
 
 var targetHasError = {}
@@ -67,10 +67,25 @@ var emit_timeouts = {}
 function emit (target) {
   clearTimeout(emit_timeouts[target])
   emit_timeouts[target] = setTimeout(function () {
-    if (targetHasError[target]) return // TODO
+    targetHasError[target] = false
+
     var msg = ('modification on target [' + chalk.magenta(target) + ']')
     console.log(msg + chalk.cyan(' [' + new Date().toLocaleTimeString() + ']'))
     io.emit('modification', target)
+
+    // check if other errors still exist
+    var targets = Object.keys(targetHasError)
+
+    for (let i = 0; i < targets.length; i++) {
+      let target = targets[i]
+      var err = targetHasError[target]
+
+      // TODO
+      if (err) {
+        console.log('  remaining error found at target [' + chalk.magenta(target) + ']')
+        console.log(err)
+      }
+    }
   }, 5)
 }
 
@@ -138,7 +153,7 @@ function parseError (lines) {
 
   //console.log(lines.join('\n'))
 
-  console.log(msg)
+  return msg
 }
 
 function removeColors (lines) {
@@ -160,7 +175,10 @@ function recover (cmd, target) {
   var watcher = chokidar.watch('*').on('change', function () {
     watcher.close()
     console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
-    exec(cmd, target)
+
+    setTimeout(function () {
+      exec(cmd, target)
+    }, 0)
   })
 }
 
@@ -199,6 +217,9 @@ function exec (cmd, target) {
         console.log('')
         // console.log(result.join('\n'))
         var err = parseError(lines)
+        targetHasError[target] = err
+        console.log(err)
+
         handleError(err)
         // TODO emit error log to clients
         // handleError fn
