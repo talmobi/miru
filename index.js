@@ -24,6 +24,26 @@ var pipe = false
 
 var targetHasError = {}
 
+var iterations = 0
+var iterationsLimit = 4
+
+function getIterationBox () {
+  iterations = (++iterations % iterationsLimit)
+  var msg = ''
+  for (var i = 0; i < iterationsLimit; i++) {
+    if (i === iterations) {
+      if (i % 2 === 0) {
+        msg += chalk.bgGreen('  ')
+      } else {
+        msg += chalk.bgGreen('  ')
+      }
+    } {
+      msg += ('   ')
+    }
+  }
+  return msg
+}
+
 var c = {
   'cyan': '36m',
   'magenta': '35m',
@@ -72,33 +92,37 @@ function emit (target) {
 
     clearConsole()
 
-    var addresses = getNetworkIpAddresses()
-    console.log(
-      'host was set to 0.0.0.0\n' +
-      ' -> access from other machines on the same network' +
-      ' by your machines network' +
-      ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
-    )
-    console.log()
+    setTimeout(function () {
+      clearConsole()
+      var addresses = getNetworkIpAddresses()
+      console.log(getIterationBox())
+      console.log(
+        'host was set to 0.0.0.0\n' +
+        ' -> access from other machines on the same network' +
+        ' by your machines network' +
+        ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
+      )
+      console.log()
 
-    var msg = ('modification on target [' + chalk.magenta(target) + ']')
-    console.log(msg + chalk.cyan(' [' + new Date().toLocaleTimeString() + ']'))
-    io.emit('modification', target)
+      var msg = ('modification on target [' + chalk.magenta(target) + ']')
+      console.log(msg + chalk.cyan(' [' + new Date().toLocaleTimeString() + ']'))
+      io.emit('modification', target)
 
-    // check if other errors still exist
-    var targets = Object.keys(targetHasError)
+      // check if other errors still exist
+      var targets = Object.keys(targetHasError)
 
-    for (let i = 0; i < targets.length; i++) {
-      let target = targets[i]
-      var err = targetHasError[target]
+      for (let i = 0; i < targets.length; i++) {
+        let target = targets[i]
+        var err = targetHasError[target]
 
-      // TODO
-      if (err) {
-        console.log('  remaining error found at target [' + chalk.magenta(target) + ']')
-        handleError(err, target)
-        // console.log(err)
+        // TODO
+        if (err) {
+          console.log('  remaining error found at target [' + chalk.magenta(target) + ']')
+          handleError(err, target)
+          // console.log(err)
+        }
       }
-    }
+    }, 0)
   }, 5)
 }
 
@@ -288,7 +312,9 @@ function exec (cmd, target) {
 // (when testing on a tablet, mobile app or another computer (on the same network))
 server.listen(port, host, function () {
   clearConsole()
+
   setTimeout(function () {
+    clearConsole()
     console.log('server listening on %s:%s', host, port)
     if (host === '0.0.0.0') {
       var addresses = getNetworkIpAddresses()
