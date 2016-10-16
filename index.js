@@ -24,24 +24,43 @@ var pipe = false
 
 var targetHasError = {}
 
+var flickerDelay = 0
+var emitDelay = 25
 var iterations = 0
 var iterationsLimit = 4
 
-function getIterationBox () {
+// draw a little progress bar box thing
+// to more easily see when a something has changed
+// ( instead of looking at the bundle generation timestamp which
+// is a bit hard to have a quick glance at )
+function getIterationBox (targets) {
+  var box = ''
+  targets.forEach(function (target) {
+    box += chalk[getIterationBoxColor(target, true)]('  ')
+  })
+
   iterations = (++iterations % iterationsLimit)
   var msg = ''
   for (var i = 0; i < iterationsLimit; i++) {
     if (i === iterations) {
-      if (i % 2 === 0) {
-        msg += chalk.bgGreen('  ')
-      } else {
-        msg += chalk.bgGreen('  ')
-      }
-    } {
-      msg += ('   ')
+      msg += box
+    } else {
+      msg += ('       ')
     }
   }
   return msg
+}
+
+function getIterationBoxColor (target, bg) {
+  if (bg) {
+    if (target.toLowerCase().indexOf('css') >= 0) return 'bgGreen'
+    if (target.toLowerCase().indexOf('js') >= 0) return 'bgBlue'
+    return 'bgMagenta'
+  } else {
+    if (target.toLowerCase().indexOf('css') >= 0) return 'green'
+    if (target.toLowerCase().indexOf('js') >= 0) return 'blue'
+    return 'magenta'
+  }
 }
 
 var c = {
@@ -83,47 +102,57 @@ args.forEach(function (arg) {
 })
 
 // send reload/inject to client
+var emit_targets = {}
 var emit_timeouts = {}
+var emit_timeout = undefined
 function emit (target) {
-  clearTimeout(emit_timeouts[target])
+  if (emit_timeout === undefined) clearConsole()
+  clearTimeout(emit_timeout)
 
-  emit_timeouts[target] = setTimeout(function () {
-    targetHasError[target] = false
+  console.log(chalk.yellow('changed in [' + chalk.magenta(target) + ']'))
 
+  emit_targets[target] = target
+  targetHasError[target] = false
+
+  emit_timeout = setTimeout(function () {
+    emit_timeout = undefined
     clearConsole()
+    var addresses = getNetworkIpAddresses()
 
-    setTimeout(function () {
-      clearConsole()
-      var addresses = getNetworkIpAddresses()
-      console.log(getIterationBox())
-      console.log(
-        'host was set to 0.0.0.0\n' +
-        ' -> access from other machines on the same network' +
-        ' by your machines network' +
-        ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
-      )
-      console.log()
+    var targets = Object.keys(emit_targets)
+    emit_targets = {}
 
-      var msg = ('modification on target [' + chalk.magenta(target) + ']')
-      console.log(msg + chalk.cyan(' [' + new Date().toLocaleTimeString() + ']'))
+    console.log(getIterationBox(targets))
+    console.log(
+      'host was set to 0.0.0.0\n' +
+      ' -> access from other machines on the same network' +
+      ' by your machines network' +
+      ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
+    )
+    console.log()
+
+    targets.forEach(function (target) {
+      var color = getIterationBoxColor(target, false)
+      var msg = ('modification on target [' + chalk[color](target) + ']')
+      console.log(msg + ' [' + chalk.cyan(new Date().toLocaleTimeString()) + ']')
       io.emit('modification', target)
+    })
 
-      // check if other errors still exist
-      var targets = Object.keys(targetHasError)
+    // check if other errors still exist
+    var errors = Object.keys(targetHasError)
 
-      for (let i = 0; i < targets.length; i++) {
-        let target = targets[i]
-        var err = targetHasError[target]
+    for (let i = 0; i < errors.length; i++) {
+      let target = errors[i]
+      let err = targetHasError[target]
 
-        // TODO
-        if (err) {
-          console.log('  remaining error found at target [' + chalk.magenta(target) + ']')
-          handleError(err, target)
-          // console.log(err)
-        }
+      // TODO
+      if (err) {
+        console.log('remaining error found at target [' + chalk.magenta(target) + ']')
+        handleError(err, target, true)
+        // console.log(err)
       }
-    }, 0)
-  }, 5)
+    }
+  }, emitDelay)
 }
 
 function watch (target) {
@@ -147,17 +176,18 @@ function watch (target) {
 
 var errorTimeouts = {}
 var previousErrors = {}
-function handleError (err, target) {
-  if (previousErrors[target] == err) {
+function handleError (err, target, remaining) {
+  if (previousErrors[target] == err && !remaining) {
+    // TODO -- this is useless? (since we are usin clearConsole)
     // verbose && console.log(chalk.yellow('skipping error print (same error)'))
-    // return // dont reprint same error
+    // return undefined // dont reprint same error
   }
 
   clearTimeout(errorTimeouts[target])
   // io.emit('error', { log: log })
 
   errorTimeouts[target] = setTimeout(function () {
-    clearConsole()
+    if (!remaining) clearConsole()
 
     previousErrors[target] = err
     console.log('')
