@@ -16,6 +16,16 @@ var http = require('http')
 var server = http.createServer(app)
 var io = require('socket.io')(server) // livereload
 
+var path = require('path')
+
+app.use('*', function (req, res, next) {
+  res.sendFile(__dirname + '/index.html')
+})
+
+io.on('connection', function (socket) {
+  console.log('new connection')
+})
+
 var host = '0.0.0.0'
 var port = 4040
 
@@ -156,7 +166,7 @@ function emit (target) {
 }
 
 function watch (target) {
-  chokidar.watch(target).on('change', function () {
+  var process = function () {
     debug && console.log(chalk.yellow('change on target [' + chalk.magenta(target) + ']'))
     fs.stat(target, function (err, stats) {
       if (err) throw err
@@ -170,7 +180,12 @@ function watch (target) {
         debug && console.log('-- nothing modified --')
       }
     })
-  })
+  }
+
+  // attach watchers
+  chokidar.watch(target)
+    .on('add', process)
+    .on('change', process)
 } // watch
 
 
