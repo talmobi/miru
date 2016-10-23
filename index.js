@@ -18,7 +18,12 @@ var io = require('socket.io')(server) // livereload
 
 var path = require('path')
 
-app.use('*', function (req, res, next) {
+app.use(function (req, res, next) { // same as app.use('*', functi...)
+  console.log(req.originalUrl)
+  next()
+})
+
+app.get('/', function (req, res, next) {
   res.sendFile(__dirname + '/index.html')
 })
 
