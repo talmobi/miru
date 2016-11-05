@@ -18,17 +18,84 @@ var io = require('socket.io')(server) // livereload
 
 var path = require('path')
 
+var argv = parseArgs(process.argv.slice(2))
+
+var _root = argv.root || 'public'
+var opts = {
+  publicPath: argv.path || argv.public || argv.root || 'public'
+}
+
+var sourcePath, sourceCode, targetPath
+// copy miru.init.js script into the public path
+try {
+  // make sure we can access public directory
+  fs.accessSync(opts.publicPath) // throws an error on failure
+
+  sourcePath = path.join(__dirname, 'miru.init.js') // copy from
+  sourceCode = fs.readFileSync(sourcePath, 'utf8') // read contents from
+  targetPath = path.join(opts.publicPath, 'miru.init.js') // paste to
+  fs.writeFileSync(targetPath, sourceCode, 'utf8') // write contents to
+  console.log('miru.init.js file created at [' + targetPath + ']')
+} catch (err) {
+  var name = path.join(opts.publicPath, 'miru.init.js')
+  var msg = 'failed to cteate miru client side initialization script [$1]'
+  console.error(msg.replace('$1', name))
+  console.error('  --------  ')
+  console.error(err)
+  throw err
+}
+
+
+// allow CORS
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+})
+
+// access log (console)
 app.use(function (req, res, next) { // same as app.use('*', functi...)
   console.log(req.originalUrl)
   next()
 })
 
-app.use(express.static('public'))
+// prioritize public static files
+app.use(express.static(opts.publicPath))
 
+// this initialization script is usually served from the projects
+// web server (in dev mode) and not by the miru dev itself
+// (at least for more complicated apps)
+app.get('/miru.init.js', function (req, res, next) {
+  res.sendFile(path.join(opts.publicPath, 'miru.init.js'))
+})
+
+app.get('/__miru/pesticide.css', function (req, res) {
+  console.log('sending pesticide.css')
+  res.header('cache-control', 'private, no-cache, no-store, must-revalidate')
+  res.header('expires', '-1')
+  res.header('pragma', 'no-cache')
+  res.sendFile(path.join(__dirname, 'pesticide.css'))
+})
+
+app.get('/__miru/livereload.js', function (req, res) {
+  console.log('sending livereload.js file')
+  res.header('cache-control', 'private, no-cache, no-store, must-revalidate')
+  res.header('expires', '-1')
+  res.header('pragma', 'no-cache')
+  res.sendFile(path.join(__dirname, 'livereload.js'))
+})
+
+// serve miru page with basic guidelines
 app.get('/', function (req, res, next) {
+  console.log('no public index.html file found -- serving miru guideline index.html')
   res.sendFile(__dirname + '/index.html')
 })
 
+app.use(function (req, res) {
+  console.log('catch-all [$]'.replace('$', req.originalUrl))
+})
+
+// handle socket.io
 io.on('connection', function (socket) {
   console.log('new connection')
 })
@@ -148,7 +215,7 @@ function emit (target) {
 
     targets.forEach(function (target) {
       var color = getIterationBoxColor(target, false)
-      var msg = ('modification on target [' + chalk[color](target) + ']')
+      var msg = ('modification [' + chalk[color](target) + ']')
       console.log(msg + ' [' + chalk.cyan(new Date().toLocaleTimeString()) + ']')
       io.emit('modification', target)
     })
