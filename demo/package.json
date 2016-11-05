@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "(rm bundle.* || true) && node ../index.js 'bundle.js:npm run watch-js' 'bundle.css:npm run watch-css'",
+    "start": "(rm bundle.* || true) && node ../index.js 'public/bundle.js:npm run watch-js' 'public/bundle.css:npm run watch-css'",
     "build-js": "rollup -c rollup.config.js",
     "watch-js": "wrollup -c rollup.config.js",
     "watch-js-local": "node ~/code/wrollup/cli.js -c rollup.config.js",
-    "build-css": "stylus -u nib -r app.styl -o bundle.css",
-    "watch-css": "stylus -u nib -w -r app.styl -o bundle.css",
+    "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
+    "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",

@@ -23,6 +23,8 @@ app.use(function (req, res, next) { // same as app.use('*', functi...)
   next()
 })
 
+app.use(express.static('public'))
+
 app.get('/', function (req, res, next) {
   res.sendFile(__dirname + '/index.html')
 })
@@ -139,10 +141,8 @@ function emit (target) {
 
     console.log(getIterationBox(targets))
     console.log(
-      'host was set to 0.0.0.0\n' +
-      ' -> access from other machines on the same network' +
-      ' by your machines network' +
-      ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
+      'host was set to ' + host + ':' + port + '\n' +
+      ' -> [%s]', addresses.join(', ')
     )
     console.log()
 
@@ -372,10 +372,8 @@ server.listen(port, host, function () {
       // host was set to 0.0.0.0, access it on other machines
       // on the same network (using your machines network ip address of)
       console.log(
-        'host was set to 0.0.0.0\n' +
-        ' -> access from other machines on the same network' +
-        ' by your machines network' +
-        ' ip address,\n    list of your network IPv4 addresses:\n    [%s]', addresses.join(', ')
+        'host was set to ' + host + ':' + port + '\n' +
+        ' -> [%s]', addresses.join(', ')
       )
       console.log()
     }
