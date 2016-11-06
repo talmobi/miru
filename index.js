@@ -321,13 +321,16 @@ function parseError (lines) {
 
   var msg = ''
   tokens.forEach(function (token) {
-    if (token.color) msg += chalk[token.color](token.text)
-    else msg += token.text
+    if (token.color) {
+      msg += chalk[token.color](token.text)
+    } else {
+      msg += token.text
+    }
   })
 
   //console.log(lines.join('\n'))
 
-  return msg
+  return msg.trim()
 }
 
 function removeColors (lines) {
@@ -344,15 +347,20 @@ function removeColors (lines) {
   return parsedLines
 }
 
+var recoveryWatchers = {}
 function recover (cmd, target) {
   console.log(chalk.yellow('attatching recovery watcher for [' + cmd + '] (' + target + ')'))
-  var watcher = chokidar.watch('*').on('change', function () {
-    watcher.close()
+
+  var watcher = recoveryWatchers[cmd]
+  if (watcher && watcher.close) watcher.close()
+
+  recoveryWatchers[cmd] = chokidar.watch('*/**').on('change', function () {
+    recoveryWatchers[cmd].close()
     console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
 
     setTimeout(function () {
       exec(cmd, target)
-    }, 0)
+    }, 5)
   })
 }
 
