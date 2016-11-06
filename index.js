@@ -263,22 +263,28 @@ function watch (target) {
 
 var errorTimeouts = {}
 var previousErrors = {}
-function handleError (err, target, remaining) {
-  if (previousErrors[target] == err && !remaining) {
-    // TODO -- this is useless? (since we are usin clearConsole)
-    // verbose && console.log(chalk.yellow('skipping error print (same error)'))
-    // return undefined // dont reprint same error
-  }
+var lastError = undefined
+function handleError (err, target, remaining, initMode) {
+ //  if (previousErrors[target] == err && !remaining) {
+ //    // TODO -- this is useless? (since we are usin clearConsole)
+ //    // verbose && console.log(chalk.yellow('skipping error print (same error)'))
+ //    // return undefined // dont reprint same error
+ //  }
 
   clearTimeout(errorTimeouts[target])
   // io.emit('error', { log: log })
 
   errorTimeouts[target] = setTimeout(function () {
-    if (!remaining) clearConsole()
+    // if (!remaining) clearConsole()
+    clearConsole()
 
     previousErrors[target] = err
-    console.log('')
-    console.log(' >> error detected [' + chalk.magenta(target) + '] << ')
+    lastError = target
+
+    var m = 'error'
+    if (remaining) m = 'remaining error'
+
+    console.log(chalk.gray(' >> ' + m + ' [' + chalk.magenta(target) + ']'))
     console.log('')
     targetHasError[target] = err
     console.log(err)
@@ -348,19 +354,22 @@ function removeColors (lines) {
 }
 
 var recoveryWatchers = {}
+var recoveryTimeouts = {}
 function recover (cmd, target) {
   console.log(chalk.yellow('attatching recovery watcher for [' + cmd + '] (' + target + ')'))
 
   var watcher = recoveryWatchers[cmd]
   if (watcher && watcher.close) watcher.close()
+  clearTimeout(recoveryTimeouts[cmd])
 
-  recoveryWatchers[cmd] = chokidar.watch('*/**').on('change', function () {
+  recoveryWatchers[cmd] = chokidar.watch('**/*').on('change', function () {
     recoveryWatchers[cmd].close()
     console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
 
-    setTimeout(function () {
+    clearTimeout(recoveryTimeouts[cmd])
+    recoveryTimeouts[cmd] = setTimeout(function () {
       exec(cmd, target)
-    }, 5)
+    }, 750)
   })
 }
 
@@ -374,6 +383,8 @@ function exec (cmd, target) {
   var buffer = ''
   var timeout = undefined
   var bufferResetTimeout = undefined
+  var initMode = true
+
   function process (chunk) {
     var str = chunk.toString('utf8')
     buffer += str
@@ -396,10 +407,12 @@ function exec (cmd, target) {
       if (isError) {
         // console.log(result.join('\n'))
         var err = parseError(lines)
-        handleError(err, target)
+        handleError(err, target, undefined)
 
         // TODO emit error log to clients
         // handleError fn
+      } else {
+        initMode = false
       }
     }, 100)
 
@@ -418,7 +431,10 @@ function exec (cmd, target) {
     destroyTimeout = setTimeout(function () {
       child.kill()
 
-      recover(cmd, target)
+      handleError(targetHasError[target], target, undefined)
+      setTimeout(function () {
+        recover(cmd, target)
+      }, 100)
     }, 500)
   }
 
