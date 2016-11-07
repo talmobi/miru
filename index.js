@@ -383,16 +383,18 @@ function recover (cmd, target) {
       recoveryWatchers[cmd].add('**/*') // all
   }
 
-  // bind to fs change events
-  recoveryWatchers[cmd].on('change', function () {
+  // recoveryWatchers[cmd].unwatch('**/bundle.js')
+  // recoveryWatchers[cmd].unwatch('**/bundle.css')
 
+  // bind to fs change events
+  recoveryWatchers[cmd].on('change', function (path) {
     recoveryWatchers[cmd].close()
     console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
 
     clearTimeout(recoveryTimeouts[cmd])
     recoveryTimeouts[cmd] = setTimeout(function () {
       exec(cmd, target)
-    }, 750)
+    }, 500)
   })
 }
 
