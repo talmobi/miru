@@ -362,7 +362,30 @@ function recover (cmd, target) {
   if (watcher && watcher.close) watcher.close()
   clearTimeout(recoveryTimeouts[cmd])
 
-  recoveryWatchers[cmd] = chokidar.watch('**/*').on('change', function () {
+
+  recoveryWatchers[cmd] = chokidar.watch()
+
+  // target suffix
+  var suffix = target.slice(target.lastIndexOf('.') + 1)
+
+  // add glob patterns based on the target suffix
+  switch (suffix) {
+    case 'js':
+      recoveryWatchers[cmd].add('**/*.js*')
+      break
+    case 'css':
+      recoveryWatchers[cmd].add('**/*.css')
+      recoveryWatchers[cmd].add('**/*.scss')
+      recoveryWatchers[cmd].add('**/*.sass')
+      recoveryWatchers[cmd].add('**/*.styl')
+      break
+    default:
+      recoveryWatchers[cmd].add('**/*') // all
+  }
+
+  // bind to fs change events
+  recoveryWatchers[cmd].on('change', function () {
+
     recoveryWatchers[cmd].close()
     console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
 
