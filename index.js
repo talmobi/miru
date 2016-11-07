@@ -284,10 +284,19 @@ function handleError (err, target, remaining, initMode) {
     var m = 'error'
     if (remaining) m = 'remaining error'
 
-    console.log(chalk.gray(' >> ' + m + ' [' + chalk.magenta(target) + ']'))
+    var s = chalk.gray(' >> ' + m + ' [' + chalk.magenta(target) + ']')
+    console.log(s)
     console.log('')
     targetHasError[target] = err
     console.log(err)
+
+    var lines = removeColors([s, ''].concat(err.split('\n')))
+
+    // TODO emit error
+    io.emit('error', {
+      target: target,
+      err: lines.join('\n')
+    })
   }, 100)
 } // handleError
 

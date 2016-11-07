@@ -54,7 +54,7 @@ function init () {
       el.style['padding'] = '0.475rem'
 
       el.style['background-color'] = 'darkred'
-      el.style['opacity'] = 0.80
+      el.style['opacity'] = 0.90
       el.style['white-space'] = 'pre-wrap'
       el.style['color'] = 'white'
       el.style['z-index'] = 2147483646 // ((2^32 / 2) - 2)
