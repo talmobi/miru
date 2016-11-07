@@ -1,7 +1,7 @@
 {
   "name": "miru",
   "version": "0.5.1",
-  "description": "bare bones dev server with live hotish reloads",
+  "description": "bare bones dev server based around bundles (bundle.js, bundle.css)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
