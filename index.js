@@ -21,8 +21,14 @@ var path = require('path')
 var argv = parseArgs(process.argv.slice(2))
 
 var _root = argv.root || 'public'
+
+// var _targets = Array.isArray(argv.t) ? argv.t || [argv.t]
+// var _scripts = Array.isArray(argv.s) ? argv.s || [argv.s]
+
 var opts = {
-  publicPath: argv.path || argv.public || argv.root || 'public'
+  publicPath: argv.path || argv.public || argv.root || 'public',
+  targets: argv.t,
+  scripts: argv.s
 }
 
 var sourcePath, sourceCode, targetPath
@@ -98,6 +104,14 @@ app.use(function (req, res) {
 // handle socket.io
 io.on('connection', function (socket) {
   console.log('new connection')
+  Object.keys(targetHasError).forEach(function (target) {
+    if (targetHasError[target] && emittedErrors[target]) {
+      io.emit('error', {
+        target: target,
+        err: emittedErrors[target]
+      })
+    }
+  })
 })
 
 var host = '0.0.0.0'
@@ -171,18 +185,15 @@ var args = process.argv.slice(2)
 
 var verbose = true // TODO !!args.verbose
 
-args.forEach(function (arg) {
-  var split = arg.split(':')
+opts.targets.forEach(function (target, i) {
+  var t = opts.targets[i]
+  var s = opts.scripts[i]
 
-  var config = {
-    target: split[0],
-    cmd: split[1]
-  }
+  if (!t || !s) throw new Error('-t, -s mismatch')
 
-  console.log(config)
-
-  watch(config.target)
-  exec(config.cmd, config.target) // TODO
+  var t = path.join(opts.publicPath, t)
+  watch(t)
+  exec(s, t)
 })
 
 // send reload/inject to client
@@ -263,6 +274,7 @@ function watch (target) {
 
 var errorTimeouts = {}
 var previousErrors = {}
+var emittedErrors = {}
 var lastError = undefined
 function handleError (err, target, remaining, initMode) {
  //  if (previousErrors[target] == err && !remaining) {
@@ -291,11 +303,14 @@ function handleError (err, target, remaining, initMode) {
     console.log(err)
 
     var lines = removeColors([s, ''].concat(err.split('\n')))
+    var e = lines.join('\n')
+
+    emittedErrors[target] = e
 
     // TODO emit error
     io.emit('error', {
       target: target,
-      err: lines.join('\n')
+      err: e
     })
   }, 100)
 } // handleError

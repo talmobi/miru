@@ -4,7 +4,6 @@ console.log('app: ' + module)
 var root = document.getElementById('root')
 root.innerHTML = new Date().toLocaleString()
 
-
 var colors = [
   'salmon', 'tomato', 'magenta',
   'goldenrod', 'burlywood', 'blanchedalmond',

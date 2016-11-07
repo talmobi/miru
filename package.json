@@ -1,10 +1,18 @@
 {
   "name": "miru",
-  "version": "0.5.1",
-  "description": "bare bones dev server based around bundles (bundle.js, bundle.css)",
+  "version": "0.5.2",
+  "description": "dev server with chokidar spawns, pretty error parsing, and socket events for live injections and reloads",
+  "preferGlobal": "true",
   "main": "index.js",
+  "bin": {
+    "miru": "./cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/talmobi/trollup.git"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
   "license": "MIT",
