@@ -14,7 +14,7 @@ function findElement (elements, field, target) {
   console.log('target: ' + target)
   for (var i = 0; i < elements.length; i++) {
     var t = elements[i][field].toLowerCase().split('/').join('')
-    console.log('t: ' + t)
+    // console.log('t: ' + t)
     if (t.length < target.length) {
       if (target.indexOf(t) >= 0) return elements[i]
     } else {
@@ -166,28 +166,35 @@ function init () {
       switch (suffix) {
         case 'css':
           var url = el.href.split('?')[0] + '?cacheaway=' + cacheaway
-          el.href = '' // unreload
-          /* The reason we want to unreload by setting el.href = '' instead of
-            * simply overwriting the current one with a cachebuster query parameter
-            * is so that the css is quickly completely removed  -- this resets
-            * keyframe animations which would not otherwise be refreshed (but instead
-            * stuck using the old keyframes -- this is very confusing when
-            * dealing with keyframes)
-            * doing this, however, creates a tiny "flash" when the css is refreshed
-            * but I think that is a good thing since you'll know the css is fresh
-            * plus it will properly reload key frame animations
-            * */
+
+          // [1] flip opacity to hdie distracting unstyled content flash
+          document.documentElement.style.opacity = 0.0
           setTimeout(function () {
-            el.href = url
-            console.log('injection success -- [%s]', target)
-            // trigger window resize event (reloads css)
+            el.href = '' // unreload
+            /* The reason we want to unreload by setting el.href = '' instead of
+              * simply overwriting the current one with a cachebuster query parameter
+              * is so that the css is quickly completely removed  -- this resets
+              * keyframe animations which would not otherwise be refreshed (but instead
+              * stuck using the old keyframes -- this is very confusing when
+              * dealing with keyframes)
+              * doing this, however, creates a tiny "flash" when the css is refreshed
+              * but I think that is a good thing since you'll know the css is fresh
+              * plus it will properly reload key frame animations
+              * */
+
             setTimeout(function () {
-              window.dispatchEvent(new Event('resize'))
+              el.href = url
+              console.log('injection success -- [%s]', target)
+              // trigger window resize event (reloads css)
               setTimeout(function () {
+                document.documentElement.style.opacity = 1.0 // [1]
                 window.dispatchEvent(new Event('resize'))
-              }, 200)
-            }, 50)
-          }, 1)
+                setTimeout(function () {
+                  window.dispatchEvent(new Event('resize'))
+                }, 200)
+              }, 50)
+            }, 5)
+          }, 5)
           break
 
         case 'js':

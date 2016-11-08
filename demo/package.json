@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "(rm bundle.* || true) && node ../index.js -t bundle.js -t bundle.css -s 'npm run watch-js' -s 'npm run watch-css'",
+    "start": "(rm bundle.* || true) && node ../index.js -p public -t bundle.js -t bundle.css -s 'npm run watch-js' -s 'npm run watch-css'",
     "build-js": "rollup -c rollup.config.js",
     "watch-js": "wrollup -c rollup.config.js",
     "watch-js-local": "node ~/code/wrollup/cli.js -c rollup.config.js",

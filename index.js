@@ -20,13 +20,11 @@ var path = require('path')
 
 var argv = parseArgs(process.argv.slice(2))
 
-var _root = argv.root || 'public'
-
 // var _targets = Array.isArray(argv.t) ? argv.t || [argv.t]
 // var _scripts = Array.isArray(argv.s) ? argv.s || [argv.s]
 
 var opts = {
-  publicPath: argv.path || argv.public || argv.root || 'public',
+  publicPath: argv.p || argv.path || argv.public || argv.root || '.',
   targets: argv.t,
   scripts: argv.s
 }
@@ -61,7 +59,7 @@ app.use(function(req, res, next) {
 
 // access log (console)
 app.use(function (req, res, next) { // same as app.use('*', functi...)
-  console.log(req.originalUrl)
+  // console.log(req.originalUrl)
   next()
 })
 
@@ -76,7 +74,7 @@ app.get('/miru.init.js', function (req, res, next) {
 })
 
 app.get('/__miru/pesticide.css', function (req, res) {
-  console.log('sending pesticide.css')
+  // console.log('sending pesticide.css')
   res.header('cache-control', 'private, no-cache, no-store, must-revalidate')
   res.header('expires', '-1')
   res.header('pragma', 'no-cache')
@@ -84,7 +82,7 @@ app.get('/__miru/pesticide.css', function (req, res) {
 })
 
 app.get('/__miru/livereload.js', function (req, res) {
-  console.log('sending livereload.js file')
+  // console.log('sending livereload.js file')
   res.header('cache-control', 'private, no-cache, no-store, must-revalidate')
   res.header('expires', '-1')
   res.header('pragma', 'no-cache')

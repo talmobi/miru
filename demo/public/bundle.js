@@ -17,7 +17,7 @@ var colors = [
   'rosybrown', 'sienna', 'sandybrown', 'snow', 'thistle'
 ]
 
-colors = ['yellow']
+// colors = ['yellow']
 
 function tick () {
   root.innerHTML = new Date().toLocaleString()
@@ -29,7 +29,7 @@ function flash () {
   setTimeout(flash, 500)
 }
 
-setTimeout(tick, 100)
-setTimeout(flash, 100)
+tick()
+flash()
 
 }());
