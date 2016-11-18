@@ -364,10 +364,18 @@ function parseError (lines) {
   //console.log(lines.join('\n'))
 
   var prettyLines = msg.trim().split('\n').map(function (line) {
-    var t = line.trim()
+    var match = line.match(/[0-9]*[|]/)
+    var matchIndex = 0
+    if (match) matchIndex = (match.index + match[0].length + 1)
+
+    var t = line.slice(matchIndex).trim()
+
     if (t.startsWith('//') ||
         t.startsWith('/*') ||
-        t.startsWith('*')) return (chalk.gray(removeColors([line])[0]))
+        t.startsWith('*') ||
+        t.endsWith('*/')) {
+      return (line.slice(0, matchIndex) + chalk.gray(removeColors([line.slice(matchIndex)])))
+    }
     return line
   })
 
