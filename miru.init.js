@@ -14,7 +14,20 @@ window.__miruCurrentBuildTime = Date.now()
 
 // overload global event listeners
 // so that we can track and clean them up on js injections
-overloadAddEventListeners([window, document && document.body])
+// overloadAddEventListeners([window, document && document.body])
+
+var __miruLogs = {}
+var __miruLogTimeout
+function __miruLog (msg) {
+  __miruLogs[msg] = (__miruLogs[msg] + 1) || 1
+  clearTimeout(__miruLogTimeout)
+  __miruLogTimeout = setTimeout(function () {
+    Object.keys(__miruLogs).forEach(function (key) {
+      console.log(key + ' [' + __miruLogs[key] + ']')
+    })
+    __miruLogs = {}
+  }, 100)
+}
 
 function overloadAddEventListeners (doms) {
   // console.log('overloading addEventListeners for [' + doms.join(',') + ']')
@@ -33,10 +46,10 @@ function overloadAddEventListeners (doms) {
       function wrappedListener (e) {
         var isValid = attachedTime === window.__miruCurrentBuildTime
         if (isValid) {
-          console.log('calling valid wrappedListener')
+          __miruLog('calling valid wrappedListener')
           listener(e) // run the callback
         } else {
-          console.log('removing invalid wrappedListener')
+          __miruLog('removing invalid wrappedListener')
           dom.removeEventListener(type, wrappedListener)
         }
       }

@@ -198,6 +198,10 @@ function init () {
           break
 
         case 'js':
+          // TODO
+          window.location.reload()
+          return undefined
+
           var _src = el.src
           var _id = el.id
           var parentNode = el.parentNode

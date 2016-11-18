@@ -97,6 +97,7 @@ app.get('/', function (req, res, next) {
 
 app.use(function (req, res) {
   console.log('catch-all [$]'.replace('$', req.originalUrl))
+  res.status(404).end()
 })
 
 // handle socket.io
@@ -121,7 +122,7 @@ var pipe = false
 var targetHasError = {}
 
 var flickerDelay = 0
-var emitDelay = 25
+var emitDelay = 5
 var iterations = 0
 var iterationsLimit = 4
 
@@ -177,6 +178,9 @@ function clearConsole() {
   // This seems to work best on Windows and other systems.
   // The intention is to clear the output so you can focus on most recent build.
   process.stdout.write('\x1bc');
+  // console.log()
+  // console.log()
+  // console.log()
 }
 
 var args = process.argv.slice(2)
@@ -204,8 +208,8 @@ function emit (target) {
 
   console.log(chalk.yellow('changed in [' + chalk.magenta(target) + ']'))
 
-  emit_targets[target] = target
-  targetHasError[target] = false
+  emit_targets[target] = target // save emitted targets
+  targetHasError[target] = false // successful build on target
 
   emit_timeout = setTimeout(function () {
     emit_timeout = undefined
@@ -247,7 +251,8 @@ function emit (target) {
 }
 
 function watch (target) {
-  var process = function () {
+  var process = function (path) {
+    // debug && console.log(chalk.yellow('path [' + chalk.magenta(path) + ']'))
     debug && console.log(chalk.yellow('change on target [' + chalk.magenta(target) + ']'))
     fs.stat(target, function (err, stats) {
       if (err) throw err
@@ -358,7 +363,15 @@ function parseError (lines) {
 
   //console.log(lines.join('\n'))
 
-  return msg.trim()
+  var prettyLines = msg.trim().split('\n').map(function (line) {
+    var t = line.trim()
+    if (t.startsWith('//') ||
+        t.startsWith('/*') ||
+        t.startsWith('*')) return (chalk.gray(removeColors([line])[0]))
+    return line
+  })
+
+  return prettyLines.join('\n')
 }
 
 function removeColors (lines) {
