@@ -372,10 +372,24 @@ function parseError (lines) {
 
     if (t.startsWith('//') ||
         t.startsWith('/*') ||
-        t.startsWith('*') ||
-        t.endsWith('*/')) {
+        t.startsWith('*')) {
       return (line.slice(0, matchIndex) + chalk.gray(removeColors([line.slice(matchIndex)])))
     }
+
+    var indexOf
+    ;[line.indexOf('//'), line.indexOf('/*')]
+      .filter(function (i) {
+        return i !== -1
+      })
+      .forEach(function (i) {
+        indexOf = indexOf || i
+        indexOf = Math.min(indexOf, i)
+      })
+
+    if (indexOf) {
+      return (line.slice(0, indexOf) + chalk.gray(removeColors([line.slice(indexOf)])))
+    }
+
     return line
   })
 
