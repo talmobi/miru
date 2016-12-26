@@ -1,9 +1,5 @@
-(function () {
-'use strict';
-
-var module$1 = 'module'
-
-console.log('app: ' + module$1)
+import { greet } from './mods/module.js'
+console.log('app: ' + greet('giraffe'))
 
 var root = document.getElementById('root')
 root.innerHTML = new Date().toLocaleString()
@@ -31,5 +27,3 @@ function flash () {
 
 tick()
 flash()
-
-}());

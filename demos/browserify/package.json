@@ -1,0 +1,26 @@
+{
+  "name": "miru-demo",
+  "version": "0.0.1",
+  "description": "small demo using 'miru'",
+  "scripts": {
+    "start": "(rm bundle.* || true) && node ../../index.js -p public -t bundle.js -t bundle.css -s 'npm run watch-js' -s 'npm run watch-css'",
+    "build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",
+    "watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",
+    "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
+    "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "talmobi <talmo.christian@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.1",
+    "nib": "^1.1.2",
+    "rollup": "^0.36.1",
+    "stylus": "^0.54.5",
+    "watchify": "^3.8.0",
+    "wrollup": "^0.1.18"
+  },
+  "dependencies": {}
+}

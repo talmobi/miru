@@ -1,5 +1,5 @@
 export default {
-  entry: 'scripts/foo/bar/app.js',
+  entry: 'scripts/app.js',
   dest: 'public/bundle.js',
   format: 'iife'
 }

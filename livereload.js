@@ -91,7 +91,7 @@ function init () {
     clearTimeout(reloadTimeout)
     reloadTimeout = setTimeout(function () {
       window.location.reload()
-    }, 200)
+    }, 125)
   })
 
   // if long runing process re-connects, reload full page
@@ -134,6 +134,7 @@ function init () {
       contentEl.style['opacity'] = 1.00
       contentEl.style['white-space'] = 'pre-wrap'
       contentEl.style['color'] = 'white'
+      // TODO parse and prettify error?
       contentEl.textContent = text
       el.appendChild(contentEl)
     } else {
@@ -149,7 +150,7 @@ function init () {
     showModal(false)
     // create some white space in the console
     console.log(new Array(24).join('\n'))
-    console.log('---[' + (new Date().toLocaleString()) + ']---')
+    console.log(' --- [' + (new Date().toLocaleString()) + '] --- ')
 
     var scripts = document.querySelectorAll('script')
     var styles = document.querySelectorAll('link')
@@ -167,7 +168,7 @@ function init () {
         case 'css':
           var url = el.href.split('?')[0] + '?cacheaway=' + cacheaway
 
-          // [1] flip opacity to hdie distracting unstyled content flash
+          // [1] flip opacity to hide distracting unstyled content flash
           document.documentElement.style.opacity = 0.0
           setTimeout(function () {
             el.href = '' // unreload

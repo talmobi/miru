@@ -1,5 +1,5 @@
-import { module } from './baz/module.js'
-console.log('app: ' + module)
+import { greet } from './mods/module.js'
+console.log('app: ' + greet('giraffe'))
 
 var root = document.getElementById('root')
 root.innerHTML = new Date().toLocaleString()
