@@ -25,19 +25,35 @@ var argv = parseArgs(process.argv.slice(2), {
   }
 })
 
+var sampleScripts = [
+  , '  Sample npm scripts:'
+  , ''
+  , '    {'
+  , '     "scripts": {'
+  , '        "webpack:dev": "miru -p public -w bundle.js -w bundle.css -e \'npm run webpack:watch-js\' -e \'npm run watch-css\'",'
+  , '        "browserify:dev": "miru -p public -w bundle.js -w bundle.css -e \'npm run browserify:watch-js\' -e \'npm run watch-css\'",'
+  , '        "rollup:dev": "miru -p public -w bundle.js -w bundle.css -e \'npm run rollup:watch-js\' -e \'npm run watch-css\'",'
+  , ''
+  , '        "webpack:build-js": "webpack --config webpack.config.js",'
+  , '        "webpack:watch-js": "webpack -w --config webpack.config.js",'
+  , ''
+  , '        "browserify:build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",'
+  , '        "browserify:watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",'
+  , ''
+  , '        "rollup:build-js": "rollup -c rollup.config.js",'
+  , '        "rollup:watch-js": "wrollup -c rollup.config.js",'
+  , ''
+  , '        "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",'
+  , '        "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",'
+  , '     }'
+  , '    }'
+].join('\n');
+
 var usage = [
     ''
   , '  Usage: miru [options]'
   , ''
-  , '  Sample package.json:'
-  , ''
-  , '    {'
-  , '     "scripts": {'
-  , '       "watch": "miru -p public -w bundle.js -w bundle.css -e \'npm run watch-js\' -e \'npm run watch-css\'"'
-  , '       "watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",'
-  , '       "watch-css": "stylus -u nib -w ./styles/app.styl -o ./public/bundle.css",'
-  , '     }'
-  , '    }'
+  , sampleScripts
   , ''
   , '  Options:'
   , ''
@@ -75,6 +91,8 @@ var usage = [
   , ''
   , '    -s, --source                   [Deprecated] alias for [-e, --execute]'
   , ''
+  , '    --sample                       Prints sample npm scripts'
+  , ''
   , '    -v, --version                  Display miru version'
   , '    -h, --help                     Display help information'
   , ''
@@ -88,6 +106,11 @@ if (!!argv['help'] || !!argv['h']) {
 if (!!argv['version'] || !!argv['v']) {
   var packageJson = require('./package.json')
   console.error('miru version: ' + (packageJson['VERSION'] || packageJson['version']))
+  return undefined // exit success
+}
+
+if (!!argv['sample']) {
+  console.log(sampleScripts)
   return undefined // exit success
 }
 

@@ -53,9 +53,21 @@ $ miru --help
   
     {
      "scripts": {
-       "watch": "miru -p public -w bundle.js -w bundle.css -e \'npm run watch-js\' -e \'npm run watch-css\'"
-       "watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",
-       "watch-css": "stylus -u nib -w ./styles/app.styl -o ./public/bundle.css",
+       "webpack:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run webpack:watch-js' -e 'npm run watch-css'",
+       "browserify:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run browserify:watch-js' -e 'npm run watch-css'",
+       "rollup:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run rollup:watch-js' -e 'npm run watch-css'",
+
+       "webpack:build-js": "webpack --config webpack.config.js",
+       "webpack:watch-js": "webpack -w --config webpack.config.js",
+
+       "browserify:build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",
+       "browserify:watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",
+
+       "rollup:build-js": "rollup -c rollup.config.js",
+       "rollup:watch-js": "wrollup -c rollup.config.js",
+
+       "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
+       "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
      }
     }
   
@@ -84,7 +96,7 @@ $ miru --help
   
                                    ![Required]
     -e, --execute                  Command (string) to execute with child_process.spawn
-                                   usually annpm script like \'npm r watch-js\'
+                                   usually an npm script like \'npm r watch-js\'
   
                                    Note! Every -w needs a corresponding -e in the same order
   
