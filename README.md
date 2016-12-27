@@ -1,5 +1,6 @@
 #  見る miru - Simple dev server for command-line watchers
 
+![](https://gfycat.com/MaleSelfassuredBrahmanbull)
 
 [![npm](https://img.shields.io/npm/v/wrollup.svg?maxAge=2592000)](https://www.npmjs.com/package/wrollup)
 [![npm](https://img.shields.io/npm/dm/wrollup.svg?maxAge=2592000)](https://www.npmjs.com/package/wrollup)
@@ -168,7 +169,3 @@ open localhost:4040
   "dependencies": {}
 }
 ```
-
-Screen cap workflow demo
-![](http://i.imgur.com/uKb4lnr.gif)
-![](https://gfycat.com/MaleSelfassuredBrahmanbull)
