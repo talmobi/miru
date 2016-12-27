@@ -125,7 +125,9 @@ Miru would be pretty useless without any bundlers, check the `demos/` directory 
 Webpack (--watch)
 ```bash
 git clone https://github.com/talmobi/miru
-cd miru/demos/webpack
+cd miru
+npm install
+cd demos/webpack
 npm install
 npm start
 open localhost:4040
@@ -134,7 +136,9 @@ open localhost:4040
 Rollup (using [wrollup](https://github.com/talmobi/wrollup) since the "official" --watch plugin is crap)
 ```bash
 git clone https://github.com/talmobi/miru
-cd miru/demos/rollup
+cd miru
+npm install
+cd demos/rollup
 npm install
 npm start
 open localhost:4040
@@ -143,7 +147,9 @@ open localhost:4040
 Browserify (using [watchify](https://github.com/substack/watchify) since browserify doesn't come with a --watch mode)
 ```bash
 git clone https://github.com/talmobi/miru
-cd miru/demos/browserify
+cd miru
+npm install
+cd demos/browserify
 npm install
 npm start
 open localhost:4040
