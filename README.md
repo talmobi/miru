@@ -29,12 +29,14 @@ Because it reduces the contexts you're switching between by at least 1 (usually 
 
 Without miru you'll have your eyes between your source code, your terminal running your watcher and the browser running your code.
 
+With miru your browser stays in sync with your terminal output, no longer do you have to double check the terminal to make sure your bundle was generated successfully or that an error occured during bundle generation. Live reloading is a nice plus.
+
 No need for browser extensions, allows for a nice dev experience across multiple devices, develop simultaneously against tablets, mobiles and desktop monitors.
 
-Miru simply spits the terminal output to the browser (with some prettyfying and honey) as well as cleaning up your command-line watchers into a concice, clear workflow.
+Miru simply spits the terminal output to the browser (with some prettyfying and honey) as well as cleaning up your command-line watchers into a concice, clear workflow. Keeping them nicely separate but also together.
 
 # For who?
-Probably minimalists and/or people who prefer npm scripts over monolithic configs (not that there's anything wrong with well written monolithic configs!)
+Probably minimalists and/or people who prefer npm scripts over monolithic configs (not that there's anything wrong with monolithic configs, as long as they're well written and clear!)
 
 # How
 Miru simply runs commands, preferably npm scripts, as child_process.spawn's and attaches listeners to their std.out and std.err streams to figure out when various interesting events occur, such as successful builds, errors and crashes, additionally providing useful things like auto-recovery, live reloads and errors in the browser.
