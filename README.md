@@ -1,6 +1,6 @@
 #  見る miru - Simple dev server for command-line watchers
 
-![](https://gfycat.com/MaleSelfassuredBrahmanbull)
+![](https://fat.gfycat.com/MaleSelfassuredBrahmanbull.gif)
 
 [![npm](https://img.shields.io/npm/v/wrollup.svg?maxAge=2592000)](https://www.npmjs.com/package/wrollup)
 [![npm](https://img.shields.io/npm/dm/wrollup.svg?maxAge=2592000)](https://www.npmjs.com/package/wrollup)
