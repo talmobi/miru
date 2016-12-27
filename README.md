@@ -1,6 +1,6 @@
 #  見る miru - Simple dev server for command-line watchers
 
-![](https://gfycat.com/MaleSelfassuredBrahmanbull)
+![](https://fat.gfycat.com/MaleSelfassuredBrahmanbull.gif)
 
 [![npm](https://img.shields.io/npm/v/wrollup.svg?maxAge=2592000)](https://www.npmjs.com/package/wrollup)
 [![npm](https://img.shields.io/npm/dm/wrollup.svg?maxAge=2592000)](https://www.npmjs.com/package/wrollup)
@@ -96,7 +96,7 @@ $ miru --help
   
                                    ![Required]
     -e, --execute                  Command (string) to execute with child_process.spawn
-                                   usually an npm script like \'npm r watch-js\'
+                                   usually an npm script like 'npm r watch-js'
   
                                    Note! Every -w needs a corresponding -e in the same order
   
@@ -117,7 +117,7 @@ npm install -g miru # globally (not recommended)
 
 # Requirements
 
-Miru would be pretty useless without any bundlers, check the demos/ folder for examples using webpack, rollup and browserify.
+Miru would be pretty useless without any bundlers, check the `demos/` directory for examples using webpack, rollup and browserify.
 
 # Demos
 Webpack (--watch)
