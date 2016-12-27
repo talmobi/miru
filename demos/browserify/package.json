@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "node ../../index.js -p public -t bundle.js -t bundle.css -s 'npm run watch-js' -s 'npm run watch-css'",
+    "start": "node ../../index.js -p public -w bundle.js -w bundle.css -e 'npm run watch-js' -e 'npm run watch-css'",
     "build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",
     "watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",
     "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",

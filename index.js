@@ -18,15 +18,81 @@ var io = require('socket.io')(server) // livereload
 
 var path = require('path')
 
-var argv = parseArgs(process.argv.slice(2))
+var argv = parseArgs(process.argv.slice(2), {
+  alias: {
+    'watch': ['w', 'target', 't'],
+    'execute': ['e', 'source', 's']
+  }
+})
+
+var usage = [
+    ''
+  , '  Usage: miru [options]'
+  , ''
+  , '  Sample package.json:'
+  , ''
+  , '    {'
+  , '     "scripts": {'
+  , '       "watch": "miru -p public -w bundle.js -w bundle.css -e \'npm run watch-js\' -e \'npm run watch-css\'"'
+  , '       "watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",'
+  , '       "watch-css": "stylus -u nib -w ./styles/app.styl -o ./public/bundle.css",'
+  , '     }'
+  , '    }'
+  , ''
+  , '  Options:'
+  , ''
+  , '    -p, --path                     Specify path (current directory by default)'
+  , ''
+  , '                                   This is also the path where miru creates "miru.init.js"'
+  , '                                   which you can <script src=""> on your html page to enable'
+  , '                                   live reloads and error reporting within the page/browser.'
+  , ''
+  , '                                   ![Required]'
+  , '    -w, --watch                    Specify path to target output file/bundle to watch'
+  , '                                   and keep up to date when live reloading.'
+  , ''
+  , '                                   Live reloads refresh corresponding <link href="fileName.css">'
+  , '                                   or <script src="fileName.js"> tags on the html page where'
+  , '                                   <script src="miru.init.js"> is loaded.'
+  , ''
+  , '                                   "miru.init.js" is created inside the --path directory'
+  , '                                   when miru starts'
+  , ''
+  , '                                   Note! Every -w needs a corresponding -e in the same order'
+  , ''
+  , '    -t, --target                   [Deprecated] alias for [-w, --watch]'
+  , ''
+  , '                                   ![Required]'
+  , '    -e, --execute                  Command (string) to execute with child_process.spawn'
+  , '                                   usually an npm script like \'npm run watch-js\''
+  , ''
+  , '                                   Note! Every -w needs a corresponding -e in the same order'
+  , ''
+  , '    -s, --source                   [Deprecated] alias for [-e, --execute]'
+  , ''
+  , '    -v, --version                  Display miru version'
+  , '    -h, --help                     Display help information'
+  , ''
+].join('\n');
+
+if (!!argv['help'] || !!argv['h']) {
+  console.error(usage)
+  return undefined // exit success
+}
+
+if (!!argv['version'] || !!argv['v']) {
+  var packageJson = require('./package.json')
+  console.error('miru version: ' + (packageJson['VERSION'] || packageJson['version']))
+  return undefined // exit success
+}
 
 // var _targets = Array.isArray(argv.t) ? argv.t || [argv.t]
 // var _scripts = Array.isArray(argv.s) ? argv.s || [argv.s]
 
 var opts = {
   publicPath: argv.p || argv.path || argv.public || argv.root || '.',
-  targets: argv.t,
-  scripts: argv.s
+  targets: argv.watch,
+  scripts: argv.execute
 }
 
 var sourcePath, sourceCode, targetPath

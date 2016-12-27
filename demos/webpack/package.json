@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "node ../../index.js -p public -t bundle.js -t bundle.css -s 'npm run watch-js' -s 'npm run watch-css'",
+    "start": "node ../../index.js -p public --watch bundle.js -w bundle.css --execute 'npm run watch-js' -e 'npm run watch-css'",
     "build-js": "webpack --config webpack.config.js",
     "watch-js": "webpack -w --config webpack.config.js",
-    "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
-    "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
+    "build-css": "stylus -u nib -r ./styles/app.styl -o ./public/bundle.css",
+    "watch-css": "stylus -u nib -w -r ./styles/app.styl -o ./public/bundle.css",
+    "cli:watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
