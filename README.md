@@ -53,7 +53,7 @@ $ miru --help
   
     {
      "scripts": {
-       "watch": "miru -p public -w bundle.js -w bundle.css -e \'npm run watch-js\' -e \'npm run watch-css\'"
+       "watch": "miru -p public -w bundle.js -w bundle.css -e 'npm run watch-js' -e 'npm run watch-css'"
        "watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",
        "watch-css": "stylus -u nib -w ./styles/app.styl -o ./public/bundle.css",
      }
@@ -84,7 +84,7 @@ $ miru --help
   
                                    ![Required]
     -e, --execute                  Command (string) to execute with child_process.spawn
-                                   usually annpm script like \'npm r watch-js\'
+                                   usually an npm script like 'npm r watch-js'
   
                                    Note! Every -w needs a corresponding -e in the same order
   
@@ -105,7 +105,7 @@ npm install -g miru # globally (not recommended)
 
 # Requirements
 
-Miru would be pretty useless without any bundlers, check the demos/ folder for examples using webpack, rollup and browserify.
+Miru would be pretty useless without any bundlers, check the `demos/` directory for examples using webpack, rollup and browserify.
 
 # Demos
 Webpack (--watch)
