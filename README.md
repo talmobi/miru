@@ -8,8 +8,13 @@
 
 ## Simple to use
 ```bash
-npm install -g miru
+npm install -g miru # please install locally with --save-dev, though
 miru --watch js/bundle.js -w css/bundle.css --execute 'webpack -w --config webpack.config.js' -e 'stylus -w styles/app.styl -o public/bundle.css',
+```
+
+add miru.init.js script to your index.html
+```html
+  <script src="miru.init.js"></script>
 ```
 
 # About (Who watches the watchers?)
