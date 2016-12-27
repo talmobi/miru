@@ -134,53 +134,40 @@ npm start
 open localhost:4040
 ```
 
-# Sample package.json from all demos
+# Sample package.json usage overview combined from all demos
 ```js
 {
   "scripts": {
     "webpack:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run webpack:watch-js' -e 'npm run watch-css'",
+    "browserify:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run browserify:watch-js' -e 'npm run watch-css'",
+    "rollup:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run rollup:watch-js' -e 'npm run watch-css'",
     "webpack:build-js": "webpack --config webpack.config.js",
     "webpack:watch-js": "webpack -w --config webpack.config.js",
+    "browserify:build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",
+    "browserify:watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",
+    "rollup:build-js": "rollup -c rollup.config.js",
+    "rollup:watch-js": "wrollup -c rollup.config.js",
     "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
     "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "miru": "^0.6.0",
+    "miru": "^0.6.0",
     "webpack": "^1.14.0",
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
     "babel-preset-es2015": "^6.18.0",
+    "rollup": "^0.36.1",
+    "wrollup": "^0.1.18"
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.1",
+    "watchify": "^3.8.0",
     "nib": "^1.1.2",
     "stylus": "^0.54.5"
   },
   "dependencies": {}
 }
 ```
-
-# Sample webpack.config.js from webpack demo
-```js
-module.exports = {
-  entry: './scripts/app.js',
-  output: {
-    filename: 'bundle.js',
-    path: './public'
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015']
-        }
-      }
-    ]
-  }
-}
-```
-
 
 Screen cap workflow demo
 ![](http://i.imgur.com/uKb4lnr.gif)
