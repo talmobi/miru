@@ -12,13 +12,13 @@ npm install -g miru # please install locally with --save-dev, though
 miru --path public --watch js/bundle.js -w css/bundle.css --execute 'webpack -w --config webpack.config.js' -e 'stylus -w styles/app.styl -o public/bundle.css',
 ```
 
-add miru.init.js script to your index.html (created by miru on start inside --path directory or current working directory by default)
+add `miru.init.js` script to your index.html (created by miru on start inside the `--path` directory or current working directory by default)
 ```html
   <script src="miru.init.js"></script>
 ```
 
 # About (Who watches the watchers?)
-A simple web server (express and socket.io) intended for running command-line watchers (processes that watch and bundle)
+A simple web server (express and socket.io) intended for running command-line watchers (processes that watch and bundle source files)
 
 # Why
 Most bundlers are great at what they do and come with their own --watch modes (rollup, webpack, stylus etc), they have great error parsing and do their specific thing very well. Miru embraces this, simply mirroring what they print into the terminal into the browser along with live reloading and some honey on top.
@@ -26,15 +26,21 @@ Most bundlers are great at what they do and come with their own --watch modes (r
 # ...but why though?
 Because it reduces the contexts you're switching between by at least 1 (usually from 3 to 2).
 
-Without miru you'll have your eyes between your source code, your terminal running your watcher and the browser actually running your code.
-Miru spits the spits the terminal output to the browser as well as cleaning up your command-line watchers into a concice, clear workflow.
+Without miru you'll have your eyes between your source code, your terminal running your watcher and the browser running your code.
+
+No need for browser extensions, allows for a nice dev experience across multiple devices, develop simultaneously against tablets, mobiles and desktop monitors.
+
+Miru simply spits the terminal output to the browser (with some prettyfying and honey) as well as cleaning up your command-line watchers into a concice, clear workflow.
 
 # For who?
 Probably minimalists and/or people who prefer npm scripts over monolithic configs (not that there's anything wrong with well written monolithic configs!)
 
 # How
-Miru simply runs commands, preferably npm scripts, as child_process.spawn's and attaches listeners to their std.out and std.err streams to figure out when a various interesting events such as successful builds, errors, crashes and provide useful things like auto-recovery, live reloads and errors in the browser (as modals).
-Miru creates a 'miru.init.js' file on startup in the --path directory (current working directory by default) that you link to in your index.html page. This init script (miru.init.js) simply connects to the miru express (w/ socket.io) server on port 4040 to listen for interesting events.
+Miru simply runs commands, preferably npm scripts, as child_process.spawn's and attaches listeners to their std.out and std.err streams to figure out when various interesting events occur, such as successful builds, errors and crashes, additionally providing useful things like auto-recovery, live reloads and errors in the browser.
+
+Miru creates a 'miru.init.js' file on startup in the `--path` directory (current working directory by default) that you link to in your index.html page. This init script (miru.init.js) simply connects to the miru express (w/ socket.io) server on port 4040 to listen for interesting events.
+
+Miru serves the `--path` directory but it is recommended you run your own http server to serve your content and simply have the miru dev server (running on port 4040) available for the `miru.init.js` to connect to.
 
 # Arguments TODO
 ```bash
