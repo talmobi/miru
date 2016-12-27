@@ -9,7 +9,7 @@
 ## Simple to use
 ```bash
 npm install -g miru
-miru -t js/bundle.js -t css/bundle.css -s 'webpack -w --config webpack.config.js' -s 'stylus -w styles/app.styl -o public/bundle.css',
+miru --watch js/bundle.js -w css/bundle.css --execute 'webpack -w --config webpack.config.js' -e 'stylus -w styles/app.styl -o public/bundle.css',
 ```
 
 # About (Who watches the watchers?)
