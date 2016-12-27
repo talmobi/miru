@@ -21,7 +21,7 @@ add `miru.init.js` script to your index.html (created by miru on start inside th
 A simple web server (express and socket.io) intended for running command-line watchers (processes that watch and bundle source files)
 
 # Why
-Most bundlers are great at what they do and come with their own --watch modes (rollup, webpack, stylus etc), they have great error parsing and do their specific thing very well. Miru embraces this, simply mirroring what they print into the terminal into the browser along with live reloading and some honey on top.
+Most bundlers are great at what they do and come with their own `--watch` modes ([rollup](https://github.com/rollup/rollup), [webpack](https://github.com/webpack/webpack), [stylus](https://github.com/stylus/stylus/) etc), they have great error parsing and do their specific thing very well. Miru embraces this, simply mirroring what they print to the terminal into the browser along with live reloading and some honey on top.
 
 # ...but why though?
 Because it reduces the contexts you're switching between by at least 1 (usually from 3 to 2).
@@ -42,7 +42,7 @@ Miru creates a 'miru.init.js' file on startup in the `--path` directory (current
 
 Miru serves the `--path` directory but it is recommended you run your own http server to serve your content and simply have the miru dev server (running on port 4040) available for the `miru.init.js` to connect to.
 
-# Arguments TODO
+# Arguments
 ```bash
 $ miru --help
   
@@ -109,45 +109,44 @@ Miru would be pretty useless without any bundlers, check the demos/ folder for e
 # Demos
 Webpack (--watch)
 ```bash
-cd demos/
+git clone https://github.com/talmobi/miru
+cd miru/demos/webpack
 npm install
 npm start
 open localhost:4040
 ```
 
-Rollup (Wrollup)
+Rollup (using [wrollup](https://github.com/talmobi/wrollup) since the "official" --watch plugin is crap)
 ```bash
-cd demos/
+git clone https://github.com/talmobi/miru
+cd miru/demos/rollup
 npm install
 npm start
 open localhost:4040
 ```
 
-Browserify (Watchify)
+Browserify (using [watchify](https://github.com/substack/watchify) since browserify doesn't come with a --watch mode)
 ```bash
-cd demos/
+git clone https://github.com/talmobi/miru
+cd miru/demos/browserify
 npm install
 npm start
 open localhost:4040
 ```
 
-# Sample package.json from webpack demo
+# Sample package.json from all demos
 ```js
 {
-  "name": "miru-demo-webpack",
-  "version": "0.0.1",
-  "description": "small demo using 'miru'",
   "scripts": {
-    "start": "node ../../index.js -p public -t bundle.js -t bundle.css -s 'npm run watch-js' -s 'npm run watch-css'",
-    "build-js": "webpack --config webpack.config.js",
-    "watch-js": "webpack -w --config webpack.config.js",
+    "webpack:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run webpack:watch-js' -e 'npm run watch-css'",
+    "webpack:build-js": "webpack --config webpack.config.js",
+    "webpack:watch-js": "webpack -w --config webpack.config.js",
     "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
     "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "talmobi <talmo.christian@gmail.com>",
-  "license": "MIT",
   "devDependencies": {
+    "miru": "^0.6.0",
     "webpack": "^1.14.0",
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
