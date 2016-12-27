@@ -29,7 +29,7 @@ Because it reduces the contexts you're switching between by at least 1 (usually 
 
 Without miru you'll have your eyes between your source code, your terminal running your watcher and the browser running your code.
 
-With miru your browser stays in sync with your terminal output, no longer do you have to double check the terminal to make sure your bundle was generated successfully or that an error occured during bundle generation. And no need for manually reloading the browser.
+With miru your browser stays in sync with your terminal output, no longer do you have to double check the terminal to make sure your bundle was generated successfully or that an error occured during bundle generation. Live reloading is a nice plus.
 
 No need for browser extensions, allows for a nice dev experience across multiple devices, develop simultaneously against tablets, mobiles and desktop monitors.
 
