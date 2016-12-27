@@ -76,7 +76,7 @@ $ miru --help
     -p, --path                     Specify path (current directory by default)
   
                                    This is also the path where miru creates "miru.init.js"
-                                   which you can <script src=""> on your html page to enable
+                                   which you should <script src=""> on your html page to enable
                                    live reloads and error reporting within the page/browser.
   
                                    ![Required]
