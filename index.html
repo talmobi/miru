@@ -30,19 +30,19 @@
   <h1>Default Miru index.html</h1>
 
   <div id="text">
-    Miru couldn't find a index.html lookalike inside the current process to serve.
+    Miru couldn't find a index.html lookalike inside --path to serve.
     <br>
 
-    Miru also creates a <code>miru.js</code> file inside that directory to initialize the live events to the browser.
+    Miru also creates a <code>miru.init.js</code> file inside the --path directory to initialize live reloads, injection and error printing on the browser.
     <br>
 
-    Add it as a script tag to your index.html page.
+    Add it as a script tag to your own index.html pages to initialize miru.
     <br>
   <div>
 
   <br>
   <code>
-    &lt;script src="miru.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script src="miru.init.js" type="text/javascript"&gt;&lt;/script&gt;
   </code>
 </body>
 </html>
