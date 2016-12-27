@@ -1,5 +1,5 @@
 {
-  "name": "miru-demo",
+  "name": "miru-demo-browserify",
   "version": "0.0.1",
   "description": "small demo using 'miru'",
   "scripts": {
@@ -17,10 +17,8 @@
     "babelify": "^7.3.0",
     "browserify": "^13.1.1",
     "nib": "^1.1.2",
-    "rollup": "^0.36.1",
     "stylus": "^0.54.5",
-    "watchify": "^3.8.0",
-    "wrollup": "^0.1.18"
+    "watchify": "^3.8.0"
   },
   "dependencies": {}
 }
