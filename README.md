@@ -24,25 +24,52 @@ Miru simply runs processes (preferably npm scripts) and attaches listeners to th
 # Arguments TODO
 ```bash
 $ miru --help
-
-  Usage: miru [options]'
   
-  Examples:'
+  Usage: miru [options]
   
-    wrollup -c rollup.config.js'
-    wrollup --verbose --error-glob "scripts/**/*.(ts|tsx|js)"'
-    wrollup --help'
+  Sample package.json:
   
-  Options:'
+    {
+     "scripts": {
+       "watch": "miru -p public -w bundle.js -w bundle.css -e \'npm run watch-js\' -e \'npm run watch-css\'"
+       "watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",
+       "watch-css": "stylus -u nib -w ./styles/app.styl -o ./public/bundle.css",
+     }
+    }
   
-    -c, --config                   Specify path to rollup.config.js'
-    --error-glob, --files          Specify glob of files to watch on rollup error/crash'
-                                   for auto-recovery (defaults to \'**/*.js*\')'
-    --verbose                      Wrollup will console.log some extra info of'
-                                   what is going on'
-    --disable-cache, --nocache     Disable bundle caching'
-    --cache-before-disk            Generate cache before bundle written to disk'
-    -h, --help                     Display help information'
+  Options:
+  
+    -p, --path                     Specify path (current directory by default)
+  
+                                   This is also the path where miru creates "miru.init.js"
+                                   which you can <script src=""> on your html page to enable
+                                   live reloads and error reporting within the page/browser.
+  
+                                   ![Required]
+    -w, --watch                    Specify path to target output file/bundle to watch
+                                   and keep up to date when live reloading.
+  
+                                   Live reloads refresh corresponding <link href="fileName.css">
+                                   or <script src="fileName.js"> tags on the html page where
+                                   <script src="miru.init.js"> is loaded.
+  
+                                   "miru.init.js" is created inside the --path directory
+                                   when miru starts
+  
+                                   Note! Every -w needs a corresponding -e in the same order
+  
+    -t, --target                   [Deprecated] alias for [-w, --watch]
+  
+                                   ![Required]
+    -e, --execute                  Command (string) to execute with child_process.spawn
+                                   usually annpm script like \'npm r watch-js\'
+  
+                                   Note! Every -w needs a corresponding -e in the same order
+  
+    -s, --source                   [Deprecated] alias for [-e, --execute]
+  
+    -v, --version                  Display miru version
+    -h, --help                     Display help information
 ```
 
 # Installation
