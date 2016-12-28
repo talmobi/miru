@@ -76,6 +76,7 @@ $ miru --help
   Options:
   
     -p, --path <dir>               Specify path (current directory by default)
+                                   Usually path to public directory.
   
                                    This is also the path where miru creates "miru.init.js"
                                    which you should <script src="miru.init.js"> on your html
