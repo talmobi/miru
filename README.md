@@ -51,7 +51,7 @@ $ miru --help
   
   Usage: miru [-w <file>] [-e <string>]
   
-  Sample package.json:
+  Sample npm scripts:
   
     {
      "scripts": {
@@ -107,6 +107,8 @@ $ miru --help
   
     -v, --version                  Display miru version
     -h, --help                     Display help information
+
+    --sample                       Print out sample npm scripts
 ```
 
 # Installation
