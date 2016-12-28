@@ -49,7 +49,7 @@ Miru serves the `--path` directory but it is recommended you run your own http s
 ```bash
 $ miru --help
   
-  Usage: miru [options]
+  Usage: miru [-w <file>] [-e <string>]
   
   Sample package.json:
   
@@ -75,14 +75,14 @@ $ miru --help
   
   Options:
   
-    -p, --path                     Specify path (current directory by default)
+    -p, --path <dir>               Specify path (current directory by default)
   
                                    This is also the path where miru creates "miru.init.js"
                                    which you should <script src=""> on your html page to enable
                                    live reloads and error reporting within the page/browser.
   
                                    ![Required]
-    -w, --watch                    Specify path to target output file/bundle to watch
+    -w, --watch <file>             Specify path to target output bundle/file to watch
                                    and keep up to date when live reloading.
   
                                    Live reloads refresh corresponding <link href="fileName.css">
@@ -94,15 +94,14 @@ $ miru --help
   
                                    Note! Every -w needs a corresponding -e in the same order
   
-    -t, --target                   [Deprecated] alias for [-w, --watch]
-  
                                    ![Required]
-    -e, --execute                  Command (string) to execute with child_process.spawn
-                                   usually an npm script like 'npm r watch-js'
+    -e, --execute <string>         Command (string) to execute with child_process.spawn
+                                   usually an npm script like 'npm run watch-js'
   
                                    Note! Every -w needs a corresponding -e in the same order
   
-    -s, --source                   [Deprecated] alias for [-e, --execute]
+    -t, --target <file>            [Deprecated] alias for [-w, --watch]
+    -s, --source <string>          [Deprecated] alias for [-e, --execute]
   
     -v, --version                  Display miru version
     -h, --help                     Display help information
