@@ -41,9 +41,27 @@ Probably people who prefer npm scripts over monolithic boilerplates and convolut
 # How
 Miru simply runs commands, preferably npm scripts, as child_process.spawn's and attaches listeners to their std.out and std.err streams to figure out when various interesting events occur, such as successful builds, errors and crashes, additionally providing useful things like auto-recovery, live reloads and errors in the browser.
 
-Miru creates a 'miru.init.js' file on startup in the `--path` directory (current working directory by default) that you link to in your index.html page. This init script (miru.init.js) simply connects to the miru express (w/ socket.io) server on port 4040 to listen for interesting events.
+Miru creates a `miru.init.js` file on startup in the `--path` directory (current working directory by default) that you link to in your index.html page. This init script (miru.init.js) simply connects to the miru express (w/ socket.io) server on port 4040 to listen for interesting events.
 
-Miru serves the `--path` directory but it is recommended you run your own http server to serve your content and simply have the miru dev server (running on port 4040) available for the `miru.init.js` to connect to.
+Miru serves the `--path` directory but it is recommended you run your own http server to serve your content and simply have the miru dev server (running on port 4040) available for the `miru.init.js` script to connect to.
+
+# Sample index-dev.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Moon moon</title>
+  <link href="/bundle.css" rel="stylesheet">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="/miru.init.js" type="text/javascript"></script>
+  <script src="/bundle.js" type="text/javascript"></script>
+</body>
+</html>
+
+```
 
 # Arguments
 ```bash
