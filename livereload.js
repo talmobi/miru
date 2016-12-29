@@ -30,7 +30,7 @@ function init () {
   console.log('miru initliazing')
   window.__miruInitTime = Date.now()
 
-  function showModal (show) {
+  function showModal (show, color) {
     // console.log((show === false ? 'hiding' : 'showing') + ' error modal')
     setTimeout(function () {
       var el = undefined
@@ -53,7 +53,7 @@ function init () {
       el.style['margin'] = 0
       el.style['padding'] = '0.475rem'
 
-      el.style['background-color'] = 'darkred'
+      el.style['background-color'] = color || 'darkred'
       el.style['opacity'] = 0.90
       el.style['white-space'] = 'pre-wrap'
       el.style['color'] = 'white'
@@ -80,6 +80,41 @@ function init () {
 
   socket.on('connect', function () {
     console.log('socket connected to: ' + window.__miruHost)
+  })
+
+  socket.on('progress', function (opts) {
+    var target = opts.target
+    var lines = opts.lines
+    showModal(true)
+
+    var el = document.getElementById('__miruErrorModalEl')
+    if (el) {
+      var name = target
+      var text = lines.join('\n')
+
+      // clear previous
+      el.innerHTML = ''
+      showModal(true, 'darkcyan')
+
+      var titleEl = document.createElement('pre')
+      titleEl.style['padding'] = '0.675rem'
+      titleEl.style['border'] = '0px solid black !important'
+      titleEl.style['border-bottom'] = '1px solid #bb4444'
+      titleEl.textContent = 'miru progress modal (from terminal)'
+      el.appendChild(titleEl)
+
+      var contentEl = document.createElement('pre')
+      contentEl.style['opacity'] = 1.00
+      contentEl.style['white-space'] = 'pre-wrap'
+      contentEl.style['color'] = 'white'
+      // TODO parse and prettify error?
+      contentEl.textContent = text
+      el.appendChild(contentEl)
+    } else {
+      console.warn('miru terminal progress received but modal id was not found.')
+      console.log(error)
+    }
+
   })
 
   var reloadTimeout = null
@@ -115,13 +150,12 @@ function init () {
     console.log('received error: ', error)
     var el = document.getElementById('__miruErrorModalEl')
     if (el) {
-      showModal(true)
-
       var name = error.name
       var text = error.message || error.err || error
 
       // clear previous
       el.innerHTML = ''
+      showModal(true, 'darkred')
 
       var titleEl = document.createElement('pre')
       titleEl.style['padding'] = '0.675rem'

@@ -87,6 +87,9 @@ var usage = [
   , '    -t, --target <file>            [Deprecated] alias for [-w, --watch]'
   , '    -s, --source <string>          [Deprecated] alias for [-e, --execute]'
   , ''
+  , '    -V, --verbose                  Enable verbose mode'
+  , '    --throttle-timeout             Specify throttle timeout (Default 600ms)'
+  , ''
   , '    -v, --version                  Display miru version'
   , '    -h, --help                     Display help information'
   , ''
@@ -108,6 +111,11 @@ if (!!argv['version'] || !!argv['v']) {
 if (!!argv['sample']) {
   console.log(sampleScripts)
   return undefined // exit success
+}
+
+var throttleTimeout = 600
+if (argv['throttle-timeout'] !== undefined) {
+  throttleTimeout = Number(argv['throttleTimeout'])
 }
 
 // var _targets = Array.isArray(argv.t) ? argv.t || [argv.t]
@@ -275,13 +283,14 @@ function clearConsole() {
 
 var args = process.argv.slice(2)
 
-var verbose = true // TODO !!args.verbose
+var verbose = !!(argv['verbose'] || argv['V'])
+var debug = verbose
 
 opts.targets.forEach(function (target, i) {
   var t = opts.targets[i]
   var s = opts.scripts[i]
 
-  if (!t || !s) throw new Error('-t, -s mismatch')
+  if (!t || !s) throw new Error('-w, -e mismatch')
 
   var t = path.join(opts.publicPath, t)
   watch(t)
@@ -340,17 +349,62 @@ function emit (target) {
   }, emitDelay)
 }
 
+var targetStates = {}
 function watch (target) {
   var process = function (path) {
     // debug && console.log(chalk.yellow('path [' + chalk.magenta(path) + ']'))
-    debug && console.log(chalk.yellow('change on target [' + chalk.magenta(target) + ']'))
+    debug && console.log(chalk.yellow('watch event on target [' + chalk.magenta(target) + ']'))
+
     fs.stat(target, function (err, stats) {
       if (err) throw err
 
-      if (mtimes[target] === undefined || stats.mtime > mtimes[target]) {
-        if (mtimes[target] !== undefined) targetHasError[target] = false
-        mtimes[target] = stats.mtime
-        emit(target)
+      var state = targetStates[target] || {
+        timeout: undefined,
+        mtime: undefined,
+        throttled: false
+      }
+      targetStates[target] = state
+
+      var mtime = state.mtime
+
+      if (mtime === undefined || stats.mtime > mtime) {
+        if (mtime !== undefined) targetHasError[target] = false
+        state.mtime = stats.mtime
+
+        if (!state.throttled) {
+          var attempt = function () {
+            // io.emit('progress', target)
+            var text = fs.readFileSync(target, 'utf-8')
+            if (text.length < 1) {
+              verbose && setTimeout(function () {
+                console.log(chalk.yellow('[ignored] text.length: ' + text.length + ' [' + chalk.magenta(target) + ']'))
+              }, 75)
+
+              setTimeout(attempt, 25)
+            } else {
+              if (!state.throttled) {
+                verbose && setTimeout(function () {
+                  console.log(chalk.yellow('[EMITTED] text.length: ' + text.length + ' [' + chalk.magenta(target) + ']'))
+                }, 75)
+
+                emit(target)
+                state.throttled = true
+                setTimeout(function () {
+                  state.throttled = false
+                }, throttleTimeout)
+              } else {
+                verbose && setTimeout(function () {
+                  console.log(chalk.yellow('[throttled] [' + chalk.magenta(target) + ']'))
+                }, 75)
+              }
+            }
+          }
+          setTimeout(attempt, 25)
+        } else {
+          verbose && setTimeout(function () {
+            console.log(chalk.yellow('[throttled] [' + chalk.magenta(target) + ']'))
+          }, 75)
+        }
       } else {
         // ignore, nothing modified
         debug && console.log('-- nothing modified --')
@@ -575,6 +629,11 @@ function exec (cmd, target) {
       buffer = ''
 
       pipe && console.log(lines.join('\n'))
+
+      io.emit('progress', {
+        target: target,
+        lines: lines
+      })
 
       if (isError) {
         // console.log(result.join('\n'))
