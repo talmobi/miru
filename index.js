@@ -123,8 +123,8 @@ if (argv['throttle-timeout'] !== undefined) {
 
 var opts = {
   publicPath: argv.p || argv.path || argv.public || argv.root || '.',
-  targets: argv.watch,
-  scripts: argv.execute
+  targets: (typeof argv.watch === 'string') ? [argv.watch] : argv.watch,
+  scripts: (typeof argv.execute === 'string') ? [argv.execute] : argv.execute
 }
 
 var sourcePath, sourceCode, targetPath
@@ -285,6 +285,8 @@ var args = process.argv.slice(2)
 
 var verbose = !!(argv['verbose'] || argv['V'])
 var debug = verbose
+
+console.log(opts)
 
 opts.targets.forEach(function (target, i) {
   var t = opts.targets[i]
