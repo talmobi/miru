@@ -1,6 +1,6 @@
 {
   "name": "miru",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "dev server with chokidar spawns, pretty error parsing, and socket events for live injections and reloads",
   "main": "index.js",
   "bin": {
