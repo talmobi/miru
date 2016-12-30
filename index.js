@@ -451,6 +451,8 @@ function handleError (err, target, remaining, initMode) {
     targetHasError[target] = err
     console.log(err)
 
+    if (typeof err !== 'string') err = 'Error: Unknown error.'
+
     var lines = removeColors([s, ''].concat(err.split('\n')))
     var e = lines.join('\n')
 
