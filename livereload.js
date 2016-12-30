@@ -26,13 +26,32 @@ function findElement (elements, field, target) {
 
 var _lastTimeoutId = window.setTimeout(function () {}, 0) // get current timeout id
 
+function removeColors (lines) {
+  var parsedLines = []
+  lines.forEach(function (line) {
+      var prettyLine = line
+                    .split(/\033/).join('')
+                    .split('/\u001b/').join('')
+                    .split(/\[0m/).join('')
+                    .split(/\[..m/).join('')
+      parsedLines.push(prettyLine)
+  })
+
+  return parsedLines
+}
+
+window.__miruProgressTargetTimeouts = {}
+window.__miruTargetTimes = {}
+window.__miruModificationTimeout = undefined
+window.__miruModalTimeout = undefined
 function init () {
   console.log('miru initliazing')
   window.__miruInitTime = Date.now()
 
-  function showModal (show, color) {
+  function showModal (show, type) {
+    clearTimeout(window.__miruModalTimeout)
     // console.log((show === false ? 'hiding' : 'showing') + ' error modal')
-    setTimeout(function () {
+    window.__miruModalTimeout = setTimeout(function () {
       var el = undefined
       var modalId = '__miruErrorModalEl'
       el = document.getElementById(modalId)
@@ -43,6 +62,8 @@ function init () {
         document.body.appendChild(el)
       }
 
+      el.style['transition'] = 'none'
+      el.style['opacity'] = 0.0
       el.style['display'] = (show === false ? 'none' : 'block')
       el.style['position'] = 'fixed'
       el.style['top'] = 0
@@ -53,11 +74,24 @@ function init () {
       el.style['margin'] = 0
       el.style['padding'] = '0.475rem'
 
-      el.style['background-color'] = color || 'darkred'
+      el.style['background-color'] = 'darkred'
       el.style['opacity'] = 0.90
       el.style['white-space'] = 'pre-wrap'
       el.style['color'] = 'white'
       el.style['z-index'] = 2147483646 // ((2^32 / 2) - 2)
+
+      switch (type) {
+        case 'progress':
+          el.style['opacity'] = 0.0
+          el.style['background-color'] = 'rgba(110, 136, 153, 0.75)'
+          el.style['transition'] = 'opacity .5s ease-in'
+          window.__miruModalTimeout = setTimeout(function () {
+            el.style['opacity'] = 0.90
+            el.style['width'] = '100%'
+            // el.style['height'] = '32px'
+          }, 0)
+          break
+      }
     }, 0)
 
     // a bit of dom hax to make sure we've correctly hidden or shown the modal
@@ -83,38 +117,41 @@ function init () {
   })
 
   socket.on('progress', function (opts) {
+    var now = Date.now()
     var target = opts.target
-    var lines = opts.lines
-    showModal(true)
 
-    var el = document.getElementById('__miruErrorModalEl')
-    if (el) {
-      var name = target
-      var text = lines.join('\n')
+    var t= window.__miruTargetTimes[target]
+    if ((t === undefined) || (t - now > 2000)) {
+      var lines = removeColors(opts.lines)
 
-      // clear previous
-      el.innerHTML = ''
-      showModal(true, 'darkcyan')
+      var el = document.getElementById('__miruErrorModalEl')
+      if (el) {
+        var name = target
+        var text = lines.join('\n')
 
-      var titleEl = document.createElement('pre')
-      titleEl.style['padding'] = '0.675rem'
-      titleEl.style['border'] = '0px solid black !important'
-      titleEl.style['border-bottom'] = '1px solid #bb4444'
-      titleEl.textContent = 'miru progress modal (from terminal)'
-      el.appendChild(titleEl)
+        // clear previous
+        el.innerHTML = ''
+        showModal(true, 'progress')
 
-      var contentEl = document.createElement('pre')
-      contentEl.style['opacity'] = 1.00
-      contentEl.style['white-space'] = 'pre-wrap'
-      contentEl.style['color'] = 'white'
-      // TODO parse and prettify error?
-      contentEl.textContent = text
-      el.appendChild(contentEl)
-    } else {
-      console.warn('miru terminal progress received but modal id was not found.')
-      console.log(error)
+        var titleEl = document.createElement('pre')
+        titleEl.style['padding'] = '0.675rem'
+        titleEl.style['border'] = '0px solid black !important'
+        titleEl.style['border-bottom'] = '1px solid #bb4444'
+        titleEl.textContent = 'miru progress modal (from terminal)'
+        el.appendChild(titleEl)
+
+        var contentEl = document.createElement('pre')
+        contentEl.style['opacity'] = 1.00
+        contentEl.style['white-space'] = 'pre-wrap'
+        contentEl.style['color'] = 'white'
+        // TODO parse and prettify error?
+        contentEl.textContent = text
+        el.appendChild(contentEl)
+      } else {
+        console.warn('miru terminal progress received but modal id was not found.')
+        console.log(error)
+      }
     }
-
   })
 
   var reloadTimeout = null
@@ -146,6 +183,7 @@ function init () {
   })
 
   socket.on('error', function (error) {
+    clearTimeout(window.__miruModificationTimeout)
     console.log(error)
     console.log('received error: ', error)
     var el = document.getElementById('__miruErrorModalEl')
@@ -155,7 +193,7 @@ function init () {
 
       // clear previous
       el.innerHTML = ''
-      showModal(true, 'darkred')
+      showModal(true)
 
       var titleEl = document.createElement('pre')
       titleEl.style['padding'] = '0.675rem'
@@ -178,124 +216,128 @@ function init () {
   })
 
   socket.on('modification', function (target) {
+    clearTimeout(window.__miruModificationTimeout)
     console.log('modification event received')
     console.log(target)
 
     showModal(false)
-    // create some white space in the console
-    console.log(new Array(24).join('\n'))
-    console.log(' --- [' + (new Date().toLocaleString()) + '] --- ')
 
-    var scripts = document.querySelectorAll('script')
-    var styles = document.querySelectorAll('link')
+    window.__miruModificationTimeout = setTimeout(function () {
+      window.__miruTargetTimes[target] = Date.now()
+      // create some white space in the console
+      console.log(new Array(24).join('\n'))
+      console.log(' --- [' + (new Date().toLocaleString()) + '] --- ')
 
-    var el = (
-      findElement(scripts, 'src', target) ||
-      findElement(styles, 'href', target)
-    )
+      var scripts = document.querySelectorAll('script')
+      var styles = document.querySelectorAll('link')
 
-    var suffix = target.slice(target.lastIndexOf('.') + 1)
-    var cacheaway = String(Date.now()) + '_' + Math.floor(Math.random() * 1000000)
+      var el = (
+        findElement(scripts, 'src', target) ||
+        findElement(styles, 'href', target)
+      )
 
-    if (el) {
-      switch (suffix) {
-        case 'css':
-          var url = el.href.split('?')[0] + '?cacheaway=' + cacheaway
+      var suffix = target.slice(target.lastIndexOf('.') + 1)
+      var cacheaway = String(Date.now()) + '_' + Math.floor(Math.random() * 1000000)
 
-          // [1] flip opacity to hide distracting unstyled content flash
-          document.documentElement.style.opacity = 0.0
-          setTimeout(function () {
-            el.href = '' // unreload
-            /* The reason we want to unreload by setting el.href = '' instead of
-              * simply overwriting the current one with a cachebuster query parameter
-              * is so that the css is quickly completely removed  -- this resets
-              * keyframe animations which would not otherwise be refreshed (but instead
-              * stuck using the old keyframes -- this is very confusing when
-              * dealing with keyframes)
-              * doing this, however, creates a tiny "flash" when the css is refreshed
-              * but I think that is a good thing since you'll know the css is fresh
-              * plus it will properly reload key frame animations
-              * */
+      if (el) {
+        switch (suffix) {
+          case 'css':
+            var url = el.href.split('?')[0] + '?cacheaway=' + cacheaway
 
+            // [1] flip opacity to hide distracting unstyled content flash
+            document.documentElement.style.opacity = 0.0
             setTimeout(function () {
-              el.href = url
-              console.log('injection success -- [%s]', target)
-              // trigger window resize event (reloads css)
+              el.href = '' // unreload
+              /* The reason we want to unreload by setting el.href = '' instead of
+                * simply overwriting the current one with a cachebuster query parameter
+                * is so that the css is quickly completely removed  -- this resets
+                * keyframe animations which would not otherwise be refreshed (but instead
+                * stuck using the old keyframes -- this is very confusing when
+                * dealing with keyframes)
+                * doing this, however, creates a tiny "flash" when the css is refreshed
+                * but I think that is a good thing since you'll know the css is fresh
+                * plus it will properly reload key frame animations
+                * */
+
               setTimeout(function () {
-                document.documentElement.style.opacity = 1.0 // [1]
-                window.dispatchEvent(new Event('resize'))
+                el.href = url
+                console.log('injection success -- [%s]', target)
+                // trigger window resize event (reloads css)
                 setTimeout(function () {
+                  document.documentElement.style.opacity = 1.0 // [1]
                   window.dispatchEvent(new Event('resize'))
-                }, 200)
-              }, 50)
+                  setTimeout(function () {
+                    window.dispatchEvent(new Event('resize'))
+                  }, 200)
+                }, 50)
+              }, 5)
             }, 5)
-          }, 5)
-          break
+            break
 
-        case 'js':
-          // TODO
-          window.location.reload()
-          return undefined
+          case 'js':
+            // TODO
+            window.location.reload()
+            return undefined
 
-          var _src = el.src
-          var _id = el.id
-          var parentNode = el.parentNode
-          var scriptEl = document.createElement('script')
+            var _src = el.src
+            var _id = el.id
+            var parentNode = el.parentNode
+            var scriptEl = document.createElement('script')
 
-          // safe raf for our own use
-          var raf = window.requestAnimationFrame
-          // disable raf and let all previous raf loops terminate
-          window.requestAnimationFrame = function () {}
-          // run on next raf
-          setTimeout(function () {
-            // re-enable raf
-            window.requestAnimationFrame = raf
-            // remove app content
-            var appEl = (
-              document.getElementById('root') ||
-              document.getElementById('app') ||
-              document.body.children[0]
-            )
-            var p = appEl.parentNode
-            p.removeChild(appEl) // also removes event listeners
-            appEl = document.createElement('div')
-            appEl.id = 'root'
-            p.appendChild(appEl)
-
-            // get current timeout id
-            var timeoutId = window.setTimeout(function () {}, 0)
-            // remove all previous timeouts
-            while (timeoutId-- >= _lastTimeoutId) window.clearTimeout(timeoutId)
-            // remember fresh timeout starting point
-            var _lastTimeoutId = window.setTimeout(function () {}, 0)
-
-            parentNode.removeChild(el)
-
-            // update current miru build time.
-            // this effectively nullifies/removes global timeouts and
-            // global event listeners such as window.onresize etc
-            // since our miru.init.js script attached global wrappers
-            // to these event emitters
-            window.__miruCurrentBuildTime = Date.now()
-
+            // safe raf for our own use
+            var raf = window.requestAnimationFrame
+            // disable raf and let all previous raf loops terminate
+            window.requestAnimationFrame = function () {}
+            // run on next raf
             setTimeout(function () {
-              scriptEl.src = _src.split('?')[0] + '?cacheaway=' + cacheaway
-              scriptEl.id = _id
-              parentNode.appendChild(scriptEl)
-              console.log('injection success -- [%s]', target)
-            }, 50)
-          }, 15)
-          break
+              // re-enable raf
+              window.requestAnimationFrame = raf
+              // remove app content
+              var appEl = (
+                document.getElementById('root') ||
+                document.getElementById('app') ||
+                document.body.children[0]
+              )
+              var p = appEl.parentNode
+              p.removeChild(appEl) // also removes event listeners
+              appEl = document.createElement('div')
+              appEl.id = 'root'
+              p.appendChild(appEl)
 
-        default:
-            // unrecgonized target
-            console.warn('unrecognized file suffix on inject [$]'.replace('$', target))
+              // get current timeout id
+              var timeoutId = window.setTimeout(function () {}, 0)
+              // remove all previous timeouts
+              while (timeoutId-- >= _lastTimeoutId) window.clearTimeout(timeoutId)
+              // remember fresh timeout starting point
+              var _lastTimeoutId = window.setTimeout(function () {}, 0)
+
+              parentNode.removeChild(el)
+
+              // update current miru build time.
+              // this effectively nullifies/removes global timeouts and
+              // global event listeners such as window.onresize etc
+              // since our miru.init.js script attached global wrappers
+              // to these event emitters
+              window.__miruCurrentBuildTime = Date.now()
+
+              setTimeout(function () {
+                scriptEl.src = _src.split('?')[0] + '?cacheaway=' + cacheaway
+                scriptEl.id = _id
+                parentNode.appendChild(scriptEl)
+                console.log('injection success -- [%s]', target)
+              }, 50)
+            }, 15)
+            break
+
+          default:
+              // unrecgonized target
+              console.warn('unrecognized file suffix on inject [$]'.replace('$', target))
+        }
+      } else {
+        // unrecgonized target
+        console.warn('no element satisfying livereload event found [$]'.replace('$', target))
       }
-    } else {
-      // unrecgonized target
-      console.warn('no element satisfying livereload event found [$]'.replace('$', target))
-    }
-
+    }, 50) // modification timeout
   })
 
   socket.on('inject', function (list) {
