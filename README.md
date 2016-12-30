@@ -19,7 +19,7 @@ add `miru.init.js` script to your index.html (created by miru on start inside th
 ```
 
 # About (Who watches the watchers?)
-A simple web server (express and socket.io) intended for running command-line watchers (processes that watch and bundle source files)
+A simple web server (express and socket.io) intended for running command-line watchers (daemon processes that watch and bundle source files and never exits).
 
 # Why
 Most bundlers are great at what they do and come with their own `--watch` modes ([rollup](https://github.com/rollup/rollup), [webpack](https://github.com/webpack/webpack), [stylus](https://github.com/stylus/stylus/) etc), they have great error parsing and do their specific thing very well. Miru embraces this, simply mirroring what they print to the terminal into the browser along with live reloading and some honey on top.
