@@ -48,6 +48,15 @@ function init () {
   console.log('miru initliazing')
   window.__miruInitTime = Date.now()
 
+
+  if (window.localStorage) {
+    var _scrollTop = window.localStorage.getItem('__miru_scrollTop')
+
+    if (_scrollTop && (Date.now() - _scrollTop.time) < 5000) {
+      document.body.scrollTop = _scrollTop.scrollTop
+    }
+  }
+
   function showModal (show, type) {
     clearTimeout(window.__miruModalTimeout)
     // console.log((show === false ? 'hiding' : 'showing') + ' error modal')
@@ -162,6 +171,12 @@ function init () {
 
     clearTimeout(reloadTimeout)
     reloadTimeout = setTimeout(function () {
+      if (window.localStorage) {
+        window.localStorage.setItem('__miru_scrollTop', {
+          scrollTop: document.body.scrollTop,
+          time: Date.now()
+        })
+      }
       window.location.reload()
     }, 125)
   })
@@ -216,6 +231,7 @@ function init () {
   })
 
   socket.on('modification', function (target) {
+    var scrollTop = document.body.scrollTop
     clearTimeout(window.__miruModificationTimeout)
     console.log('modification event received')
     console.log(target)
@@ -266,8 +282,10 @@ function init () {
                 setTimeout(function () {
                   document.documentElement.style.opacity = 1.0 // [1]
                   window.dispatchEvent(new Event('resize'))
+                  document.body.scrollTop = scrollTop
                   setTimeout(function () {
                     window.dispatchEvent(new Event('resize'))
+                    document.body.scrollTop = scrollTop
                   }, 200)
                 }, 50)
               }, 5)
@@ -325,6 +343,7 @@ function init () {
                 scriptEl.id = _id
                 parentNode.appendChild(scriptEl)
                 console.log('injection success -- [%s]', target)
+                document.body.scrollTop = scrollTop
               }, 50)
             }, 15)
             break
@@ -342,6 +361,7 @@ function init () {
 
   socket.on('inject', function (list) {
     console.log('injection received')
+    var scrollTop = document.body.scrollTop
 
     // create some white space in the console
     console.log(new Array(24).join('\n'))
@@ -390,11 +410,14 @@ function init () {
             setTimeout(function () {
               el.href = url
               console.log('injection success -- [%s]', fileName)
+              document.body.scrollTop = scrollTop
               // trigger window resize event (reloads css)
               setTimeout(function () {
                 window.dispatchEvent(new Event('resize'))
+                document.body.scrollTop = scrollTop
                 setTimeout(function () {
                   window.dispatchEvent(new Event('resize'))
+                  document.body.scrollTop = scrollTop
                 }, 200)
               }, 50)
             }, 1)
