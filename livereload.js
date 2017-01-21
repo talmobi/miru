@@ -9,6 +9,7 @@ function initAttempt () {
 initAttempt()
 
 function findElement (elements, field, target) {
+  target = ('/' + target)
   target = target.slice(target.lastIndexOf('/'))
   target = target.toLowerCase().split('/').join('')
   console.log('target: ' + target)
