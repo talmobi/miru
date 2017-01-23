@@ -277,45 +277,51 @@
               var styleEl = el.cloneNode()
               styleEl.href = url
 
-              // [1] flip opacity to hide distracting unstyled content flash
-              document.documentElement.style.opacity = 0.0
-              setTimeout(function () {
-                el.parentNode.appendChild(styleEl)
-                setTimeout(function () {
-                  // el.href = '' // unreload
-                  /* The reason we want to unreload by setting el.href = '' instead of
-                    * simply overwriting the current one with a cachebuster query parameter
-                    * is so that the css is quickly completely removed  -- this resets
-                    * keyframe animations which would not otherwise be refreshed (but instead
-                    * stuck using the old keyframes -- this is very confusing when
-                    * dealing with keyframes)
-                    * doing this, however, creates a tiny "flash" when the css is refreshed
-                    * but I think that is a good thing since you'll know the css is fresh
-                    * plus it will properly reload key frame animations
-                    * */
-
+              ;(function () {
+                var finished = false
+                var CSSDone = function () {
+                  if (finished) return undefined
+                  console.log('CSSDone called')
+                  finished = true
                   setTimeout(function () {
-                    // el.parentNode
-                    // el.href = url
-                    console.log('injection success -- [%s]', target)
-                    // trigger window resize event (reloads css)
+                    document.documentElement.style.opacity = 1.0 // [1]
+                    window.dispatchEvent(new Event('resize'))
+                    document.body.scrollTop = scrollTop
+                    showModal(false)
+
                     setTimeout(function () {
+                      el.parentNode.removeChild(el)
                       window.dispatchEvent(new Event('resize'))
                       document.body.scrollTop = scrollTop
-                      document.documentElement.style.opacity = 1.0 // [1]
+                      console.log('injection success -- [%s]', target)
                       showModal(false)
-                      setTimeout(function () {
-                        el.parentNode.removeChild(el)
-                      }, 5)
-                      setTimeout(function () {
-                        window.dispatchEvent(new Event('resize'))
-                        document.body.scrollTop = scrollTop
-                        showModal(false)
-                      }, 200)
-                    }, 50)
-                  }, 5)
+                    }, 25)
+                  }, 25)
+                }
+
+                setTimeout(function () {
+                  CSSDone()
+                }, 500)
+
+                styleEl.onload = function () {
+                  CSSDone()
+                }
+                styleEl.addEventListener && styleEl.addEventListener('load', function () {
+                  CSSDone()
+                }, false)
+                styleEl.onreadystatechange = function () {
+                  var state = styleEl.readyState
+                  if (state === 'loaded' || state === 'complete') {
+                    styleEl.onreadystatechange = null
+                    CSSDone('onreadystatechange')
+                  }
+                }
+
+                document.documentElement.style.opacity = 0.0
+                setTimeout(function () {
+                  el.parentNode.appendChild(styleEl)
                 }, 5)
-              }, 5)
+              })()
               break
 
             case 'js':
