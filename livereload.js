@@ -2,13 +2,22 @@
   console.log('miru livereload.js loaded')
   // this file is sent and run on the client
 
+  function saveScrollTop () {
+    if (window.localStorage) {
+      window.localStorage.setItem('__miru_scrollTop', JSON.stringify({
+        scrollTop: document.body.scrollTop,
+        time: Date.now()
+      }))
+    }
+  }
+
   var UID = (function UID () {
     var counter = 0
     var size = (1 << 16)
     return function () {
       var date = Date.now().toString(16).slice(-10)
       var rnd = String(Math.floor(Math.random() * size))
-      return (date + String(counter++) + rnd)
+      return ('uid' + date + String(counter++) + rnd)
     }
   })()
 
@@ -59,15 +68,6 @@
   function init () {
     console.log('miru initliazing')
     window.__miruInitTime = Date.now()
-
-
-    if (window.localStorage) {
-      var _scrollTop = window.localStorage.getItem('__miru_scrollTop')
-
-      if (_scrollTop && (Date.now() - _scrollTop.time) < 5000) {
-        document.body.scrollTop = _scrollTop.scrollTop
-      }
-    }
 
     function showModal (show, type) {
       clearTimeout(window.__miruModalTimeout)
@@ -183,12 +183,6 @@
 
       clearTimeout(reloadTimeout)
       reloadTimeout = setTimeout(function () {
-        if (window.localStorage) {
-          window.localStorage.setItem('__miru_scrollTop', {
-            scrollTop: document.body.scrollTop,
-            time: Date.now()
-          })
-        }
         window.location.reload()
       }, 125)
     })
@@ -270,6 +264,7 @@
         if (el) {
           switch (suffix) {
             case 'css':
+              saveScrollTop()
               // window.location.reload()
               // return undefined
 
@@ -325,8 +320,10 @@
               break
 
             case 'js':
-              // TODO
-              window.location.reload()
+              saveScrollTop()
+              setTimeout(function () {
+                window.location.reload()
+              }, 125)
               return undefined
               break
 
