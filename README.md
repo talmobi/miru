@@ -2,9 +2,9 @@
 
 ![](https://fat.gfycat.com/MaleSelfassuredBrahmanbull.gif)
 
-[![npm](https://img.shields.io/npm/v/miru.svg?maxAge=86400)](https://www.npmjs.com/package/miru)
-[![npm](https://img.shields.io/npm/dm/miru.svg?maxAge=86400)](https://www.npmjs.com/package/miru)
-[![npm](https://img.shields.io/npm/l/miru.svg?maxAge=86400)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/v/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/dm/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/l/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
 
 
 ## Simple to use
