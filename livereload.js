@@ -141,7 +141,7 @@
       var now = Date.now()
       var target = opts.target
 
-      var t= window.__miruTargetTimes[target]
+      var t = window.__miruTargetTimes[target]
       if ((t === undefined) || (t - now > 2500)) {
         var lines = removeColors(opts.lines)
 
