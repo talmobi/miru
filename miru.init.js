@@ -80,20 +80,21 @@
   // to get realtime events on the bulid processes (live reloads)
   var now = Date.now()
   var r = new XMLHttpRequest()
-  r.open('GET', 'http://localhost:4040/__miru/livereload.js?cachebuster=' + now)
+  r.open('GET', window.location.protocol + '//' + window.location.hostname + ':4040/__miru/livereload.js?cachebuster=' + now)
   r.onerror = function () {
-    // assume hosted on current domain
-    console.log('default miru host location failed to connect, trying current domain')
-    attachLivereloadScripts()
+    // try localhost
+    console.log('default miru host location failed to connect, trying localhost')
+    attachLivereloadScripts('http://localhost:4040')
   }
   r.onload = function () {
     var statusCode = r.status || r.statusCode
     if (statusCode >= 200 && statusCode < 400) {
-      attachLivereloadScripts('http://localhost:4040')
-    } else {
-      // for when connecting from devices on the same network
-      console.log('default miru host location failed, trying current domain')
+      // try current domain (window.location.hostname)
       attachLivereloadScripts()
+    } else {
+      // try localhost
+      console.log('default miru host location failed to connect, trying localhost')
+      attachLivereloadScripts('http://localhost:4040')
     }
   }
   console.log('trying to attach live reload scripts...')
@@ -131,6 +132,6 @@
     scriptEl.src = libs + '/livereload.js' + cachebuster
     document.body.appendChild(scriptEl)
 
-    console.log('Live Relaod Scripts Attached!! from [' + libs + ']')
+    console.log('Live Reload Scripts Attached!! from [' + libs + ']')
   }
 })()

@@ -137,6 +137,10 @@
       console.log('socket connected to: ' + window.__miruHost)
     })
 
+    socket.on('tick', function (data) {
+      // console.log('miru ticking: ' + data.length)
+    })
+
     socket.on('progress', function (opts) {
       var now = Date.now()
       var target = opts.target
