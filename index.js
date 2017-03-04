@@ -400,7 +400,9 @@ function watch (target) {
                   console.log(chalk.yellow('[EMITTED] text.length: ' + text.length + ' [' + chalk.magenta(target) + ']'))
                 }, 75)
 
-                emit(target)
+                setTimeout(function () {
+                  emit(target)
+                }, 33)
                 state.throttled = true
                 setTimeout(function () {
                   state.throttled = false
@@ -426,7 +428,10 @@ function watch (target) {
   }
 
   // attach watchers
-  chokidar.watch(target)
+  chokidar.watch(target, {
+    usePolling: true,
+    interval: 66
+  })
     .on('add', process)
     .on('change', process)
 } // watch
@@ -626,46 +631,76 @@ function exec (cmd, target) {
   var bufferResetTimeout = undefined
   var initMode = true
 
+  var _lastProcessedTime = Date.now()
+  var _resetTime = 1000 * 10
+  var _resetting = false
+
   function process (chunk) {
-    var str = chunk.toString('utf8')
-    buffer += str
+    var now = Date.now()
+    if ((now - _lastProcessedTime) > _resetTime) {
+      // should reset
+      clearTimeout(emit_timeout)
+      console.log(chalk.grey(' -- restarting spawn -- '))
+      targetHasError[target] = undefined
+      _resetting = true
+      child.kill()
+      setTimeout(function () {
+        console.log(chalk.grey(' -- reset executing -- '))
+        exec(cmd, target)
+      }, 1)
+    } else {
+      _lastProcessedTime = now
 
-    var isError = false
+      var str = chunk.toString('utf8')
+      buffer += str
 
-    buffer.split('\n').forEach(function (line) {
-      if (line.toLowerCase().indexOf('error') !== -1) isError = true
-    })
+      var isError = false
 
-    clearTimeout(timeout)
-    timeout = setTimeout(function () {
-      var lines = buffer.split('\n').filter(function (line) {
-        return line.toLowerCase().indexOf('node_modules') === -1
+      buffer.split('\n').forEach(function (line) {
+        if (line.startsWith('[DEBUG]')) {
+          console.log(line)
+        } else {
+          if (line.toLowerCase().indexOf('error') !== -1) isError = true
+        }
       })
-      buffer = ''
 
-      pipe && console.log(lines.join('\n'))
+      clearTimeout(timeout)
+      timeout = setTimeout(function () {
+        var lines = buffer.split('\n')
+              .filter(function (line) {
+                return line.toLowerCase().indexOf('node_modules') === -1
+              })
+              .filter(function (line) {
+                return line.toLowerCase().indexOf('[debug]') === -1
+              })
+        buffer = ''
 
-      io.emit('progress', {
-        target: target,
-        lines: lines
-      })
+        pipe && console.log(lines.join('\n'))
 
-      if (isError) {
-        // console.log(result.join('\n'))
-        var err = parseError(lines)
-        handleError(err, target, undefined)
+        if (lines && lines.length > 0 && lines[0].trim().length > 1) {
+          io.emit('progress', {
+            target: target,
+            lines: lines
+          })
+        }
 
-        // TODO emit error log to clients
-        // handleError fn
-      } else {
-        initMode = false
-      }
-    }, 100)
+        if (isError) {
+          // console.log(result.join('\n'))
+          var err = parseError(lines)
+          handleError(err, target, undefined)
 
-    clearTimeout(bufferResetTimeout)
-    bufferResetTimeout = setTimeout(function () {
-      if (!isError) buffer = ''
-    }, 200)
+          // TODO emit error log to clients
+          // handleError fn
+        } else {
+          initMode = false
+        }
+      }, 100)
+
+      clearTimeout(bufferResetTimeout)
+      bufferResetTimeout = setTimeout(function () {
+        if (!isError) buffer = ''
+      }, 200)
+    }
   } // fn process
 
   child.stdout.on('data', process)
@@ -674,6 +709,7 @@ function exec (cmd, target) {
   var destroyTimeout = undefined
   function destroy () {
     clearTimeout(destroyTimeout)
+    if (_resetting) return undefined // no need to recover on reset
     destroyTimeout = setTimeout(function () {
       child.kill()
 
