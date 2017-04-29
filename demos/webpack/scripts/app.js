@@ -4,6 +4,10 @@ console.log('app: ' + greet('giraffe'))
 var root = document.getElementById('root')
 root.innerHTML = new Date().toLocaleString()
 
+var footer = document.createElement('div')
+footer.innerHTML = greet('giraffe')
+document.body.appendChild(footer)
+
 var colors = [
   'salmon', 'tomato', 'magenta',
   'goldenrod', 'burlywood', 'blanchedalmond',
@@ -13,7 +17,7 @@ var colors = [
   'rosybrown', 'sienna', 'sandybrown', 'snow', 'thistle'
 ]
 
-// colors = ['yellow']
+colors = ['yellow']:
 
 function tick () {
   root.innerHTML = new Date().toLocaleString()

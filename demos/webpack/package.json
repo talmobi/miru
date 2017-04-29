@@ -3,10 +3,11 @@
   "version": "0.0.1",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "node ../../index.js -p public --watch bundle.js -w bundle.css --execute 'npm run watch-js' -e 'npm run watch-css'",
+    "start": "node ~/code/miru/index.js -p public --watch bundle.js -w bundle.css --execute 'npm run watch-js' -e 'npm run watch-less'",
     "build-js": "webpack --config webpack.config.js",
     "watch-js": "webpack -w --config webpack.config.js",
     "build-css": "stylus -u nib -r ./styles/app.styl -o ./public/bundle.css",
+    "watch-less": "node lesswatch.js",
     "watch-css": "stylus -u nib -w -r ./styles/app.styl -o ./public/bundle.css",
     "cli:watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,12 +15,19 @@
   "author": "talmobi <talmo.christian@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "webpack": "^1.14.0",
-    "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
-    "babel-preset-es2015": "^6.18.0",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "buble": "^0.15.2",
+    "buble-loader": "^0.4.1",
+    "cli-color": "^1.2.0",
+    "esprima": "^3.1.3",
+    "glob-fs": "^0.1.6",
+    "less": "^2.7.2",
     "nib": "^1.1.2",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "webpack": "^2.4.1",
+    "wlessc": "^0.5.1"
   },
   "dependencies": {}
 }
