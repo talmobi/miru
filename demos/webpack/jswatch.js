@@ -159,9 +159,13 @@ function parsePrettyLine (line) {
     var prettyLine = ''
 
     var split = line.split('|', 2)
-    prettyLine += clc.xterm(245)(split[0] + '|')
+    var left = clc.xterm(246)(split[0] + '|')
+    left = left.split('>').join(clc.redBright('>'))
+    prettyLine += left
 
-    prettyLine += prettifyCodeLine(split[1])
+    var right = prettifyCodeLine(split[1])
+    right = right.split('^').join(clc.redBright('^'))
+    prettyLine += right
     return prettyLine
   }
 
@@ -173,7 +177,7 @@ function parsePrettyLine (line) {
     return clc.redBright(line)
   }
 
-  return clc.cyan(line) // do nothing
+  return line // do nothing
 }
 
 function contains (source, tests) {
