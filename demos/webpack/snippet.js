@@ -1,29 +1,107 @@
-var childProcess = require('child_process')
-var esprima = require('esprima')
+var path = require('path')
+var fs = require('fs')
 var clc = require('cli-color')
 
-var spawn = childProcess.spawn('npm', ['run', 'watch-js'])
+var rePath = /[\S]*\.[a-zA-Z]+/g
 
-var buffer = ''
+var rePosition = /[(]?\s{0,5}\d.{0,5}?\d+\s{0,5}[)]?/g
 
-spawn.stdout.on('data', handleIO)
-spawn.stderr.on('data', handleIO)
+var browserifyString = 'SyntaxError: /Users/mollie/temp/miru/demos/webpack/scripts/mods/module.js: Unexpected token, expected ; (2:25) while parsing file: /Users/mollie/temp/miru/demos/webpack/scripts/mods/module.js'
+
+var webpackString = [
+  'ERROR in ./scripts/mods/module.js',
+  'Module build failed: SyntaxError: Unexpected token, expected ; (2:25)'
+].join('\n')
+
+var resolved = []
+var positions = []
+
+function init (str) {
+  var match
+  var urls = []
+  var rePath = /[\S]*\.[a-zA-Z]+/g
+  while (match = rePath.exec(str)) {
+    urls.push(match[0])
+  }
+  urls = urls.map(function (url) {
+    return path.resolve(url)
+  }).filter(function (url, index, arr) {
+    return arr.indexOf(url) === index
+  })
+
+  var p = urls[0]
+  console.log('resolved: ' + p)
+
+  var rePosition = /[(]?\s{0,5}\d.{0,5}?\d+\s{0,5}[)]?/g
+  match = rePosition.exec(str)
+  console.log(match)
+
+  resolved.push({
+    url: urls[0],
+    pos: parsePosition(match[0])
+  })
+  trigger()
+}
+
+function parsePosition (pos) {
+  var split = pos.split(':')
+  return {
+    line: /\d+/.exec(split[0])[0],
+    column: /\d+/.exec(split[1])[0]
+  }
+}
+
+console.log(__dirname)
+init(browserifyString)
+init(webpackString)
 
 var _timeout
-
-function handleIO (chunk) {
-  buffer += chunk.toString('utf8')
+function trigger () {
   clearTimeout(_timeout)
   _timeout = setTimeout(function () {
-    var lines = buffer.split('\n')
-    buffer = lines.pop() // rewind buffer and parse complete lines
+    resolved.forEach(function (r) {
+      var { url, pos } = r
+      var buffer = fs.readFileSync(url, { encoding: 'utf8' })
+      var lines = buffer.split('\n')
+      var i = Math.max(0, pos.line - 6)
+      var j = Math.min(lines.length - 1, pos.line + 6)
 
-    lines.forEach(function (line) {
-      var prettyLine = parsePrettyLine(line)
-      console.log(prettyLine)
+      var minOffset = String(j).trim().length
+
+      console.log()
+      console.log('---')
+      var result = []
+      for (; i < j; i++) {
+        var lineNumber = String(i).trim()
+        while (lineNumber.length < minOffset) lineNumber = (' ' + lineNumber)
+
+        lineNumber += ' | '
+
+        result.push(lineNumber + lines[i])
+        // console.log(lines[i])
+
+        if (i === pos.line - 1) {
+          var pointerOffset = ''
+          for (var x = 0; x < pos.column; x++) {
+            pointerOffset += ' '
+          }
+          var _o = String(j).trim().split(/./).join(' ') + ' | '
+          // console.log(pointerOffset + '^')
+          result.push(_o + pointerOffset + '^')
+        }
+      }
+
+      result.forEach(function (line) {
+        var prettyLine = parsePrettyLine(line)
+        console.log(prettyLine)
+      })
+
+      console.log('---')
+      console.log()
     })
-  }, 5)
+  }, 25)
 }
+
 
 function testToken (str, tests) {
   if (typeof tests === 'string') tests = [tests]
@@ -79,6 +157,10 @@ function prettifyCodeLine (line) {
             buffer += c
             break
 
+          case '{':
+          case '}':
+            // TODO unsure to include braces?
+
           case '+':
           case '-':
           case '*':
@@ -92,6 +174,14 @@ function prettifyCodeLine (line) {
           case '!':
             prettyLine += parseToken(buffer, penColor)
             prettyLine += clc['yellow'](c)
+            buffer = ''
+            break
+
+          case '(':
+          case ')':
+            // TODO unsure to include parens?
+            prettyLine += parseToken(buffer, penColor)
+            prettyLine += clc['white'](c)
             buffer = ''
             break
 
@@ -143,6 +233,14 @@ function parseToken (token, penColor) {
   }
 
   if (testToken(token, [
+    'export',
+    'default',
+    'return'
+  ])) {
+    return clc.redBright(token)
+  }
+
+  if (testToken(token, [
     'Date'
   ])) {
     return clc['yellow'](token.slice(0, -2)) + token.slice(4)
@@ -178,16 +276,4 @@ function parsePrettyLine (line) {
   }
 
   return line // do nothing
-}
-
-function contains (source, tests) {
-  if (typeof tests === 'string') tests = [tests]
-
-  var i, test
-  for (i = 0; i < tests.length; i++) {
-    test = tests[i]
-    if (source.indexOf(test) >= 0) return true
-  }
-
-  return false
 }

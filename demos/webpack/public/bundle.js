@@ -63,14 +63,49 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports) {
 
-throw new Error("Module build failed: SyntaxError: Unexpected token, expected ; (20:19)\n\n  18 | ]\n  19 | \n> 20 | colors = ['yellow']:\n     |                    ^\n  21 | \n  22 | function tick () {\n  23 |   root.innerHTML = new Date().toLocaleString()\n");
+throw new Error("Module build failed: SyntaxError: Unexpected token, expected ; (2:25)\n\n  1 | export function greet (name) {\n> 2 |   return 'hello, ' + name:\n    |                          ^\n  3 | }\n  4 | \n");
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _module = __webpack_require__(0);
+
+console.log('app: ' + (0, _module.greet)('giraffe'));
+
+var root = document.getElementById('root');
+root.innerHTML = new Date().toLocaleString();
+
+var footer = document.createElement('div');
+footer.innerHTML = (0, _module.greet)('giraffe');
+document.body.appendChild(footer);
+
+var colors = ['salmon', 'tomato', 'magenta', 'goldenrod', 'burlywood', 'blanchedalmond', 'cornflowerblue', 'darkolivegreen', 'darkseagreen', 'indianred', 'hotpink', 'honeydew', 'lightblue', 'olive', 'orchid', 'peru', 'plum', 'oldlace', 'rosybrown', 'sienna', 'sandybrown', 'snow', 'thistle'];
+
+colors = ['yellow'];
+
+function tick() {
+  root.innerHTML = new Date().toLocaleString();
+  setTimeout(tick, 100);
+}
+
+function flash() {
+  root.style['background-color'] = colors[Math.random() * colors.length | 0];
+  setTimeout(flash, 500);
+}
+
+tick();
+flash();
 
 /***/ })
 /******/ ]);
