@@ -1,8 +1,5 @@
 export function greet (name) {
   /* comment */
-  undefined
-  false
-  Date.now()
-  new Date()
+  Date.now(
   return 'hello, ' + name:
 }

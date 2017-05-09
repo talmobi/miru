@@ -5,9 +5,8 @@
   "scripts": {
     "start": "node ~/code/miru/index.js -p public --watch bundle.js -w bundle.css --execute 'npm run watch-js' -e 'npm run watch-less'",
     "build-js": "webpack --config webpack.config.js",
-    "watch-js": "watchify scripts/app.js -o public/bundle.js -t [ bubleify ] -v",
-    "watch-js": "watchify scripts/app.js -o public/bundle.js -t [ babelify --presets [ es2015 ] ] -v",
     "watch-js": "webpack -w --config webpack.config.js",
+    "watch-js": "watchify scripts/app.js -o public/bundle.js -t [ babelify --presets [ es2015 ] ] -v",
     "build-css": "stylus -u nib -r ./styles/app.styl -o ./public/bundle.css",
     "watch-less": "node lesswatch.js",
     "watch-css": "stylus -u nib -w -r ./styles/app.styl -o ./public/bundle.css",

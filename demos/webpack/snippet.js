@@ -21,7 +21,14 @@ var _positions = []
 var _lastMode = 'normal'
 var _likelyErrorDescription = ''
 
-function transformToRelativePaths (text, color) {
+function transformToRelativePaths (text, process) {
+  if (!process) {
+    process = function (str) { return str }
+  }
+  if (typeof process !== 'function') {
+    throw new Error('process parameter must be of type "function"')
+  }
+
   var match
   var urls = []
   var rePath = /[\S]*\.[a-zA-Z]+/g
@@ -44,8 +51,8 @@ function transformToRelativePaths (text, color) {
   urls.forEach(function (url) {
     // console.log(url.match)
     // replace matches path with a transformed path.relative path
-    var relativePath = path.relative(__dirname, url.absolutePath)
-    text = text.split(url.match).join( clc.magenta(relativePath) )
+    var relativePath = './' + path.relative(__dirname, url.absolutePath)
+    text = text.split(url.match).join( process(relativePath) )
   })
 
   // console.log(urls)
@@ -137,14 +144,38 @@ function trigger () {
 
       console.log()
       if (_likelyErrorDescription.length > 0) {
+        // shorten urls in error description
+        // (path/to/file -> p/t/file)
+        var words = _likelyErrorDescription.split(/\s+/)
+        words = words.map(function (word) {
+          if (word.indexOf('.') >= 0 || word.indexOf('/') >= 0) {
+            word = transformToRelativePaths(word)
+            if (testToken(url, word + '/ti')) {
+              var split = word.split('/')
+              var lastFileName = split.pop()
+              var result = ''
+              split.forEach(function (fileName) {
+                if (fileName) {
+                  result += fileName[0] + '/'
+                }
+              })
+              result += lastFileName
+              return clc.magenta(result)
+            } else {
+              return word
+            }
+          } else {
+            return word
+          }
+        })
         console.log(
-          ' ' +
-          clc.redBright(_likelyErrorDescription)
+          ' ' + clc.redBright(words.join(' '))
         )
       }
+      console.log()
       console.log(
         ' @ ' +
-        transformToRelativePaths(url) +
+        transformToRelativePaths(url, strToMagenta) +
         ' ' + clc.redBright(pos.line) +
         ':' + clc.redBright(pos.column)
       )
@@ -191,24 +222,27 @@ function trigger () {
 function testToken (str, tests) {
   if (typeof tests === 'string') tests = [tests]
 
-  var i, test, t, split, r, s
+  var i, test, t, split, r, s, j
   for (i = 0; i < tests.length; i++) {
     test = tests[i]
     s = str
 
     split = test.split('/')
     t = split[0]
-    r = split[1]
+    r = split[1] || ''
 
-    switch (r) {
-      case 'i':
-        t = t.toLowerCase()
-        s = s.toLowerCase()
-        break
-      case 't':
-        t = t.trim()
-        s = s.toLowerCase()
-        break
+    for (j = 0; j < r.length; j++) {
+      var c = r[j]
+      switch (c) {
+        case 'i':
+          t = t.toLowerCase()
+          s = s.toLowerCase()
+          break
+        case 't':
+          t = t.trim()
+          s = s.toLowerCase()
+          break
+      }
     }
 
     if (s.indexOf(t) >= 0) return true
@@ -463,10 +497,14 @@ function parseOutput (line) {
     'SyntaxError',
     'Unexpected'
   ])) {
-    return clc.redBright( transformToRelativePaths(line) )
+    return clc.redBright( transformToRelativePaths(line, strToMagenta) )
   }
 
   return line // do nothing
+}
+
+function strToMagenta (str) {
+  return clc.magenta(str)
 }
 
 function parsePrettyLine (line) {
@@ -492,7 +530,7 @@ function parsePrettyLine (line) {
     'SyntaxError',
     'Unexpected'
   ])) {
-    return clc.redBright( transformToRelativePaths(line) )
+    return clc.redBright( transformToRelativePaths(line, strToMagenta) )
   }
 
   return line // do nothing
