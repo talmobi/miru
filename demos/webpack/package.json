@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node ~/code/miru/index.js -p public --watch bundle.js -w bundle.css --execute 'npm run watch-js' -e 'npm run watch-less'",
     "build-js": "webpack --config webpack.config.js",
-    "watch-js": "watchify scripts/app.js -o public/bundle.js -t [ babelify --presets [ es2015 ] ] -v",
     "watch-js": "webpack -w --config webpack.config.js",
+    "watch-js": "watchify scripts/app.js -o public/bundle.js -t [ babelify --presets [ es2015 ] ] -v",
     "build-css": "stylus -u nib -r ./styles/app.styl -o ./public/bundle.css",
     "watch-less": "node lesswatch.js",
     "watch-css": "stylus -u nib -w -r ./styles/app.styl -o ./public/bundle.css",
@@ -19,19 +19,19 @@
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
     "buble": "^0.15.2",
     "buble-loader": "^0.4.1",
     "cli-color": "^1.2.0",
     "esprima": "^3.1.3",
     "glob-fs": "^0.1.6",
+    "highlight.js": "^9.11.0",
     "less": "^2.7.2",
     "nib": "^1.1.2",
     "stylus": "^0.54.5",
+    "watchify": "^3.9.0",
     "webpack": "^2.4.1",
-    "wlessc": "^0.5.1",
-    "babelify": "^7.3.0",
-    "watchify": "^3.9.0"
+    "wlessc": "^0.5.1"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

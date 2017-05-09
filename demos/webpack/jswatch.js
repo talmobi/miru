@@ -6,6 +6,8 @@ var spawn = childProcess.spawn('npm', ['run', 'watch-js'])
 
 var buffer = ''
 
+var snippet = require('./snippet.js')
+
 spawn.stdout.on('data', handleIO)
 spawn.stderr.on('data', handleIO)
 
@@ -20,9 +22,17 @@ function handleIO (chunk) {
 
     lines.forEach(function (line) {
       var prettyLine = parsePrettyLine(line)
-      console.log(prettyLine)
+      if (prettyLine !== undefined) {
+        console.log(prettyLine)
+      }
     })
-  }, 5)
+
+    var text = lines.join('\n')
+    snippet(text)
+    // console.log('--text--')
+    // console.log(text)
+    // console.log('--/text--')
+  }, 100)
 }
 
 function testToken (str, tests) {
@@ -157,16 +167,18 @@ function parsePrettyLine (line) {
   if (testToken(trimmedLine, '|')) {
     // probably code snippet
     var prettyLine = ''
+    // TODO
+    return undefined
 
-    var split = line.split('|', 2)
-    var left = clc.xterm(246)(split[0] + '|')
-    left = left.replace('>', clc.redBright('>'))
-    prettyLine += left
+    // var split = line.split('|', 2)
+    // var left = clc.xterm(246)(split[0] + '|')
+    // left = left.replace('>', clc.redBright('>'))
+    // prettyLine += left
 
-    var right = prettifyCodeLine(split[1])
-    right = right.replace('^', clc.redBright('^'))
-    prettyLine += right
-    return prettyLine
+    // var right = prettifyCodeLine(split[1])
+    // right = right.replace('^', clc.redBright('^'))
+    // prettyLine += right
+    // return prettyLine
   }
 
   if (testToken(trimmedLine, [

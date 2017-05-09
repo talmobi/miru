@@ -19,7 +19,7 @@ var colors = [
   'rosybrown', 'sienna', 'sandybrown', 'snow', 'thistle'
 ];
 
-// colors = ['yellow']
+colors = ['yellow'];
 
 function tick () {
   root.innerHTML = new Date().toLocaleString();
