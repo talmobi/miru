@@ -19,16 +19,50 @@ var standardString = 'standard: Use JavaScript Standard Style (https://standardj
 var _resolved = []
 var _positions = []
 var _lastMode = 'normal'
+var _likelyErrorDescription = ''
 
-function init (str) {
+function transformToRelativePaths (text, color) {
+  var match
+  var urls = []
+  var rePath = /[\S]*\.[a-zA-Z]+/g
+  while (match = rePath.exec(text)) {
+    urls.push({
+      match: match[0],
+      absolutePath: path.resolve(match[0])
+    })
+  }
+  urls = urls.filter(function (url) {
+    // filter out non-file paths
+    try {
+      return fs.existsSync(url.absolutePath)
+      return true
+    } catch (err) {
+      return false
+    }
+  })
+
+  urls.forEach(function (url) {
+    // console.log(url.match)
+    // replace matches path with a transformed path.relative path
+    var relativePath = path.relative(__dirname, url.absolutePath)
+    text = text.split(url.match).join( clc.magenta(relativePath) )
+  })
+
+  // console.log(urls)
+
+  return text
+}
+
+function init (text) {
   _resolved = []
   _positions = []
   _lastMode = 'normal'
+  _likelyErrorDescription = ''
 
   var match
   var urls = []
   var rePath = /[\S]*\.[a-zA-Z]+/g
-  while (match = rePath.exec(str)) {
+  while (match = rePath.exec(text)) {
     urls.push(match[0])
   }
   urls = urls.map(function (url) {
@@ -40,7 +74,8 @@ function init (str) {
   }).filter(function (url) {
     // filter out non-files
     try {
-      fs.readFileSync(url, { encoding: 'utf8' })
+      return fs.existsSync(url)
+      // fs.readFileSync(url, { encoding: 'utf8' })
       return true
     } catch (err) {
       return false
@@ -53,7 +88,7 @@ function init (str) {
   // console.log('_resolved: ' + p)
 
   var rePosition = /[(]?\s{0,5}\d+\s{0,5}?[:]\s{0,5}?\d+\s{0,5}[)]?/g
-  match = rePosition.exec(str)
+  match = rePosition.exec(text)
   // console.log(match)
   if (!match) return
   if (!match[0]) return
@@ -62,6 +97,16 @@ function init (str) {
     url: urls[0],
     pos: parsePosition(match[0])
   })
+
+  text.split('\n').forEach(function (line) {
+    var prettyLine = parseOutput(line)
+    if (prettyLine !== undefined) console.log(prettyLine)
+  })
+
+  text.split('\n').forEach(function (line) {
+    if (line.indexOf('Error') >= 0) _likelyErrorDescription = line
+  })
+
   trigger()
 }
 
@@ -91,6 +136,18 @@ function trigger () {
       var minOffset = String(j).trim().length
 
       console.log()
+      if (_likelyErrorDescription.length > 0) {
+        console.log(
+          ' ' +
+          clc.redBright(_likelyErrorDescription)
+        )
+      }
+      console.log(
+        ' @ ' +
+        transformToRelativePaths(url) +
+        ' ' + clc.redBright(pos.line) +
+        ':' + clc.redBright(pos.column)
+      )
       // console.log('---')
       var result = []
       for (; i < j; i++) {
@@ -126,7 +183,6 @@ function trigger () {
       })
 
       // console.log('---')
-      console.log()
     })
     // console.log('_resolved: ' + _resolved.length)
   }, 5)
@@ -325,17 +381,9 @@ function parseToken (token, penColor) {
 
   if (testToken(token, [
     'return',
-    'in',
-    'of',
-    'if',
-    'for',
-    'while',
-    'final',
-    'finally',
     'var',
     'new',
     'do',
-    'return',
     'void',
     'else',
     'break',
@@ -389,10 +437,36 @@ function parseToken (token, penColor) {
     'Array',
     'Boolean'
   ])) {
-    return clc['yellow'](token.slice(0, -2)) + token.slice(4)
+    return clc['yellow'](token)
   }
 
   return clc[penColor](token)
+}
+
+function isCodeSnippetLine (line) {
+  var header = line.trim().substring(0, 8)
+  if (header.split(/[^\d|>]/).join('').trim().length < 1) return false
+  var helmet = header.split(/[^\d|> ]/).join('').trim()
+  var split = header.split(helmet)
+  if (split[0].split(/[^\d|>]/).join('').length > 0) return false
+  // if (split[1].split(/[^\d|> ]/).join('').length < 1) return false
+  return true
+}
+
+function parseOutput (line) {
+  var trimmedLine = line.trim()
+
+  if (isCodeSnippetLine(line)) return undefined
+
+  if (testToken(trimmedLine, [
+    'error /i',
+    'SyntaxError',
+    'Unexpected'
+  ])) {
+    return clc.redBright( transformToRelativePaths(line) )
+  }
+
+  return line // do nothing
 }
 
 function parsePrettyLine (line) {
@@ -418,7 +492,7 @@ function parsePrettyLine (line) {
     'SyntaxError',
     'Unexpected'
   ])) {
-    return clc.redBright(line)
+    return clc.redBright( transformToRelativePaths(line) )
   }
 
   return line // do nothing
