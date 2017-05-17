@@ -135,7 +135,7 @@ function trigger () {
       var buffer = fs.readFileSync(url, { encoding: 'utf8' })
       var lines = buffer.split('\n')
       var i = Math.max(0, pos.line - 4)
-      var j = Math.min(lines.length - 1, pos.line + 3)
+      var j = Math.min(lines.length - 1, i + 4 + 3)
       // console.log('pos.line: ' + pos.line)
       // console.log('i: ' + i)
       // console.log('j: ' + j)

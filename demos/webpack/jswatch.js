@@ -20,19 +20,23 @@ function handleIO (chunk) {
     var lines = buffer.split('\n')
     buffer = lines.pop() // rewind buffer and parse complete lines
 
-    // lines.forEach(function (line) {
-    //   var prettyLine = parsePrettyLine(line)
-    //   if (prettyLine !== undefined) {
-    //     console.log(prettyLine)
-    //   }
-    // })
+    lines.forEach(function (line) {
+      var prettyLine = parsePrettyLine(line)
+      if (prettyLine !== undefined) {
+        console.log(prettyLine)
+      }
+    })
 
     var text = lines.join('\n')
-    snippet(text)
+    if (text.toLowerCase().indexOf('error') >= 0) {
+      snippet(text)
+    } else {
+      console.log(text)
+    }
     // console.log('--text--')
     // console.log(text)
     // console.log('--/text--')
-  }, 100)
+  }, 15)
 }
 
 function testToken (str, tests) {
