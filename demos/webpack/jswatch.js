@@ -1,5 +1,4 @@
 var childProcess = require('child_process')
-var esprima = require('esprima')
 var clc = require('cli-color')
 
 var spawn = childProcess.spawn('npm', ['run', 'watch-js'])

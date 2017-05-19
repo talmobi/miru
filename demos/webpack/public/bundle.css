@@ -3,6 +3,16 @@ body {
   background: purple;
 }
 html,
+body,
+.class,
+#id {
+  background: green;
+  font-family: sans-serif;
+  padding: 0px;
+  display: block!important;
+  visibility: -;
+}
+html,
 body {
   background: cornflowerblue;
   color: #222;

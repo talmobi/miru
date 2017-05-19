@@ -1,1 +1,1 @@
-console.error("SyntaxError: /Users/mollie/temp/miru/demos/webpack/scripts/mods/module.js: Unexpected token, expected ; (4:25) while parsing file: /Users/mollie/temp/miru/demos/webpack/scripts/mods/module.js");
+console.error("SyntaxError: /Users/mollie/temp/miru/demos/webpack/scripts/mods/module.js: Unexpected token, expected ; (4:34) while parsing file: /Users/mollie/temp/miru/demos/webpack/scripts/mods/module.js");
