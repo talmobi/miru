@@ -4,7 +4,8 @@ var glob = require('glob-fs')({ gitignore: true })
 
 var files = glob.readdirSync('styles/**/*.less')
 
-var snippet = require('./snippet.js')
+// var snippet = require('./snippet.js')
+var snippet = require('/Users/mollie/code/wooster/snippet.js')
 
 files.forEach(function (file) {
   // console.log('watching file: ' + file)
