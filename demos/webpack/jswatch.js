@@ -5,7 +5,8 @@ var spawn = childProcess.spawn('npm', ['run', 'watch-js'])
 
 var buffer = ''
 
-var snippet = require('./snippet.js')
+// var snippet = require('./snippet.js')
+var snippet = require('/Users/mollie/code/wooster/snippet.js')
 
 spawn.stdout.on('data', handleIO)
 spawn.stderr.on('data', handleIO)
