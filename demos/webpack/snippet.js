@@ -5,6 +5,7 @@ var clc = require('cli-color')
 // https://github.com/chalk/ansi-regex
 var ansiRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g
 
+
 function stripAnsi (str) {
   return str.replace(ansiRegex, '')
 }
@@ -215,6 +216,7 @@ function trigger () {
       var minOffset = String(j).trim().length
 
       console.log()
+      console.log(' >> snippet << ')
       if (_likelyErrorDescription.length > 0) {
         // shorten urls in error description
         // (path/to/file -> p/t/file)

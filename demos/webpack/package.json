@@ -13,6 +13,7 @@
     "test-less": "lessc styles/app.less public/bundle.css 2>&1 | /Users/mollie/code/wooster/cli.js",
     "test-webpack": "webpack --config webpack.config.js 2>&1 | /Users/mollie/code/wooster/cli.js",
     "test-browserify": "browserify scripts/app.js -o public/bundle.js -t [ babelify --presets [ es2015 ] ] -v 2>&1 | /Users/mollie/code/wooster/cli.js",
+    "test-rollup": "rollup -c rollup.config.js 2>&1 | /Users/mollie/code/wooster/cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
@@ -31,6 +32,7 @@
     "highlight.js": "^9.11.0",
     "less": "^2.7.2",
     "nib": "^1.1.2",
+    "rollup": "^0.41.6",
     "strip-ansi": "^3.0.1",
     "stylus": "^0.54.5",
     "watchify": "^3.9.0",
