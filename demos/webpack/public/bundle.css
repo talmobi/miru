@@ -1,20 +1,6 @@
 html,
 body {
-  background: purple;
-}
-html,
-body,
-.class,
-#id {
-  background: green;
-  font-family: sans-serif;
-  padding: 0px;
-  display: block!important;
-  visibility: -;
-}
-html,
-body {
-  background: cornflowerblue;
+  background: #f00;
   color: #222;
   font-family: sans-serif;
 }

@@ -14,6 +14,7 @@
     "test-webpack": "webpack --config webpack.config.js 2>&1 | /Users/mollie/code/wooster/cli.js",
     "test-browserify": "browserify scripts/app.js -o public/bundle.js -t [ babelify --presets [ es2015 ] ] -v 2>&1 | /Users/mollie/code/wooster/cli.js",
     "test-rollup": "rollup -c rollup.config.js 2>&1 | /Users/mollie/code/wooster/cli.js",
+    "test-stylus": "stylus -u nib -r ./styles/app.styl -o ./public/bundle.css 2>&1 | /Users/mollie/code/wooster/cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
