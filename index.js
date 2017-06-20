@@ -251,7 +251,7 @@ setTimeout(tickTimer, 100)
 var host = '0.0.0.0'
 var port = 4040
 
-var debug = true
+var debug = false
 var pipe = false
 
 var targetHasError = {}
@@ -312,10 +312,13 @@ function cc (text, code) {
 function clearConsole() {
   // This seems to work best on Windows and other systems.
   // The intention is to clear the output so you can focus on most recent build.
-  // process.stdout.write('\x1bc');
-  console.log()
-  console.log(' === CLEAR === ')
-  console.log()
+  if (debug) {
+    console.log()
+    console.log(' === CLEAR === ')
+    console.log()
+  } else {
+    process.stdout.write('\x1bc');
+  }
 }
 
 var args = process.argv.slice(2)
@@ -341,7 +344,7 @@ var emit_targets = {}
 var emit_timeouts = {}
 var emit_timeout = undefined
 function emit (target) {
-  if (emit_timeout === undefined) clearConsole()
+  // if (emit_timeout === undefined) clearConsole()
   clearTimeout(emit_timeout)
 
   console.log(clc.yellow('changed in [' + clc.magenta(target) + ']'))
@@ -392,7 +395,7 @@ var targetStates = {}
 function watch (target) {
   var process = function () {
     debug && console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
-    console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
+    // console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
 
     fs.stat(target, function (err, stats) {
       if (err) throw err
@@ -412,7 +415,7 @@ function watch (target) {
 
         if (!state.throttled) {
           var attempt = function () {
-            console.log('attempting')
+            // console.log('attempting')
             // io.emit('progress', target)
             var text = fs.readFileSync(target, 'utf-8')
             if (text.length < 1) {
@@ -459,10 +462,10 @@ function watch (target) {
   targetWatchers[target] = watcher
   watcher.watch(target)
   watcher.on('modification', function (info) {
-    console.log('modification on: ' + info.filepath)
-    console.log('mtime: ' + info.mtime)
-    console.log('last_mtime: ' + info.last_mtime)
-    console.log('delta_mtime: ' + info.delta_mtime)
+    // console.log('modification on: ' + info.filepath)
+    // console.log('mtime: ' + info.mtime)
+    // console.log('last_mtime: ' + info.last_mtime)
+    // console.log('delta_mtime: ' + info.delta_mtime)
     process()
   })
   // attach watchers
@@ -678,7 +681,7 @@ function exec (cmd, target) {
 
   function process (chunk) {
     var now = Date.now()
-    console.log(clc.yellow('exec process cmd [' + cmd + ']') + ' ' + chunk.toString('utf8').substr(0, 10))
+    // console.log(clc.yellow('exec process cmd [' + cmd + ']') + ' ' + chunk.toString('utf8').substr(0, 10))
 
     var str = chunk.toString('utf8')
     buffer += str
