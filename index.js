@@ -4,7 +4,10 @@ var chokidar = require('chokidar')
 var express = require('express')
 var cp = require('child_process')
 
-var chalk = require('chalk')
+// var clc = require('clc')
+// clc.enabled = true
+
+var clc = require('cli-color')
 
 var mtimes = {}
 var fs = require('fs')
@@ -242,7 +245,7 @@ var iterationsLimit = 4
 function getIterationBox (targets) {
   var box = ''
   targets.forEach(function (target) {
-    box += chalk[getIterationBoxColor(target, true)]('  ')
+    box += clc[getIterationBoxColor(target, true)]('  ')
   })
 
   iterations = (++iterations % iterationsLimit)
@@ -318,7 +321,7 @@ function emit (target) {
   if (emit_timeout === undefined) clearConsole()
   clearTimeout(emit_timeout)
 
-  console.log(chalk.yellow('changed in [' + chalk.magenta(target) + ']'))
+  console.log(clc.yellow('changed in [' + clc.magenta(target) + ']'))
 
   emit_targets[target] = target // save emitted targets
   targetHasError[target] = false // successful build on target
@@ -340,8 +343,8 @@ function emit (target) {
 
     targets.forEach(function (target) {
       var color = getIterationBoxColor(target, false)
-      var msg = ('modification [' + chalk[color](target) + ']')
-      console.log(msg + ' [' + chalk.cyan(new Date().toLocaleTimeString()) + ']')
+      var msg = ('modification [' + clc[color](target) + ']')
+      console.log(msg + ' [' + clc.cyan(new Date().toLocaleTimeString()) + ']')
       io.emit('modification', target)
     })
 
@@ -354,7 +357,7 @@ function emit (target) {
 
       // TODO
       if (err) {
-        console.log('remaining error found at target [' + chalk.magenta(target) + ']')
+        console.log('remaining error found at target [' + clc.magenta(target) + ']')
         handleError(err, target, true)
         // console.log(err)
       }
@@ -365,8 +368,8 @@ function emit (target) {
 var targetStates = {}
 function watch (target) {
   var process = function (path) {
-    // debug && console.log(chalk.yellow('path [' + chalk.magenta(path) + ']'))
-    debug && console.log(chalk.yellow('watch event on target [' + chalk.magenta(target) + ']'))
+    // debug && console.log(clc.yellow('path [' + clc.magenta(path) + ']'))
+    debug && console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
 
     fs.stat(target, function (err, stats) {
       if (err) throw err
@@ -390,14 +393,14 @@ function watch (target) {
             var text = fs.readFileSync(target, 'utf-8')
             if (text.length < 1) {
               verbose && setTimeout(function () {
-                console.log(chalk.yellow('[ignored] text.length: ' + text.length + ' [' + chalk.magenta(target) + ']'))
+                console.log(clc.yellow('[ignored] text.length: ' + text.length + ' [' + clc.magenta(target) + ']'))
               }, 75)
 
               setTimeout(attempt, 25)
             } else {
               if (!state.throttled) {
                 verbose && setTimeout(function () {
-                  console.log(chalk.yellow('[EMITTED] text.length: ' + text.length + ' [' + chalk.magenta(target) + ']'))
+                  console.log(clc.yellow('[EMITTED] text.length: ' + text.length + ' [' + clc.magenta(target) + ']'))
                 }, 75)
 
                 setTimeout(function () {
@@ -409,7 +412,7 @@ function watch (target) {
                 }, throttleTimeout)
               } else {
                 verbose && setTimeout(function () {
-                  console.log(chalk.yellow('[throttled] [' + chalk.magenta(target) + ']'))
+                  console.log(clc.yellow('[throttled] [' + clc.magenta(target) + ']'))
                 }, 75)
               }
             }
@@ -417,7 +420,7 @@ function watch (target) {
           setTimeout(attempt, 25)
         } else {
           verbose && setTimeout(function () {
-            console.log(chalk.yellow('[throttled] [' + chalk.magenta(target) + ']'))
+            console.log(clc.yellow('[throttled] [' + clc.magenta(target) + ']'))
           }, 75)
         }
       } else {
@@ -444,7 +447,7 @@ var lastError = undefined
 function handleError (err, target, remaining, initMode) {
  //  if (previousErrors[target] == err && !remaining) {
  //    // TODO -- this is useless? (since we are usin clearConsole)
- //    // verbose && console.log(chalk.yellow('skipping error print (same error)'))
+ //    // verbose && console.log(clc.yellow('skipping error print (same error)'))
  //    // return undefined // dont reprint same error
  //  }
 
@@ -461,7 +464,7 @@ function handleError (err, target, remaining, initMode) {
     var m = 'error'
     if (remaining) m = 'remaining error'
 
-    var s = chalk.gray(' >> ' + m + ' [' + chalk.magenta(target) + ']')
+    var s = clc.gray(' >> ' + m + ' [' + clc.magenta(target) + ']')
     console.log(s)
     console.log('')
     targetHasError[target] = err
@@ -519,7 +522,7 @@ function parseError (lines) {
   var msg = ''
   tokens.forEach(function (token) {
     if (token.color) {
-      msg += chalk[token.color](token.text)
+      msg += clc[token.color](token.text)
     } else {
       msg += token.text
     }
@@ -537,7 +540,7 @@ function parseError (lines) {
     if (t.startsWith('//') ||
         t.startsWith('/*') ||
         t.startsWith('*')) {
-      return (line.slice(0, matchIndex) + chalk.gray(removeColors([line.slice(matchIndex)])))
+      return (line.slice(0, matchIndex) + clc.gray(removeColors([line.slice(matchIndex)])))
     }
 
     var indexOf
@@ -551,7 +554,7 @@ function parseError (lines) {
       })
 
     if (indexOf) {
-      return (line.slice(0, indexOf) + chalk.gray(removeColors([line.slice(indexOf)])))
+      return (line.slice(0, indexOf) + clc.gray(removeColors([line.slice(indexOf)])))
     }
 
     return line
@@ -577,7 +580,7 @@ function removeColors (lines) {
 var recoveryWatchers = {}
 var recoveryTimeouts = {}
 function recover (cmd, target) {
-  console.log(chalk.yellow('attatching recovery watcher for [' + cmd + '] (' + target + ')'))
+  console.log(clc.yellow('attatching recovery watcher for [' + cmd + '] (' + target + ')'))
 
   var watcher = recoveryWatchers[cmd]
   if (watcher && watcher.close) watcher.close()
@@ -610,7 +613,7 @@ function recover (cmd, target) {
   // bind to fs change events
   recoveryWatchers[cmd].on('change', function (path) {
     recoveryWatchers[cmd].close()
-    console.log(chalk.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
+    console.log(clc.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
 
     clearTimeout(recoveryTimeouts[cmd])
     recoveryTimeouts[cmd] = setTimeout(function () {
@@ -623,7 +626,7 @@ function exec (cmd, target) {
   if (typeof cmd === 'string') cmd = cmd.split(' ')
 
   var child = cp.spawn(cmd[0], cmd.slice(1))
-  console.log(chalk.yellow('exec cmd [' + cmd + ']'))
+  console.log(clc.yellow('exec cmd [' + cmd + ']'))
 
   // TODO check for error, send error log to client through sockets
   var buffer = ''
@@ -640,12 +643,12 @@ function exec (cmd, target) {
     if ((now - _lastProcessedTime) > _resetTime) {
       // should reset
       clearTimeout(emit_timeout)
-      console.log(chalk.grey(' -- restarting spawn -- '))
+      console.log(clc.grey(' -- restarting spawn -- '))
       targetHasError[target] = undefined
       _resetting = true
       child.kill()
       setTimeout(function () {
-        console.log(chalk.grey(' -- reset executing -- '))
+        console.log(clc.grey(' -- reset executing -- '))
         exec(cmd, target)
       }, 1)
     } else {
@@ -721,12 +724,12 @@ function exec (cmd, target) {
   }
 
   child.on('exit', function (code) {
-    console.log(chalk.grey('SPAWN EXITED'))
+    console.log(clc.grey('SPAWN EXITED'))
     destroy()
   })
 
   child.on('close', function (code) {
-    console.log(chalk.grey('SPAWN CLOSED'))
+    console.log(clc.grey('SPAWN CLOSED'))
     destroy()
   })
 } // exec
