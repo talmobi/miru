@@ -739,7 +739,6 @@ function exec (cmd, target) {
     clearTimeout(destroyTimeout)
     if (__process_exiting) return undefined // no need to recover on reset
     destroyTimeout = setTimeout(function () {
-      child.kill()
 
       handleError(targetHasError[target], target, undefined)
       setTimeout(function () {
@@ -750,11 +749,7 @@ function exec (cmd, target) {
 
   child.on('exit', function (code) {
     console.log(clc.grey('SPAWN EXITED'))
-    destroy()
-  })
-
-  child.on('close', function (code) {
-    console.log(clc.grey('SPAWN CLOSED'))
+    if (__process_exiting) return undefined // no need to recover on reset
     destroy()
   })
 } // exec
