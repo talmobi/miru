@@ -237,17 +237,6 @@ io.on('connection', function (socket) {
   })
 })
 
-function tickTimer () {
-  var str = ''
-  var alphabet = 'abcdefghijklmnopqrstuvxyz'
-  for (var i = 0; i < (2 << 6); i++) {
-    str += alphabet[Math.random() * alphabet.length | 0]
-  }
-  io.emit('tick', str)
-  setTimeout(tickTimer, 100)
-}
-setTimeout(tickTimer, 100)
-
 var host = '0.0.0.0'
 var port = 4040
 
