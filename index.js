@@ -4,10 +4,9 @@ var chokidar = require('chokidar')
 var express = require('express')
 var cp = require('child_process')
 
-// var clc = require('clc')
-// clc.enabled = true
-
 var clc = require('cli-color')
+clc.grey = clc.white
+clc.gray = clc.white
 
 var mtimes = {}
 var fs = require('fs')
