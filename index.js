@@ -1,12 +1,36 @@
 'use strict'
 
-var chokidar = require('chokidar')
+// var chokidar = require('chokidar')
 var express = require('express')
 var cp = require('child_process')
 
+var miteru = require('miteru')
+var glob = require('glob')
+
+var targetWatchers = {}
+var recoveryWatchers = {}
+var recoveryTimeouts = {}
+
+var __process_exiting = false
+
+var spawns = []
+// cleanup
+process.on('exit', function () {
+  __process_exiting = true
+  var counter = 0
+  spawns.forEach(function (spawn) {
+    try {
+      spawn.kill()
+      count++
+    } catch (err) {
+    }
+  })
+  console.log('cleaned up ' + counter + ' spawns')
+})
+
 var clc = require('cli-color')
-clc.grey = clc.white
-clc.gray = clc.white
+clc.grey = clc.blackBright
+clc.gray = clc.blackBright
 
 var mtimes = {}
 var fs = require('fs')
@@ -288,10 +312,10 @@ function cc (text, code) {
 function clearConsole() {
   // This seems to work best on Windows and other systems.
   // The intention is to clear the output so you can focus on most recent build.
-  process.stdout.write('\x1bc');
-  // console.log()
-  // console.log()
-  // console.log()
+  // process.stdout.write('\x1bc');
+  console.log()
+  console.log(' === CLEAR === ')
+  console.log()
 }
 
 var args = process.argv.slice(2)
@@ -366,9 +390,9 @@ function emit (target) {
 
 var targetStates = {}
 function watch (target) {
-  var process = function (path) {
-    // debug && console.log(clc.yellow('path [' + clc.magenta(path) + ']'))
+  var process = function () {
     debug && console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
+    console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
 
     fs.stat(target, function (err, stats) {
       if (err) throw err
@@ -388,6 +412,7 @@ function watch (target) {
 
         if (!state.throttled) {
           var attempt = function () {
+            console.log('attempting')
             // io.emit('progress', target)
             var text = fs.readFileSync(target, 'utf-8')
             if (text.length < 1) {
@@ -429,13 +454,25 @@ function watch (target) {
     })
   }
 
-  // attach watchers
-  chokidar.watch(target, {
-    usePolling: true,
-    interval: 66
+  var watcher = targetWatchers[target] || miteru.create()
+  watcher.clear()
+  targetWatchers[target] = watcher
+  watcher.watch(target)
+  watcher.on('modification', function (info) {
+    console.log('modification on: ' + info.filepath)
+    console.log('mtime: ' + info.mtime)
+    console.log('last_mtime: ' + info.last_mtime)
+    console.log('delta_mtime: ' + info.delta_mtime)
+    process()
   })
-    .on('add', process)
-    .on('change', process)
+  // attach watchers
+  // 
+  //   chokidar.watch(target, {
+  //     usePolling: true,
+  //     interval: 66
+  //   })
+  //     .on('add', process)
+  //     .on('change', process)
 } // watch
 
 
@@ -576,17 +613,13 @@ function removeColors (lines) {
   return parsedLines
 }
 
-var recoveryWatchers = {}
-var recoveryTimeouts = {}
 function recover (cmd, target) {
-  console.log(clc.yellow('attatching recovery watcher for [' + cmd + '] (' + target + ')'))
+  console.log(clc.yellow('attaching recovery watcher for [' + cmd + '] (' + target + ')'))
 
-  var watcher = recoveryWatchers[cmd]
-  if (watcher && watcher.close) watcher.close()
+  var watcher = recoveryWatchers[cmd] || miteru.create()
+  recoveryWatchers[cmd] = watcher
+  watcher.clear()
   clearTimeout(recoveryTimeouts[cmd])
-
-
-  recoveryWatchers[cmd] = chokidar.watch()
 
   // target suffix
   var suffix = target.slice(target.lastIndexOf('.') + 1)
@@ -594,30 +627,39 @@ function recover (cmd, target) {
   // add glob patterns based on the target suffix
   switch (suffix) {
     case 'js':
-      recoveryWatchers[cmd].add('**/*.js*')
+      var files = glob.sync('**/*.js*')
+      files.forEach(function (file) {
+        watcher.watch(file)
+      })
       break
     case 'css':
-      recoveryWatchers[cmd].add('**/*.css')
-      recoveryWatchers[cmd].add('**/*.scss')
-      recoveryWatchers[cmd].add('**/*.sass')
-      recoveryWatchers[cmd].add('**/*.styl')
+      var files = glob.sync('**/*.+(js*|css|scss|styl)')
+      files.forEach(function (file) {
+        watcher.watch(file)
+      })
       break
     default:
-      recoveryWatchers[cmd].add('**/*') // all
+      var files = glob.sync('**/*') // all files..
+      files.forEach(function (file) {
+        watcher.watch(file)
+      })
   }
+
+  watcher.unwatch(target) // don't watch targets
 
   // recoveryWatchers[cmd].unwatch('**/bundle.js')
   // recoveryWatchers[cmd].unwatch('**/bundle.css')
 
   // bind to fs change events
-  recoveryWatchers[cmd].on('change', function (path) {
-    recoveryWatchers[cmd].close()
-    console.log(clc.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
+  watcher.on('modification', function (info) {
+    console.log(clc.yellow('modification at: ' + clc.cyan(info.filepath)))
 
     clearTimeout(recoveryTimeouts[cmd])
     recoveryTimeouts[cmd] = setTimeout(function () {
+      watcher.close()
+      console.log(clc.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
       exec(cmd, target)
-    }, 500)
+    }, 350)
   })
 }
 
@@ -625,6 +667,7 @@ function exec (cmd, target) {
   if (typeof cmd === 'string') cmd = cmd.split(' ')
 
   var child = cp.spawn(cmd[0], cmd.slice(1))
+  spawns.push(child)
   console.log(clc.yellow('exec cmd [' + cmd + ']'))
 
   // TODO check for error, send error log to client through sockets
@@ -633,76 +676,59 @@ function exec (cmd, target) {
   var bufferResetTimeout = undefined
   var initMode = true
 
-  var _lastProcessedTime = Date.now()
-  var _resetTime = 1000 * 10
-  var _resetting = false
-
   function process (chunk) {
     var now = Date.now()
-    if ((now - _lastProcessedTime) > _resetTime) {
-      // should reset
-      clearTimeout(emit_timeout)
-      console.log(clc.grey(' -- restarting spawn -- '))
-      targetHasError[target] = undefined
-      _resetting = true
-      child.kill()
-      setTimeout(function () {
-        console.log(clc.grey(' -- reset executing -- '))
-        exec(cmd, target)
-      }, 1)
-    } else {
-      _lastProcessedTime = now
+    console.log(clc.yellow('exec process cmd [' + cmd + ']') + ' ' + chunk.toString('utf8').substr(0, 10))
 
-      var str = chunk.toString('utf8')
-      buffer += str
+    var str = chunk.toString('utf8')
+    buffer += str
 
-      var isError = false
+    var isError = false
 
-      buffer.split('\n').forEach(function (line) {
-        if (line.startsWith('[DEBUG]')) {
-          console.log(line)
-        } else {
-          if (line.toLowerCase().indexOf('error') !== -1) isError = true
-        }
-      })
+    buffer.split('\n').forEach(function (line) {
+      if (line.startsWith('[DEBUG]')) {
+        console.log(line)
+      } else {
+        if (line.toLowerCase().indexOf('error') !== -1) isError = true
+      }
+    })
 
-      clearTimeout(timeout)
-      timeout = setTimeout(function () {
-        var lines = buffer.split('\n')
-              .filter(function (line) {
-                return line.toLowerCase().indexOf('node_modules') === -1
-              })
-              .filter(function (line) {
-                return line.toLowerCase().indexOf('[debug]') === -1
-              })
-        buffer = ''
+    clearTimeout(timeout)
+    timeout = setTimeout(function () {
+      var lines = buffer.split('\n')
+            .filter(function (line) {
+              return line.toLowerCase().indexOf('node_modules') === -1
+            })
+            .filter(function (line) {
+              return line.toLowerCase().indexOf('[debug]') === -1
+            })
+      buffer = ''
 
-        pipe && console.log(lines.join('\n'))
+      pipe && console.log(lines.join('\n'))
 
-        if (lines && lines.length > 0 && lines[0].trim().length > 1) {
-          io.emit('progress', {
-            target: target,
-            lines: lines
-          })
-        }
+      if (lines && lines.length > 0 && lines[0].trim().length > 1) {
+        io.emit('progress', {
+          target: target,
+          lines: lines
+        })
+      }
 
-        if (isError) {
-          // console.log(result.join('\n'))
-          var err = parseError(lines)
-          handleError(err, target, undefined)
+      if (isError) {
+        // console.log(result.join('\n'))
+        var err = parseError(lines)
+        handleError(err, target, undefined)
 
-          // TODO emit error log to clients
-          // handleError fn
-        } else {
-          initMode = false
-        }
-      }, 100)
+        // TODO emit error log to clients
+        // handleError fn
+      } else {
+        initMode = false
+      }
+    }, 100)
 
-      clearTimeout(bufferResetTimeout)
-      bufferResetTimeout = setTimeout(function () {
-        if (!isError) buffer = ''
-      }, 200)
-    }
+    clearTimeout(bufferResetTimeout)
+    bufferResetTimeout = setTimeout(function () {
+      if (!isError) buffer = ''
+    }, 200)
   } // fn process
 
   child.stdout.on('data', process)
@@ -711,7 +737,7 @@ function exec (cmd, target) {
   var destroyTimeout = undefined
   function destroy () {
     clearTimeout(destroyTimeout)
-    if (_resetting) return undefined // no need to recover on reset
+    if (__process_exiting) return undefined // no need to recover on reset
     destroyTimeout = setTimeout(function () {
       child.kill()
 
