@@ -7,6 +7,8 @@ var cp = require('child_process')
 var miteru = require('miteru')
 var glob = require('glob')
 
+var wooster = require('wooster')
+
 var targetWatchers = {}
 var recoveryWatchers = {}
 var recoveryTimeouts = {}
@@ -496,7 +498,7 @@ function handleError (err, target, remaining, initMode) {
     console.log(s)
     console.log('')
     targetHasError[target] = err
-    console.log(err)
+    console.log(wooster(err))
 
     if (typeof err !== 'string') err = 'Error: Unknown error.'
 
