@@ -7,7 +7,8 @@ var cp = require('child_process')
 var miteru = require('miteru')
 var glob = require('glob')
 
-var wooster = require('wooster')
+// var wooster = require('wooster')
+var wooster = require('../wooster/snippet.js') // TODO
 
 var targetWatchers = {}
 var recoveryWatchers = {}
@@ -19,15 +20,13 @@ var spawns = []
 // cleanup
 process.on('exit', function () {
   __process_exiting = true
-  var counter = 0
   spawns.forEach(function (spawn) {
+    spawn.__enable_auto_recover = false
     try {
       spawn.kill()
-      count++
     } catch (err) {
     }
   })
-  console.log('cleaned up ' + counter + ' spawns')
 })
 
 var clc = require('cli-color')
@@ -222,7 +221,12 @@ app.get('/', function (req, res, next) {
 })
 
 app.use(function (req, res) {
-  console.log('catch-all [$]'.replace('$', req.originalUrl))
+  console.log('warning: 404 -- [$]'.replace('$', req.originalUrl))
+  // console.log([
+  //   'You seem to be accessing your application directly though the miru',
+  //   'web server (miru by default server the -p directory) -- this is not',
+  //   'recommended -- please use your own web server'
+  // ].join('\n'))
   res.status(404).end()
 })
 
@@ -231,6 +235,7 @@ io.on('connection', function (socket) {
   console.log('new connection')
   Object.keys(targetHasError).forEach(function (target) {
     if (targetHasError[target] && emittedErrors[target]) {
+      console.log('emitting error [on connection]')
       io.emit('error', {
         target: target,
         err: emittedErrors[target]
@@ -274,6 +279,24 @@ function getIterationBox (targets) {
   return msg
 }
 
+// error iteration box
+var _iterationBoxErrorCounter = 0
+var _iterationBoxErrorCounterLimit = 4
+function getErrorIterationBox () {
+  _iterationBoxErrorCounter = (_iterationBoxErrorCounter + 1) % _iterationBoxErrorCounterLimit
+
+  var box = ''
+  for (var i = 0; i < _iterationBoxErrorCounterLimit; i++) {
+    if (i === _iterationBoxErrorCounter) {
+      box += clc.bgMagentaBright('  ')
+    } else {
+      box += '     '
+    }
+  }
+
+  return box
+}
+
 function getIterationBoxColor (target, bg) {
   if (bg) {
     if (target.toLowerCase().indexOf('css') >= 0) return 'bgGreen'
@@ -303,7 +326,7 @@ function cc (text, code) {
 function clearConsole() {
   // This seems to work best on Windows and other systems.
   // The intention is to clear the output so you can focus on most recent build.
-  if (debug) {
+  if (true) {
     console.log()
     console.log(' === CLEAR === ')
     console.log()
@@ -469,17 +492,23 @@ function watch (target) {
   //     .on('change', process)
 } // watch
 
+// https://github.com/chalk/ansi-regex
+var ansiRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g
+
+function stripAnsi (str) {
+  return str.replace(ansiRegex, '')
+}
 
 var errorTimeouts = {}
 var previousErrors = {}
 var emittedErrors = {}
 var lastError = undefined
 function handleError (err, target, remaining, initMode) {
- //  if (previousErrors[target] == err && !remaining) {
- //    // TODO -- this is useless? (since we are usin clearConsole)
- //    // verbose && console.log(clc.yellow('skipping error print (same error)'))
- //    // return undefined // dont reprint same error
- //  }
+ // if (previousErrors[target] == err && !remaining) {
+ //   verbose && console.log(clc.yellow('skipping error print (same error)'))
+ //   console.log(clc.yellow('skipping error print (same error)'))
+ //   return undefined // dont reprint same error
+ // }
 
   clearTimeout(errorTimeouts[target])
   // io.emit('error', { log: log })
@@ -498,21 +527,21 @@ function handleError (err, target, remaining, initMode) {
     console.log(s)
     console.log('')
     targetHasError[target] = err
-    console.log(wooster(err))
 
     if (typeof err !== 'string') err = 'Error: Unknown error.'
 
-    var lines = removeColors([s, ''].concat(err.split('\n')))
-    var e = lines.join('\n')
+    var e = getErrorIterationBox() + '\n' + wooster(err)
 
+    console.log(e)
     emittedErrors[target] = e
 
     // TODO emit error
+    console.log('emitting error')
     io.emit('error', {
       target: target,
       err: e
     })
-  }, 100)
+  }, 75)
 } // handleError
 
 function parseError (lines) {
@@ -652,8 +681,10 @@ function recover (cmd, target) {
     recoveryTimeouts[cmd] = setTimeout(function () {
       watcher.close()
       console.log(clc.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
-      exec(cmd, target)
-    }, 350)
+      setTimeout(function () {
+        exec(cmd, target)
+      }, 50)
+    }, 100)
   })
 }
 
@@ -661,6 +692,8 @@ function exec (cmd, target) {
   if (typeof cmd === 'string') cmd = cmd.split(' ')
 
   var child = cp.spawn(cmd[0], cmd.slice(1))
+  child.__enable_auto_recover = true
+  child.__id = spawns.length
   spawns.push(child)
   console.log(clc.yellow('exec cmd [' + cmd + ']'))
 
@@ -698,14 +731,8 @@ function exec (cmd, target) {
             })
       buffer = ''
 
-      pipe && console.log(lines.join('\n'))
-
-      if (lines && lines.length > 0 && lines[0].trim().length > 1) {
-        io.emit('progress', {
-          target: target,
-          lines: lines
-        })
-      }
+      console.log(' === child.__id: ' + child.__id)
+      true && console.log(lines.join('\n'))
 
       if (isError) {
         // console.log(result.join('\n'))
@@ -715,6 +742,14 @@ function exec (cmd, target) {
         // TODO emit error log to clients
         // handleError fn
       } else {
+        if (lines && lines.length > 0 && lines[0].trim().length > 1) {
+          console.log('emitting progress [output but no errors detected]')
+          io.emit('progress', {
+            target: target,
+            lines: lines
+          })
+        }
+
         initMode = false
       }
     }, 100)
@@ -731,10 +766,11 @@ function exec (cmd, target) {
   var destroyTimeout = undefined
   function destroy () {
     clearTimeout(destroyTimeout)
-    if (__process_exiting) return undefined // no need to recover on reset
+    if (!child.__enable_auto_recover) return undefined // no need to recover on reset
     destroyTimeout = setTimeout(function () {
 
-      handleError(targetHasError[target], target, undefined)
+      console.log('child destroyed, recoery error')
+      // handleError(targetHasError[target], target, undefined)
       setTimeout(function () {
         recover(cmd, target)
       }, 100)
@@ -743,8 +779,7 @@ function exec (cmd, target) {
 
   child.on('exit', function (code) {
     console.log(clc.grey('SPAWN EXITED'))
-    if (__process_exiting) return undefined // no need to recover on reset
-    destroy()
+    if (child.__enable_auto_recover) destroy() // auto recover
   })
 } // exec
 

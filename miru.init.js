@@ -132,6 +132,11 @@
     scriptEl.src = libs + '/livereload.js' + cachebuster
     document.body.appendChild(scriptEl)
 
+    // var fontLinkEl = document.createElement('link')
+    // fontLinkEl.rel = 'stylesheet'
+    // fontLinkEl.href = 'https://fonts.googleapis.com/css?family=Inconsolata"'
+    // document.head.appendChild(fontLinkEl)
+
     console.log('Live Reload Scripts Attached!! from [' + libs + ']')
   }
 })()
