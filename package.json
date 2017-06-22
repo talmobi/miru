@@ -7,7 +7,7 @@
     "miru": "./cli.js"
   },
   "scripts": {
-    "build-livereload": "browserify livereload.src.js -o livereload.js -t [ babelify --presets [ es2015 ] ]",
+    "build-livereload": "browserify livereload.src.js -o livereload.js -t [ babelify --presets [ es2015 ] ] && echo 'success'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

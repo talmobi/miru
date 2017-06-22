@@ -66,6 +66,20 @@ var _colors = {
   15: '#ebdbb2'
 }
 
+var targetErrors = {}
+
+function hasErrors () {
+  var keys = Object.keys( targetErrors )
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[ i ]
+    if ( targetErrors[ key ] ) {
+      console.log('has errors: ' + key)
+      return true
+    }
+  }
+  return false
+}
+
 var AnsiToHtmlFilter = require('ansi-to-html')
 var ansiToHtmlFilter = new AnsiToHtmlFilter({
   fg: '#fbf1c7',
@@ -133,7 +147,7 @@ function findElement (elements, field, target) {
   target = ('/' + target)
   target = target.slice(target.lastIndexOf('/'))
   target = target.toLowerCase().split('/').join('')
-  console.log('target: ' + target)
+  console.log('findElement target: ' + target)
   for (var i = 0; i < elements.length; i++) {
     var t = elements[i][field].toLowerCase().split('/').join('')
     // console.log('t: ' + t)
@@ -197,7 +211,7 @@ function init () {
       el.style['padding'] = '0.475rem'
       el.style['padding'] = 0
 
-      el.style['background-color'] = 'darkred'
+      el.style['background-color'] = '#b6442f'
       el.style['opacity'] = 0.9625
       el.style['opacity'] = 0.9725
       el.style['white-space'] = 'pre-wrap'
@@ -246,7 +260,9 @@ function init () {
     // console.log('miru ticking: ' + data.length)
   })
 
+  var _progressTimeout
   socket.on('progress', function (opts) {
+
     var now = Date.now()
     var target = opts.target
 
@@ -262,6 +278,11 @@ function init () {
         // clear previous
         el.innerHTML = ''
         showModal(true, 'progress')
+
+        clearTimeout( _progressTimeout )
+        _progressTimeout = setTimeout(function () {
+          if (!hasErrors()) showModal(false)
+        }, 1000)
 
         var titleEl = document.createElement('pre')
         titleEl.style['padding'] = '0.675rem'
@@ -315,6 +336,9 @@ function init () {
   var _lastErrorText
   socket.on('error', function (error) {
     var el = document.getElementById('__miruErrorModalEl')
+
+    targetErrors[error.target] = error
+
     if (el) {
       var name = error.name
       var text = error.message || error.err || error
@@ -367,7 +391,11 @@ function init () {
     console.log('modification event received')
     console.log(target)
 
-    showModal(false)
+    targetErrors[target] = undefined
+
+    // if (!hasErrors()) {
+    //   showModal(false)
+    // }
 
     window.__miruModificationTimeout = setTimeout(function () {
       window.__miruTargetTimes[target] = Date.now()
@@ -404,17 +432,23 @@ function init () {
                 console.log('CSSDone called')
                 finished = true
                 setTimeout(function () {
-                  document.documentElement.style.opacity = 1.0 // [1]
+                  // document.documentElement.style.opacity = 1.0 // [1]
                   window.dispatchEvent(new Event('resize'))
                   document.body.scrollTop = scrollTop
-                  showModal(false)
+
+                  if (!hasErrors()) {
+                    showModal(false)
+                  }
 
                   setTimeout(function () {
                     el.parentNode.removeChild(el)
                     window.dispatchEvent(new Event('resize'))
                     document.body.scrollTop = scrollTop
                     console.log('injection success -- [%s]', target)
-                    showModal(false)
+
+                    if (!hasErrors()) {
+                      showModal(false)
+                    }
                   }, 25)
                 }, 25)
               }
@@ -437,8 +471,10 @@ function init () {
                 }
               }
 
+              var _opacity = document.documentElement.style.opacity
               document.documentElement.style.opacity = 0.0
               setTimeout(function () {
+                document.documentElement.style.opacity = _opacity
                 el.parentNode.appendChild(styleEl)
               }, 5)
             })()
