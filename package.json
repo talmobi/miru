@@ -8,6 +8,8 @@
   },
   "scripts": {
     "build-livereload": "browserify livereload.src.js -o livereload.js -t [ babelify --presets [ es2015 ] ] && echo 'success'",
+    "watch-lr": "miteru -e 'npm run build-livereload' livereload.src.js",
+    "watch-livereload": "watchify livereload.src.js -o livereload.js -vt [ babelify --presets [ es2015 ] ]",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,12 +25,14 @@
     "minimist": "^1.2.0",
     "miteru": "0.0.2",
     "socket.io": "^1.7.2",
-    "wooster": "0.0.9"
+    "wooster": "0.0.11"
   },
   "devDependencies": {
     "ansi-to-html": "^0.6.2",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
-    "browserify": "^14.4.0"
+    "browserify": "^14.4.0",
+    "miteru": "0.0.2",
+    "watchify": "^3.9.0"
   }
 }

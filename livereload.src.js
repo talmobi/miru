@@ -1,3 +1,35 @@
+// Object.assign polyfill
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+if (typeof Object.assign != 'function') {
+  // Must be writable: true, enumerable: false, configurable: true
+  Object.defineProperty(Object, "assign", {
+    value: function assign(target, varArgs) { // .length of function is 2
+      'use strict';
+      if (target == null) { // TypeError if undefined or null
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
+
+      var to = Object(target);
+
+      for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+
+        if (nextSource != null) { // Skip over if undefined or null
+          for (var nextKey in nextSource) {
+            // Avoid bugs when hasOwnProperty is shadowed
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+      }
+      return to;
+    },
+    writable: true,
+    configurable: true
+  });
+}
+
 var foregroundColors = {
   // foreground
   '30': 'black',
@@ -68,12 +100,32 @@ var _colors = {
 
 var targetErrors = {}
 
+// ansi-to-html relies on String.prototype.trimRight
+// it doesn't exist on IE9 though so we polyfill it if necessary
+if ( !String.prototype.trimRight ) {
+  String.prototype.trimRight = function () {
+    return this.replace( /\s+$/, '' )
+  }
+}
+
+window.__miruInitialized = false
+
+function attemptResize () {
+  try {
+    var evt = document.createEvent( 'HTMLEvents' )
+    evt.initEvent( 'resize', true, false )
+    window.dispatchEvent && window.dispatchEvent( evt )
+  } catch ( err ) {
+    console.log( err )
+  }
+}
+
 function hasErrors () {
   var keys = Object.keys( targetErrors )
   for (var i = 0; i < keys.length; i++) {
     var key = keys[ i ]
     if ( targetErrors[ key ] ) {
-      console.log('has errors: ' + key)
+      console.log( 'has errors: ' + key )
       return true
     }
   }
@@ -117,14 +169,33 @@ function ansiToHtml (text) {
   return ansiToHtmlFilter.toHtml(text)
 }
 
+window.ansiToHtml = ansiToHtml
+
 function saveScrollTop () {
   if (window.localStorage) {
-    window.localStorage.setItem('__miru_scrollTop', JSON.stringify({
-      scrollTop: document.body.scrollTop,
-      time: Date.now()
-    }))
+    try {
+      window.localStorage.setItem('__miru_scrollTop', JSON.stringify({
+        scrollTop: document.body.scrollTop,
+        time: Date.now()
+      }))
+    } catch ( err ) {}
   }
 }
+
+setTimeout(function () {
+  if ( window.localStorage ) {
+    try {
+      var val = JSON.stringify(
+        window.localStorage.getItem( '__miru_scrollTop' )
+      )
+
+      var delta = Date.now() - val.time
+      if ( delta < 3000 ) {
+        document.body.scrollTop = val.scrollTop
+      }
+    } catch ( err ) {}
+  }
+}, 500)
 
 var UID = (function UID () {
   var counter = 0
@@ -176,12 +247,99 @@ function removeColors (lines) {
   return parsedLines
 }
 
+function autoAdjustFontSize () {
+  var modalId = '__miruErrorModalEl'
+  var el = document.getElementById( modalId )
+
+  if ( el ) {
+    if ( window.innerWidth < 1340 ) {
+      el.style['font-size'] = '21px'
+    }
+
+    if ( window.innerWidth < 1280 ) {
+      el.style['font-size'] = '20px'
+    }
+
+    if ( window.innerWidth < 1180 ) {
+      el.style['font-size'] = '19px'
+    }
+
+    if ( window.innerWidth < 1095 ) {
+      el.style['font-size'] = '17px'
+    }
+
+    if ( window.innerWidth < 1015 ) {
+      el.style['font-size'] = '16px'
+    }
+  }
+
+  var zoom = ( window.innerWidth / 720 )
+
+  // some reasonable zoom limits
+  if ( zoom > 9 ) zoom = 9
+  if ( zoom < 1 ) zoom = 1.25
+
+  if ( el ) {
+    var size = ( 12 * ( zoom ) ) | 0
+    // if ( size >= 20 ) size = 20
+    el.style['font-size'] = ( ( size ) + 'px' )
+  }
+
+  console.log( window.innerWidth )
+  console.log( zoom )
+}
+
+function startProgressBar ( target ) {
+  // TODO
+  var el = getElementById( '__miruProgressBarEl' )
+
+  if ( !el ) {
+    el = document.createElement( 'div' )
+    el.id = '__miruProgressBarEl'
+    document.body.appendChild( el )
+  }
+
+  el.style['transition'] = 'none'
+  el.style['opacity'] = 0
+  el.style['display'] = 'block'
+  el.style['position'] = 'fixed'
+  el.style['top'] = 0
+  el.style['left'] = 0
+  el.style['width'] = '100%'
+  el.style['height'] = '100%'
+
+  el.style['margin'] = 0
+  el.style['padding'] = '0.475rem'
+  el.style['padding'] = 0
+
+  el.style['background-color'] = '#2f44b6'
+  // el.style['opacity'] = 0.9625
+  el.style['opacity'] = 0.9725
+  el.style['white-space'] = 'pre-wrap'
+  el.style['color'] = 'white'
+  el.style['z-index'] = 2147483646 - 1 // ((2^32 / 2) - 2)
+
+  el.style['font-family'] = 'monospace'
+  el.style['font-size'] = '16px'
+
+  el.style['opacity'] = 1
+}
+
 window.__miruProgressTargetTimeouts = {}
 window.__miruTargetTimes = {}
 window.__miruModificationTimeout = undefined
 window.__miruModalTimeout = undefined
 function init () {
   console.log('miru initliazing')
+
+  setTimeout(function () {
+    window.__miruInitialized = true
+  }, 0)
+
+  window.addEventListener( 'resize', function () {
+    autoAdjustFontSize()
+  } )
+
   window.__miruInitTime = Date.now()
 
   function showModal (show, type) {
@@ -190,12 +348,12 @@ function init () {
     window.__miruModalTimeout = setTimeout(function () {
       var el = undefined
       var modalId = '__miruErrorModalEl'
-      el = document.getElementById(modalId)
+      el = document.getElementById( modalId )
 
       if (!el) {
-        el = document.createElement('div')
+        el = document.createElement( 'div' )
         el.id = modalId
-        document.body.appendChild(el)
+        document.body.appendChild( el )
       }
 
       el.style['transition'] = 'none'
@@ -208,20 +366,27 @@ function init () {
       el.style['height'] = '100%'
 
       el.style['margin'] = 0
-      el.style['padding'] = '0.475rem'
       el.style['padding'] = 0
 
       el.style['background-color'] = '#b6442f'
-      el.style['opacity'] = 0.9625
+      // el.style['opacity'] = 0.9625
       el.style['opacity'] = 0.9725
       el.style['white-space'] = 'pre-wrap'
       el.style['color'] = 'white'
-      el.style['z-index'] = 2147483646 // ((2^32 / 2) - 2)
+      el.style['z-index'] = 2147483646 - 2 // ((2^32 / 2) - 2)
 
-      el.style['font-family'] = 'monospace'
+      // el.style['font-family'] = 'monospace'
+      el.style['font-family'] = "'Anonymous Pro', monospace"
+      el.style['font-size'] = '22px'
+
+      el.style['line-height'] = '1.65em'
+
+      autoAdjustFontSize()
 
       switch (type) {
         case 'progress':
+          return undefined // TODO
+
           el.style['opacity'] = 0.0
           el.style['background-color'] = 'rgba(110, 136, 153, 0.75)'
           el.style['transition'] = 'opacity .5s ease-in'
@@ -253,6 +418,7 @@ function init () {
   var socket = io(window.__miruHost)
 
   socket.on('connect', function () {
+    autoAdjustFontSize()
     console.log('socket connected to: ' + window.__miruHost)
   })
 
@@ -261,7 +427,15 @@ function init () {
   })
 
   var _progressTimeout
-  socket.on('progress', function (opts) {
+  socket.on('progress', function ( opts ) {
+    return undefined // TODO
+
+    autoAdjustFontSize()
+
+    console.log( 'socket.on: "progress"')
+    // TODO
+    startProgressBar( opts.target )
+
 
     var now = Date.now()
     var target = opts.target
@@ -334,10 +508,23 @@ function init () {
   })
 
   var _lastErrorText
-  socket.on('error', function (error) {
+  socket.on('error', function ( error ) {
+    window.__miruErrorHandler( error )
+  })
+
+  window.__miruErrorHandler = function ( error ) {
+    autoAdjustFontSize()
+
     var el = document.getElementById('__miruErrorModalEl')
 
     targetErrors[error.target] = error
+
+    if ( !window.__miruInitialized ) {
+      return setTimeout(function () {
+        console.log( 'backup emit ========== ' )
+        socket.emit( 'error', error )
+      })
+    }
 
     if (el) {
       var name = error.name
@@ -346,8 +533,9 @@ function init () {
       var syntax = ansiToHtml(text)
       text = ansiToHtml( text ) + '\n\n'
 
-      if (_lastErrorText === text) {
+      if ( _lastErrorText === text ) {
         console.log('error text already shown')
+        showModal(true)
         return undefined
       }
 
@@ -383,9 +571,11 @@ function init () {
       console.warn('error received but miru option showErrors was turned off')
       console.log(error)
     }
-  })
+  }
 
   socket.on('modification', function (target) {
+    autoAdjustFontSize()
+
     var scrollTop = document.body.scrollTop
     clearTimeout(window.__miruModificationTimeout)
     console.log('modification event received')
@@ -397,10 +587,10 @@ function init () {
     //   showModal(false)
     // }
 
-    window.__miruModificationTimeout = setTimeout(function () {
+    window.__miruModificationTimeout = setTimeout( function () {
       window.__miruTargetTimes[target] = Date.now()
       // create some white space in the console
-      console.log(new Array(24).join('\n'))
+      console.log(new Array(24 + 12).join('\n'))
       console.log(' --- [' + (new Date().toLocaleString()) + '] --- ')
 
       var scripts = document.querySelectorAll('script')
@@ -433,7 +623,8 @@ function init () {
                 finished = true
                 setTimeout(function () {
                   // document.documentElement.style.opacity = 1.0 // [1]
-                  window.dispatchEvent(new Event('resize'))
+                  // window.dispatchEvent(new Event('resize'))
+                  attemptResize()
                   document.body.scrollTop = scrollTop
 
                   if (!hasErrors()) {
@@ -441,8 +632,9 @@ function init () {
                   }
 
                   setTimeout(function () {
-                    el.parentNode.removeChild(el)
-                    window.dispatchEvent(new Event('resize'))
+                    el && el.parentNode && el.parentNode.removeChild(el)
+                    // window.dispatchEvent(new Event('resize'))
+                    attemptResize()
                     document.body.scrollTop = scrollTop
                     console.log('injection success -- [%s]', target)
 
@@ -460,9 +652,11 @@ function init () {
               styleEl.onload = function () {
                 CSSDone()
               }
-              styleEl.addEventListener && styleEl.addEventListener('load', function () {
-                CSSDone()
-              }, false)
+
+              // styleEl.addEventListener && styleEl.addEventListener('load', function () {
+              //   CSSDone()
+              // }, false)
+
               styleEl.onreadystatechange = function () {
                 var state = styleEl.readyState
                 if (state === 'loaded' || state === 'complete') {
@@ -478,14 +672,16 @@ function init () {
                 el.parentNode.appendChild(styleEl)
               }, 5)
             })()
-            break
+          break
 
           case 'js':
             saveScrollTop()
-            setTimeout(function () {
-              window.location.reload()
-            }, 125)
-            return undefined
+            setTimeout( function () {
+              if ( !hasErrors() ) {
+                showModal( false )
+                window.location.reload()
+              }
+            }, 1 )
             break
 
           default:
@@ -496,7 +692,7 @@ function init () {
         // unrecgonized target
         console.warn('no element satisfying livereload event found [$]'.replace('$', target))
       }
-    }, 50) // modification timeout
+    }, 1 ) // modification timeout
   })
 
   socket.on('inject', function (list) {
@@ -553,10 +749,12 @@ function init () {
               document.body.scrollTop = scrollTop
               // trigger window resize event (reloads css)
               setTimeout(function () {
-                window.dispatchEvent(new Event('resize'))
+                // window.dispatchEvent(new Event('resize'))
+                attemptResize()
                 document.body.scrollTop = scrollTop
                 setTimeout(function () {
-                  window.dispatchEvent(new Event('resize'))
+                  // window.dispatchEvent(new Event('resize'))
+                  attemptResize()
                   document.body.scrollTop = scrollTop
                 }, 200)
               }, 50)

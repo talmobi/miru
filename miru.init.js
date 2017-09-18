@@ -100,6 +100,13 @@
   console.log('trying to attach live reload scripts...')
   r.send()
 
+  var loc = window.location
+  var host = ( loc.protocol + '//' + loc.hostname + ':' + '4040' )
+  var libs = host + '/__miru'
+
+  var now = Date.now()
+  var cachebuster = '?cachebuster=' + now
+
   function attachLivereloadScripts (url) {
     var loc = window.location
     var host = url || (loc.protocol + '//' + loc.hostname + ':' + '4040')
@@ -132,11 +139,220 @@
     scriptEl.src = libs + '/livereload.js' + cachebuster
     document.body.appendChild(scriptEl)
 
-    // var fontLinkEl = document.createElement('link')
-    // fontLinkEl.rel = 'stylesheet'
-    // fontLinkEl.href = 'https://fonts.googleapis.com/css?family=Inconsolata"'
-    // document.head.appendChild(fontLinkEl)
+    // attach better monospace font
+    var fontLinkEl = document.createElement('link')
+    fontLinkEl.rel = 'stylesheet'
+    fontLinkEl.href = 'https://fonts.googleapis.com/css?family=Anonymous+Pro'
+    document.head.appendChild(fontLinkEl)
+
+    // pesticide
+    try {
+      var ls = window.localStorage
+      var enabled = !!JSON.parse( ls.getItem( '__miru-pesticide-enabled' ) )
+      console.log( 'pesticide enabled: ' + enabled )
+      if ( enabled ) {
+        enablePesticide()
+      } else {
+        disablePesticide()
+      }
+    } catch ( errr ) {}
+
+    // linkEl = document.createElement( 'link' )
+    // linkEl.id = '__miru-pesticide-id'
+    // linkEl.rel = 'stylesheet'
+    // linkEl.href = libs + '/pesticide.css' + cachebuster
+    // document.head.appendChild( linkEl )
 
     console.log('Live Reload Scripts Attached!! from [' + libs + ']')
+  }
+
+  function savePesticideStatus () {
+    var el = document.getElementById( '__miru-pesticide-id' )
+    var enabled = !!el
+
+
+    try {
+      window && window.localStorage && window.localStorage.setItem(
+        '__miru-pesticide-enabled',
+        enabled
+      )
+
+      console.log( 'save pesticide: ' + enabled )
+    } catch ( err ) {
+      console.log( err )
+    }
+  }
+
+  function enablePesticide () {
+    var el = document.getElementById( '__miru-pesticide-id' )
+    if ( !el ) {
+      var linkEl = document.createElement( 'link' )
+      linkEl.id = '__miru-pesticide-id'
+      linkEl.rel = 'stylesheet'
+      linkEl.href = libs + '/pesticide.css' + cachebuster
+      document.head.appendChild( linkEl )
+    }
+  }
+
+  function disablePesticide () {
+    var el = document.getElementById( '__miru-pesticide-id' )
+    if ( el ) {
+      el.parentNode.removeChild( el )
+    }
+  }
+
+  function togglePesticide () {
+    var el = document.getElementById( '__miru-pesticide-id' )
+    if ( el ) {
+      disablePesticide()
+    } else {
+      enablePesticide()
+    }
+  }
+
+  window.addEventListener( 'keyup', function ( evt ) {
+    var key = evt.keyCode || evt.which
+
+    switch ( key ) {
+      case 118: // F7 key
+      case 119: // F8 key
+      case 120: // F9 key
+        togglePesticide()
+        savePesticideStatus()
+        break
+      default:
+    }
+  })
+
+  window.enablePesticide = enablePesticide
+  window.disablePesticide = disablePesticide
+  window.togglePesticide = togglePesticide
+
+  function getFile ( filename, callback ) {
+    var req = new XMLHttpRequest()
+    req.open( 'GET', filename, true )
+
+    req.onload = function () {
+      if ( req.status >= 200 && req.status < 500 ) {
+        // success
+        callback( undefined, req.responseText )
+      } else {
+        // reached server, but error
+        callback( 'error: ' + req.status )
+      }
+    }
+
+    req.onerror = function () {
+      // failed to connect to server
+      callback( 'error: failed to connect to server' )
+    }
+
+    req.send()
+  }
+
+  // grab dom errors
+  window.addEventListener( 'error', function ( err ) {
+    var message = err.message
+    var filename = err.filename
+    var colno = err.colno
+    var lineno = err.lineno
+    console.log( 'miru window error' )
+    console.log( err )
+
+    console.log( 'getting file...' )
+    getFile( filename, function ( getError, text ) {
+      if ( getError ) {
+        return console.log( 'file get error: ' + getError )
+      }
+
+      console.log( 'got file, length: ' + text.length )
+
+      var lines = parseContext({
+        text: text,
+        colno: err.colno,
+        lineno: err.lineno
+      })
+
+      var _startTime = Date.now()
+      var _maxTime = 3000
+
+      var attempt = function () {
+        if ( window.__miruErrorHandler ) {
+          var message = err.message + '\n\n'
+          message += ' @ ' + err.filename
+          message += ' ' + err.lineno + ':' + err.colno
+          message += '\n'
+          message += lines.join( '\n' )
+
+          window.__miruErrorHandler({
+            target: err.filename,
+            name: 'Error',
+            message: message
+          })
+        } else {
+          var now = Date.now()
+          if ( ( now - _startTime ) < _maxTime ) {
+            setTimeout( attempt, 33 )
+          }
+        }
+      }
+
+      setTimeout( attempt, 33 )
+    } )
+  } )
+
+  function parseContext ( opts ) {
+    // var url = opts.url
+    // var message = opts.message
+
+    var text = opts.text
+    var lines = text.split( '\n' )
+
+    var colno = opts.colno
+    var lineno = opts.lineno
+
+    var i = Math.max( 0, lineno - 6 ) // first line
+    var j = Math.min( lines.length - 1, i + 4 + 2 + 2 ) // last line
+
+    var minLeftPadding = String( j ).trim().length
+
+    var parsedLines = []
+    for (; i < j; i++) {
+      var head = String( i + 1 ).trim() // line number column
+      var body = lines[ i ] // line text content
+
+      // currently parsing target line
+      var onTargetLine = ( i === ( lineno - 1 ) )
+
+      // left pad
+      while ( head.length < minLeftPadding ) head = (' ' + head )
+
+      // target line
+      if ( onTargetLine ) {
+        // prepend > arrow
+        // head = clc.redBright('> ') + clc.whiteBright( head  )
+        head = '> ' + head
+      } else { // context line
+        // prepend two spaces ( to stay aligned with the targeted line '> ' )
+        head = '  ' + head
+      }
+
+      // separate line number and line content
+      var line = ( head + ' | ' + body )
+      parsedLines.push( line )
+      // log(lines[i])
+
+      // draw an arrow pointing upward to column location
+      if ( onTargetLine ) {
+        var offset = '' // ^ pointer offset
+        for (var x = 0; x < colno; x++) {
+          offset += ' '
+        }
+        var _head = String( j ).trim().split( /./ ).join(' ') + '   | '
+        parsedLines.push( _head + offset + '^' )
+      }
+    }
+
+    return parsedLines
   }
 })()

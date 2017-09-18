@@ -1,14 +1,18 @@
 'use strict'
 
-// var chokidar = require('chokidar')
 var express = require('express')
 var cp = require('child_process')
 
-var miteru = require('miteru')
-var glob = require('glob')
+// var miteru = require('miteru')
+// var glob = require('glob')
+
+// var chokidar = require('chokidar')
+var miteru = require( '/Users/mollie/code/miteru/src/index.js' )
 
 // var wooster = require('wooster')
-var wooster = require('../wooster/snippet.js') // TODO
+// var wooster = require('../wooster/snippet.js') // TODO
+// var wooster = require('../wooster/dist/bundle.js') // TODO
+var wooster = require('../wooster/dist/bundle.min.js') // TODO
 
 var targetWatchers = {}
 var recoveryWatchers = {}
@@ -140,7 +144,7 @@ if (!!argv['sample']) {
   return undefined // exit success
 }
 
-var throttleTimeout = 600
+var throttleTimeout = 1000
 if (argv['throttle-timeout'] !== undefined) {
   throttleTimeout = Number(argv['throttleTimeout'])
 }
@@ -188,6 +192,8 @@ app.use(function (req, res, next) { // same as app.use('*', functi...)
   next()
 })
 
+// app.use(function () {})
+
 // prioritize public static files
 app.use(express.static(opts.publicPath))
 
@@ -233,13 +239,14 @@ app.use(function (req, res) {
 // handle socket.io
 io.on('connection', function (socket) {
   console.log('new connection')
-  Object.keys(targetHasError).forEach(function (target) {
-    if (targetHasError[target] && emittedErrors[target]) {
-      console.log('emitting error [on connection]')
-      io.emit('error', {
+
+  Object.keys( targetHasError ).forEach(function ( target ) {
+    if ( targetHasError[ target ] && emittedErrors[ target ] ) {
+      console.log( 'emitting error [on connection]' )
+      io.emit( 'error', {
         target: target,
         err: emittedErrors[target]
-      })
+      } )
     }
   })
 })
@@ -323,12 +330,15 @@ function cc (text, code) {
   return ('\u001b[' + code + text + '\u001b[0m')
 }
 
-function clearConsole() {
+function clearConsole () {
+  var timestring = ( new Date() ).toTimeString().split( ' ' )[ 0 ]
+  // console.log( '   - ' + ( timestring ) + ' -   ')
+
   // This seems to work best on Windows and other systems.
   // The intention is to clear the output so you can focus on most recent build.
-  if (true) {
+  if ( process.env.MIRU_NOCLEAR ) {
     console.log()
-    console.log(' === CLEAR === ')
+    console.log( ' === CLEAR === ' + timestring )
     console.log()
   } else {
     process.stdout.write('\x1bc');
@@ -344,20 +354,21 @@ console.log(opts)
 
 opts.targets.forEach(function (target, i) {
   var t = opts.targets[i]
-  var s = opts.scripts[i]
+  var s = opts.scripts && opts.scripts[i]
 
-  if (!t || !s) throw new Error('-w, -e mismatch')
+  if ( !t ) throw new Error('no -w target found')
+  // if (!t || !s) throw new Error('-w, -e mismatch')
 
   var t = path.join(opts.publicPath, t)
   watch(t)
-  exec(s, t)
+  if ( s ) exec(s, t)
 })
 
 // send reload/inject to client
 var emit_targets = {}
 var emit_timeouts = {}
 var emit_timeout = undefined
-function emit (target) {
+function emit ( target ) {
   // if (emit_timeout === undefined) clearConsole()
   clearTimeout(emit_timeout)
 
@@ -366,7 +377,7 @@ function emit (target) {
   emit_targets[target] = target // save emitted targets
   targetHasError[target] = false // successful build on target
 
-  emit_timeout = setTimeout(function () {
+  emit_timeout = setTimeout( function () {
     emit_timeout = undefined
     clearConsole()
     var addresses = getNetworkIpAddresses()
@@ -389,99 +400,164 @@ function emit (target) {
     })
 
     // check if other errors still exist
-    var errors = Object.keys(targetHasError)
+    var errors = Object.keys( targetHasError )
 
     for (let i = 0; i < errors.length; i++) {
       let target = errors[i]
       let err = targetHasError[target]
 
       // TODO
-      if (err) {
+      if ( err ) {
         console.log('remaining error found at target [' + clc.magenta(target) + ']')
         handleError(err, target, true)
         // console.log(err)
       }
     }
-  }, emitDelay)
+  }, emitDelay )
 }
 
 var targetStates = {}
-function watch (target) {
+function watch ( target ) {
   var process = function () {
-    debug && console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
-    // console.log(clc.yellow('watch event on target [' + clc.magenta(target) + ']'))
+    debug && console.log(
+      clc.yellow( 'watch event on target [' + clc.magenta( target ) + ']' )
+    )
 
-    fs.stat(target, function (err, stats) {
+    fs.stat( target, function ( err, stats ) {
       if (err) throw err
 
-      var state = targetStates[target] || {
+      var state = targetStates[ target ] || {
         timeout: undefined,
         mtime: undefined,
         throttled: false
       }
-      targetStates[target] = state
+      targetStates[ target ] = state
 
       var mtime = state.mtime
 
-      if (mtime === undefined || stats.mtime > mtime) {
-        if (mtime !== undefined) targetHasError[target] = false
+      var attempts = 0
+      var maxAttempts = 5
+
+      if ( mtime === undefined || stats.mtime > mtime ) {
+        // if (mtime !== undefined) targetHasError[target] = false
         state.mtime = stats.mtime
 
-        if (!state.throttled) {
+        if ( !state.throttled ) {
+
           var attempt = function () {
+            attempts++
+            if ( attempts > maxAttempts ) {
+              clc.yellow(
+                '[ignored] too many attempts: [' + clc.magenta( target ) + ']'
+              )
+              return undefined
+            }
             // console.log('attempting')
             // io.emit('progress', target)
-            var text = fs.readFileSync(target, 'utf-8')
-            if (text.length < 1) {
-              verbose && setTimeout(function () {
-                console.log(clc.yellow('[ignored] text.length: ' + text.length + ' [' + clc.magenta(target) + ']'))
-              }, 75)
 
-              setTimeout(attempt, 25)
+            try {
+              var text = fs.readFileSync( target, 'utf-8' )
+            } catch ( err ) {
+              clc.yellow(
+                '[ignored] error during attempt: [' + clc.magenta( target ) + ']'
+              )
+              return undefined
+            }
+
+            if ( !text.length ) {
+              verbose && console.log(
+                clc.yellow(
+                  '[ignored] text.length: ' + text.length + ' [' + clc.magenta(target) + ']'
+                )
+              )
+
+              // attempt again soon
+              setTimeout( attempt, 25 )
             } else {
-              if (!state.throttled) {
-                verbose && setTimeout(function () {
-                  console.log(clc.yellow('[EMITTED] text.length: ' + text.length + ' [' + clc.magenta(target) + ']'))
-                }, 75)
+              state.lastTextLength = state.lastTextLength || 0
 
-                setTimeout(function () {
-                  emit(target)
-                }, 33)
-                state.throttled = true
-                setTimeout(function () {
-                  state.throttled = false
-                }, throttleTimeout)
-              } else {
-                verbose && setTimeout(function () {
-                  console.log(clc.yellow('[throttled] [' + clc.magenta(target) + ']'))
-                }, 75)
-              }
+              var _emitDelay = ( state.lastTextLength - text.length )
+              if ( _emitDelay < 0 ) _emitDelay = -_emitDelay // abs
+              if ( _emitDelay > 250 ) _emitDelay = 250 // max
+              if ( _emitDelay < 100 ) _emitDelay = 75 // min
+
+              state.lastTextLength = text.length
+
+              setTimeout( function () {
+                if ( !state.throttled ) {
+                  debug && console.log( ' == THROTTLE ON == ' )
+                  state.throttled = true
+
+                  clearTimeout( state.throttleTimeout )
+                  state.throttleTimeout = setTimeout( function () {
+                    debug && console.log( ' == THROTTLE OFF == ' )
+                    state.throttled = false
+                  }, throttleTimeout )
+
+                  debug && console.log( ' == EMITTING == ' )
+                  emit( target )
+                } else {
+                  debug && setTimeout( function () {
+                    console.log(
+                      clc.yellow(
+                        '[throttled] [' + clc.magenta(target) + ']'
+                      )
+                    )
+                  }, 75 )
+                }
+              }, _emitDelay )
             }
           }
-          setTimeout(attempt, 25)
+
+          setTimeout( attempt, 25 )
         } else {
-          verbose && setTimeout(function () {
-            console.log(clc.yellow('[throttled] [' + clc.magenta(target) + ']'))
-          }, 75)
+          verbose && setTimeout( function () {
+            console.log(
+              clc.yellow( '[throttled] [' + clc.magenta( target ) + ']' )
+            )
+          }, 75 )
         }
       } else {
         // ignore, nothing modified
         debug && console.log('-- nothing modified --')
       }
-    })
+    } )
   }
 
-  var watcher = targetWatchers[target] || miteru.create()
-  watcher.clear()
+  // var watcher = targetWatchers[target] || chokidar.watch('', {
+  //   // TODO
+  //   usePolling: true
+  //   // followSymlinks: true
+  // })
+
+  var watcher = targetWatchers[target] || miteru.watch('', {
+    // TODO
+    usePolling: true
+    // followSymlinks: true
+  })
+  // TODO watcher.on
+
+  watcher.unwatch( '*' )
+  if ( Object.keys( watcher.getWatched() ).length !== 0 ) throw new Error( 'watcher not cleared.' )
+
   targetWatchers[target] = watcher
-  watcher.watch(target)
-  watcher.on('modification', function (info) {
-    // console.log('modification on: ' + info.filepath)
-    // console.log('mtime: ' + info.mtime)
-    // console.log('last_mtime: ' + info.last_mtime)
-    // console.log('delta_mtime: ' + info.delta_mtime)
+
+  watcher.add( target )
+
+  setTimeout(function () {
+    console.log( watcher.getWatched() )
+  }, 1000)
+
+  watcher.on('change', function ( path, stats ) {
+    debug && console.log( '== change watcher event ==' )
     process()
   })
+
+  watcher.on('add', function ( path, stats ) {
+    debug && console.log( '== add watcher event ==' )
+    process()
+  })
+
   // attach watchers
   // 
   //   chokidar.watch(target, {
@@ -510,6 +586,14 @@ function handleError (err, target, remaining, initMode) {
  //   return undefined // dont reprint same error
  // }
 
+
+  var state = targetStates[ target ] || {
+    timeout: undefined,
+    mtime: undefined,
+    throttled: false
+  }
+  targetStates[ target ] = state
+
   clearTimeout(errorTimeouts[target])
   // io.emit('error', { log: log })
 
@@ -530,18 +614,36 @@ function handleError (err, target, remaining, initMode) {
 
     if (typeof err !== 'string') err = 'Error: Unknown error.'
 
-    var e = getErrorIterationBox() + '\n' + wooster(err)
+    var e = getErrorIterationBox() + '\n' + wooster( err )
 
-    console.log(e)
-    emittedErrors[target] = e
+    console.log( e )
+    emittedErrors[ target ] = e
+
+    debug && console.log( ' == THROTTLE ON == ' )
+    state.throttled = true
+
+    clearTimeout( state.throttleTimeout )
+    state.throttleTimeout = setTimeout( function () {
+      debug && console.log( ' == THROTTLE OFF == ' )
+      state.throttled = false
+    }, throttleTimeout )
 
     // TODO emit error
-    console.log('emitting error')
-    io.emit('error', {
+    debug && console.log( 'emitting error' )
+    io.emit( 'error', {
       target: target,
       err: e
-    })
-  }, 75)
+    } )
+
+    // setTimeout( function () {
+    //   console.log( 'emitting error again'  )
+    //   io.emit('error', {
+    //     target: target,
+    //     err: e
+    //   })
+    // }, 100)
+
+  }, 33)
 } // handleError
 
 function parseError (lines) {
@@ -639,9 +741,14 @@ function removeColors (lines) {
 function recover (cmd, target) {
   console.log(clc.yellow('attaching recovery watcher for [' + cmd + '] (' + target + ')'))
 
-  var watcher = recoveryWatchers[cmd] || miteru.create()
+  // var watcher = recoveryWatchers[cmd] || chokidar.watch()
+  var watcher = recoveryWatchers[cmd] || miteru.watch()
+
+  watcher.unwatch( '*' )
+  if ( Object.keys( watcher.getWatched() ).length !== 0 ) throw new Error( 'watcher not cleared.' )
+
   recoveryWatchers[cmd] = watcher
-  watcher.clear()
+
   clearTimeout(recoveryTimeouts[cmd])
 
   // target suffix
@@ -650,42 +757,88 @@ function recover (cmd, target) {
   // add glob patterns based on the target suffix
   switch (suffix) {
     case 'js':
-      var files = glob.sync('**/*.js*')
-      files.forEach(function (file) {
-        watcher.watch(file)
-      })
+      watcher.add( '**/*.js' )
+      watcher.add( '**/*.jsx' ) // common suffix
+
+      // var files = glob.sync('**/*.js')
+      // files.forEach(function (file) {
+      //   watcher.watch(file)
+      // })
+
       break
+
     case 'css':
-      var files = glob.sync('**/*.+(js*|css|scss|styl)')
-      files.forEach(function (file) {
-        watcher.watch(file)
-      })
+      watcher.add( '**/*.+(css|scss|styl|less)' )
+      watcher.add( '**/*.css' )
+      watcher.add( '**/*.scss' )
+      watcher.add( '**/*.sass' )
+      watcher.add( '**/*.less' )
+      watcher.add( '**/*.styl' )
+
+      // var files = glob.sync('**/*.+(css|scss|styl|less)')
+      // files.forEach(function (file) {
+      //   watcher.watch(file)
+      // })
+
       break
+
     default:
-      var files = glob.sync('**/*') // all files..
-      files.forEach(function (file) {
-        watcher.watch(file)
-      })
+      watcher.add( '**/*.js' )
+      watcher.add( '**/*.css' )
+      watcher.add( '**/*.scss' )
+      watcher.add( '**/*.sass' )
+      watcher.add( '**/*.less' )
+      watcher.add( '**/*.styl' )
+
+      // var files = glob.sync('**/*+(js|css|scss|styl|less|' + suffix + ')') // all js, css and 'suffix' files
+      // files.forEach(function (file) {
+      //   watcher.watch(file)
+      // })
+
+      break
   }
 
-  watcher.unwatch(target) // don't watch targets
+  watcher.unwatch( target ) // don't watch targets
 
   // recoveryWatchers[cmd].unwatch('**/bundle.js')
   // recoveryWatchers[cmd].unwatch('**/bundle.css')
 
-  // bind to fs change events
-  watcher.on('modification', function (info) {
-    console.log(clc.yellow('modification at: ' + clc.cyan(info.filepath)))
+  function process () {
+    console.log(clc.yellow('modification at: ' + clc.cyan( target )))
 
     clearTimeout(recoveryTimeouts[cmd])
     recoveryTimeouts[cmd] = setTimeout(function () {
       watcher.close()
+      // watcher.unwatch( '*' )
+
       console.log(clc.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
       setTimeout(function () {
         exec(cmd, target)
       }, 50)
     }, 100)
+  }
+
+  watcher.on( 'add', function ( path, stats ) {
+    process()
   })
+
+  watcher.on( 'change', function ( path, stats ) {
+    process()
+  })
+
+  // bind to fs change events
+  // watcher.on('modification', function (info) {
+  //   console.log(clc.yellow('modification at: ' + clc.cyan(info.filepath)))
+
+  //   clearTimeout(recoveryTimeouts[cmd])
+  //   recoveryTimeouts[cmd] = setTimeout(function () {
+  //     watcher.close()
+  //     console.log(clc.yellow('closing recovery watcher, executing recovery cmd [' + cmd + ']'))
+  //     setTimeout(function () {
+  //       exec(cmd, target)
+  //     }, 50)
+  //   }, 100)
+  // })
 }
 
 function exec (cmd, target) {
@@ -731,33 +884,32 @@ function exec (cmd, target) {
             })
       buffer = ''
 
-      console.log(' === child.__id: ' + child.__id)
-      true && console.log(lines.join('\n'))
+      // console.log(' === child.__id: ' + child.__id)
+      // console.log(lines.join('\n'))
 
       if (isError) {
         // console.log(result.join('\n'))
         var err = parseError(lines)
-        handleError(err, target, undefined)
-
-        // TODO emit error log to clients
-        // handleError fn
+        handleError(err, target, undefined) // emits to connected clients also
       } else {
         if (lines && lines.length > 0 && lines[0].trim().length > 1) {
-          console.log('emitting progress [output but no errors detected]')
-          io.emit('progress', {
+          console.log(lines.join('\n'))
+
+          console.log( 'emitting progress' )
+          io.emit( 'progress', {
             target: target,
             lines: lines
-          })
+          } )
         }
 
         initMode = false
       }
-    }, 100)
+    }, 66)
 
     clearTimeout(bufferResetTimeout)
     bufferResetTimeout = setTimeout(function () {
       if (!isError) buffer = ''
-    }, 200)
+    }, 133)
   } // fn process
 
   child.stdout.on('data', process)
