@@ -7,6 +7,7 @@
     "miru": "./cli.js"
   },
   "scripts": {
+    "build-miru-init-js": "browserify miru.init.src.js -o miru.init.js -t [ babelify --presets [ es2015 ] ] && echo 'success'",
     "build-livereload": "browserify livereload.src.js -o livereload.js -t [ babelify --presets [ es2015 ] ] && echo 'success'",
     "watch-lr": "miteru -e 'npm run build-livereload' livereload.src.js",
     "watch-livereload": "watchify livereload.src.js -o livereload.js -vt [ babelify --presets [ es2015 ] ]",
@@ -25,6 +26,7 @@
     "minimist": "^1.2.0",
     "miteru": "0.0.2",
     "socket.io": "^1.7.2",
+    "socket.io-client": "^2.0.3",
     "wooster": "0.0.11"
   },
   "devDependencies": {
