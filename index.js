@@ -12,7 +12,7 @@ var miteru = require( '/Users/mollie/code/miteru/src/index.js' )
 // var wooster = require('wooster')
 // var wooster = require('../wooster/snippet.js') // TODO
 // var wooster = require('../wooster/dist/bundle.js') // TODO
-var wooster = require('../wooster/dist/bundle.min.js') // TODO
+var wooster = require( '../wooster/dist/bundle.min.js' ) // TODO
 
 var targetWatchers = {}
 var recoveryWatchers = {}
