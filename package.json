@@ -1,6 +1,6 @@
 {
   "name": "miru",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "dev server with livereloading and pretty error parsing and browser<->terminal output synchronization",
   "main": "index.js",
   "bin": {
