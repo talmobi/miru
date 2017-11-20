@@ -5,6 +5,10 @@
   <title>Miru</title>
 
   <style>
+    body {
+      background: #eee;
+    }
+
     code {
       font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
 
@@ -33,7 +37,7 @@
     Miru couldn't find a index.html lookalike inside --path to serve.
     <br>
 
-    Miru also creates a <code>miru.init.js</code> file inside the --path directory to initialize live reloads, injection and error printing on the browser.
+    Miru also creates a <code>miru-connect.js</code> file inside the --path directory to initialize live reloads, injection and error printing on the browser.
     <br>
 
     Add it as a script tag to your own index.html pages to initialize miru.
@@ -42,7 +46,11 @@
 
   <br>
   <code>
-    &lt;script src="miru.init.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script src="miru-connect.js" type="text/javascript"&gt;&lt;/script&gt;
   </code>
+
+  <div id="text">
+    Consider adding <code>miru-connect.js</code> to your .gitignore since it's only for development.
+  <div>
 </body>
 </html>
