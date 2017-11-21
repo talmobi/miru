@@ -116,8 +116,8 @@ var argv = require( 'subarg' )( process.argv.slice( 2 ), {
   }
 } )
 
-console.dir( argv )
-console.dir( argv.watch )
+// console.dir( argv )
+// console.dir( argv.watch )
 
 // console.dir( argv.watch[ 0 ]._.join( '' ) )
 
