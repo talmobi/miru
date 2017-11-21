@@ -974,15 +974,16 @@ function handleTargetWatchEvent ( evt, filepath ) {
             } )
           } )
 
-          log( ' === file build success === ' )
+          // log( ' === file build success === ' )
 
           // clear target
           var target = path.resolve( filepath )
           targets[ target ].error = undefined
           targets[ target ].output = undefined
 
-          // TODO emit success
-          emit( 'success', {
+          console.log( 'sending target build success: ' + path.relative( process.cwd(), filepath ) )
+
+          io.emit( 'success', {
             target: filepath
           } )
         } else {
@@ -1007,7 +1008,7 @@ function handleTargetWatchEvent ( evt, filepath ) {
  * Mainly page reload, error and style refresh events.
  */
 function emit ( action, data ) {
-  log( 'emitting: ' + action + ', ' + data )
+  console.log( 'emitting: ' + action + ', ' + data )
   io.emit( action, data )
 }
 
