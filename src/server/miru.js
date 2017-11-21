@@ -36,8 +36,36 @@ var miteru = require( 'miteru' )
 var wooster = require( 'wooster' )
 // wooster = require( '../../../wooster/src/version2.js' )
 
-// create the global watcher ( using watcher.add, wathcer.clear etc )
-var fileWatcher = miteru.watch( function () {} ) // TODO
+// watch arbitrary files and execute commands when they change
+var executions = []
+var fileWatcher = miteru.watch( function ( evt, filepath ) {
+  if ( evt === 'add' || evt === 'change' ) {
+    // handle executions
+    executions.forEach( function ( command ) {
+      console.log( 'command: ' + command )
+
+      // pass in watch event info to the command string if applicable
+      command = (
+        command
+        .split( '$evt' ).join( evt )
+        .split( '$file' ).join( filepath )
+      )
+
+      console.log( 'executing: ' + command )
+
+      childProcess.exec( command, function ( error, stdout, stderr ) {
+        if ( error ) {
+          console.error( 'exec error: ' + error )
+        } else {
+          stdout && console.log( stdout )
+          stderr && console.log( stderr )
+        }
+      } )
+    } )
+  }
+} )
+
+// watch target bundle files ( -w [ <command>, <file> ] )
 var targetWatcher = miteru.watch( handleTargetWatchEvent )
 
 // Get the visual width of a string - the number of columns required to display it
@@ -72,14 +100,17 @@ var argv = require( 'subarg' )( process.argv.slice( 2 ), {
     // watch process
     'watch': [ 'w', 'watcher', 'watched' ],
 
-    // execute command when file changes
+    // arbitrary files
+    'file': [ 'f', 'files' ],
+
+    // execute command on --files changes
     'execute': [ 'e', 'ex', 'exe', 'exec' ],
 
-    // glob files
-    'glob': [ 'g' ],
+    // watch arbitrary files as build targets -- will trigger a live reload or refresh
+    'targets': [ 't', 'targets' ],
 
-    // single file
-    'file': [ 'f', 'files' ],
+    // always force a reload instead of attempting to refresh css files
+    'reload': [ 'r' ],
 
     'debounce': [],
     'throttle': [],
@@ -122,6 +153,28 @@ var argv = require( 'subarg' )( process.argv.slice( 2 ), {
 // console.dir( argv.watch[ 0 ]._.join( '' ) )
 
 var verbose = !!argv[ 'verbose' ]
+
+// watch arbitrary files as build targets without an associated watch process
+if ( argv[ 'targets' ] ) {
+  var files = argv[ 'targets' ]
+
+  if ( typeof files === 'string' ) {
+    files = [ files ]
+  }
+
+  if ( !( files instanceof Array ) ) {
+    console.error( '-t, --targets <string>    parse error - missing file names?' )
+    process.exit( 1 )
+  }
+
+  files.forEach( function ( file ) {
+    log( 'adding watch target: ' + file )
+    targetWatcher.add( file )
+  } )
+
+  log( 'target files watched :' )
+  log( targetWatcher.getWatched() )
+}
 
 function log () {
   if ( verbose ) console.log.apply( this, arguments )
@@ -207,7 +260,6 @@ if ( argv[ 'file' ] ) {
  *
  * The commands/processes are expected to exit quickly.
  */
-var executions = []
 if ( argv[ 'execute' ] ) {
   var execs = argv[ 'execute' ]
 
@@ -352,6 +404,7 @@ function injectMiruConnect () {
     ;(function () {
       window.__miru = {
         verbose: true,
+        forceReload: ${ !!argv[ 'reload' ] },
         styleFlicker: ${ !argv[ 'noflicker' ] },
         targets: ${ JSON.stringify( Object.keys( targets ) ) }
       }
@@ -936,9 +989,11 @@ function handleTargetWatchEvent ( evt, filepath ) {
       fs.readFile( filepath, 'utf8', function ( err, text ) {
         var hasErrors = false
 
-        // investigate approx first 5 lines
-        var slice = text.slice( 0, 100 * 5 )
-        if ( slice.toLowerCase().indexOf( 'error') !== -1 ) {
+        // investigate approx first 500 characters
+        var slice = text.slice( 0, 500 )
+        if (
+            ( slice.toLowerCase().indexOf( 'error') !== -1 )
+          ) {
           // Could be an error, make sure with wooster.
           var errorText = wooster( slice )
 
@@ -950,40 +1005,17 @@ function handleTargetWatchEvent ( evt, filepath ) {
         }
 
         if ( hasErrors === false ) {
-          // handle executions
-          // TODO refactor to fileWatcher event?
-          executions.forEach( function ( command ) {
-            console.log( 'command: ' + command )
-
-            // pass in watch event info to the command string if applicable
-            command = (
-              command
-              .split( '$evt' ).join( evt )
-              .split( '$file' ).join( filepath )
-            )
-
-            console.log( 'executing: ' + command )
-
-            childProcess.exec( command, function ( error, stdout, stderr ) {
-              if ( error ) {
-                console.error( 'exec error: ' + error )
-              } else {
-                stdout && console.log( 'exec stdout: ' + stdout )
-                stderr && console.log( 'exec stderr: ' + stderr )
-              }
-            } )
-          } )
-
-          // log( ' === file build success === ' )
-
           // clear target
           var target = path.resolve( filepath )
-          targets[ target ].error = undefined
-          targets[ target ].output = undefined
+
+          if ( target && targets[ target ] ) {
+            targets[ target ].error = undefined
+            targets[ target ].output = undefined
+          }
 
           console.log( 'sending target build success: ' + path.relative( process.cwd(), filepath ) )
 
-          io.emit( 'success', {
+          io.emit( 'target-build', {
             target: filepath
           } )
         } else {
@@ -1193,6 +1225,10 @@ var commands = {
         print( t.output )
       }
     } )
+  },
+  'files': function () {
+    console.log( 'watched files:' )
+    console.log( fileWatcher.getWatched() )
   }
 }
 
