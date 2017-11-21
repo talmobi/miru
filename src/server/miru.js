@@ -406,7 +406,7 @@ function injectMiruConnect () {
         verbose: true,
         forceReload: ${ !!argv[ 'reload' ] },
         styleFlicker: ${ !argv[ 'noflicker' ] },
-        targets: ${ JSON.stringify( Object.keys( targets ) ) }
+        targets: ${ JSON.stringify( targetWatcher.getWatched() ) }
       }
     })();
     ${ text }
