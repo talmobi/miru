@@ -40,6 +40,8 @@ var wooster = require( 'wooster' )
 var executions = []
 var fileWatcher = miteru.watch( function ( evt, filepath ) {
   if ( evt === 'add' || evt === 'change' ) {
+    var file = path.relative( process.cwd(), filepath )
+
     // handle executions
     executions.forEach( function ( command ) {
       console.log( 'command: ' + command )
@@ -48,7 +50,7 @@ var fileWatcher = miteru.watch( function ( evt, filepath ) {
       command = (
         command
         .split( '$evt' ).join( evt )
-        .split( '$file' ).join( filepath )
+        .split( '$file' ).join( file )
       )
 
       console.log( 'executing: ' + command )
