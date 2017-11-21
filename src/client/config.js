@@ -1,5 +1,5 @@
 export const HOST = (
-  window.location.protocol + '//' +
+  'http:' + '//' +
   window.location.hostname
 )
 
