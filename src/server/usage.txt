@@ -19,6 +19,28 @@ Options:
                                        "miru-connect.js" is created inside the --path directory
                                        when miru starts
 
+-t, --targets <file>                   Add arbitrary target files not linked to a watch process.
+                                       When these files change, they will be assumed as if they have been
+                                       successfully built and will be emitted to miru-connect.js.
+
+                                       styles ( *.css ) are attempted to refresh if the basename
+                                       is found on a link tag inside the DOM.
+
+                                       scripts ( *.js ) and all other files trigger a page reload.
+
+-r, --reload                           Always force a reload when a change event is emitted.
+                                       This disables css link.href quick refreshing.
+
+-f, --files <file>                     Watch arbitray files for changes and execute commands.
+
+-e, --execute <command>                Execute commands when --files have changed.
+
+                                       '$evt' and '$file' strings in the <command> parameter
+                                       are substituted accordingly.
+
+                                       eg:
+                                          miru -f package.json -e 'echo $evt: $file'
+
 -v, --verbose                          Enable verbose mode
 
 -V, --version                          Display miru version
