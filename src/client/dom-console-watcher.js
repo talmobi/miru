@@ -1,5 +1,6 @@
 import UID from './uid.js'
 import modal from './modal.js'
+import storage from './storage.js'
 import ansiToHtml from './ansi-to-html.js'
 import stripAnsi from './strip-ansi.js'
 import matchesTargets from './matches-targets.js'
@@ -23,7 +24,14 @@ function proxy( context, method, callback ) {
   }
 }
 
-window.__miru.logs = []
+window.__miru.logs = ( storage.get( '__miru-logs' ) || [] )
+
+push( {
+  type: 'log',
+  args: [ ' -- page load -- ' + String( new Date() ) ],
+  timestamp: Date.now()
+} )
+
 window.__miru.debug = console.log
 
 if ( !window.__miru.verbose ) {
@@ -70,6 +78,8 @@ function push ( data ) {
     window.__miru.logs = window.__miru.logs.slice( -120 )
   }
 
+  storage.set( '__miru-logs', window.__miru.logs )
+
   sendLogs()
 }
 
@@ -85,13 +95,19 @@ function sendLogs () {
   var delta = ( now - sendLogsLastSentTime )
   if ( delta > 1500 ) timeout = 0
 
+  if ( !window.__miru.socket ) {
+    timeout = 3000
+  }
+
   sendLogsTimeout = setTimeout( function () {
-    window.__miru.debug( '[miru] logs sent' )
-    sendLogsLastSentTime = Date.now()
-    window.__miru.socket.emit( 'console', {
-      host: window.location.host,
-      ua: window.navigator.userAgent,
-      logs: window.__miru.logs.slice( -100 ) // send last 100 logs
-    } )
+    if ( window.__miru.socket ) {
+      window.__miru.debug( '[miru] logs sent' )
+      sendLogsLastSentTime = Date.now()
+      window.__miru.socket.emit( 'console', {
+        host: window.location.host,
+        ua: window.navigator.userAgent,
+        logs: window.__miru.logs.slice( -100 ) // send last 100 logs
+      } )
+    }
   }, timeout )
 }
