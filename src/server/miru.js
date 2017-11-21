@@ -643,7 +643,7 @@ function watchCommandAndTarget ( w ) {
     w.rw.clear()
     w.rw.close()
     if ( w.rw.getWatched().length === 0 ) {
-      log( 'recovery watcher closed' )
+      console.log( 'recovery watcher closed' )
     }
     _recoveryFiles = []
     delete w.rw
@@ -715,7 +715,7 @@ function watchCommandAndTarget ( w ) {
   // TODO recovery handlers
   spawn.on( 'exit', function () {
     setTimeout( function () {
-      console.log( 'watcher exited [ ' + w.command + ' ], target: ' + w.target )
+      console.log( '  watcher exited [ ' + w.command + ' ], target: ' + w.target )
 
       launchRecoveryWatcher( w )
     }, 100 )
@@ -731,6 +731,8 @@ function launchRecoveryWatcher ( w ) {
   function recover ( evt, filepath ) {
     // log( 'rw ' + evt + ' filepath: ' + filepath )
     if ( evt === 'init' ) printWatched()
+    // TODO add w.recoveryGlob when parsing --watchers
+    // and launch recovery watcher based on that.
 
     switch ( evt ) {
       case 'add':
@@ -792,7 +794,7 @@ function launchRecoveryWatcher ( w ) {
       clearTimeout( _printWatchedTimeout )
       _printWatchedTimeout = setTimeout( function () {
         _recoveryFiles = w.rw.getWatched().slice()
-        log( 'recovery watcher watching ' + _recoveryFiles.length + ' files - type \'recovery\' to see list' )
+        console.log( 'recovery watcher watching ' + _recoveryFiles.length + ' files - type \'recovery\' to see list' )
       }, 300 )
     }
   }
@@ -1159,8 +1161,11 @@ var commands = {
     io.emit( 'reload' )
   },
   'recovery': function () {
-    console.log( 'recovery watcher watching ' + _recoveryFiles.length + ' files' )
-    console.log( _recoveryFiles )
+    var watched = _recoveryFiles
+    watched.forEach( function ( filepath ) {
+      console.log( '  ' + filepath )
+    } )
+    console.log( 'recovery watcher watching ' + watched.length + ' files' )
   },
   'previous': function () {
     if ( _lastPrintOutput ) {
@@ -1211,10 +1216,11 @@ var commands = {
     } )
   },
   'targets': function ( args ) {
-    console.log( '  targets: ' )
-    targetWatcher.getWatched().forEach( function ( target ) {
-      console.log( target )
+    var watched = targetWatcher.getWatched()
+    watched.forEach( function ( filepath ) {
+      console.log( '  ' + filepath )
     } )
+    console.log( 'watched --targets: ' + watched.length )
   },
   'error': function ( args ) {
     Object.keys( targets ).forEach( function ( target ) {
@@ -1236,8 +1242,10 @@ var commands = {
   },
   'files': function () {
     var watched = fileWatcher.getWatched()
-    console.log( 'watched files: ' + watched.length )
-    console.log( watched )
+    watched.forEach( function ( filepath ) {
+      console.log( '  ' + filepath )
+    } )
+    console.log( 'watched --files: ' + watched.length )
   }
 }
 
