@@ -1,46 +1,37 @@
-TODO NEED TO REMAKE
-
 Usage: miru [options]
-
-sampleScripts
 
 Options:
 
--p, --path <dir>               Specify path (current directory by default)
-                                Usually path to public directory.
+-p, --path <dir>                       Specify path (current directory by default)
+                                       Usually path to public directory.
 
-                                This is also the path where miru creates "miru-connect.js"
-                                which you should <script src="miru-connect.js"> on your html
-                                page to enable live reloads and error reporting directly
-                                within the page/browser.
+                                       This is also the path where miru creates "miru-connect.js"
+                                       which you should <script src="miru-connect.js"> on your html
+                                       page to enable live reloads and error reporting directly
+                                       within the page/browser.
 
-                                ![Required]
--w, --watch <file>             Specify path to target output bundle/file to watch
-                                and keep up to date when live reloading.
+-w, --watch [ <command>, <file> ]      Specify watch command and target file bundle.
 
-                                Live reloads refresh corresponding <link href="fileName.css">
-                                or <script src="fileName.js"> tags on the html page where
-                                <script src="miru-connect.js"> is loaded.
+                                       miru-connect.js refreshes corresponding <link href="file.css">
+                                       or reloads <script src="file.js"> tags on the html page where
+                                       <script src="miru-connect.js"> is loaded.
 
-                                "miru-connect.js" is created inside the --path directory
-                                when miru starts
+                                       "miru-connect.js" is created inside the --path directory
+                                       when miru starts
 
-                                Note! Every -w needs a corresponding -e in the same order
+-v, --verbose                          Enable verbose mode
 
-                                ![Required]
--e, --execute <string>         Command (string) to execute with child_process.spawn
-                                usually an npm script like 'npm run watch-js'
+-V, --version                          Display miru version
+-h, --help                             Display help information (this text)
 
-                                Note! Every -w needs a corresponding -e in the same order
+Terminal Commands:
 
--t, --target <file>            [Deprecated] alias for [-w, --watch]
--s, --source <string>          [Deprecated] alias for [-e, --execute]
-
--V, --verbose                  Enable verbose mode
---throttle-timeout             Specify throttle timeout (Default 600ms)
-
--v, --version                  Display miru version
--h, --help                     Display help information
-
---sample                       Print out sample npm scripts
-
+devices                   prints a numbered list of connected client/device information
+logs <number>             list console.log output of <number> client ( or all clients if undefined )
+recovery                  prints recovery watcher ( if watcher exits ( should not happen, fix your watcher script ) )
+previous                  prints out previous error
+lan, ip, address          prints out LAN address ( use this address to connect from other devices )
+watchers                  prints watcher commands and targets
+targets                   prints only target bundles
+error                     prints active watcher errors ( or empty if nothing is active )
+pesticide <bool>          enable or disable pesticide ( css debugger ) on all connected clients
