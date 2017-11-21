@@ -10,16 +10,28 @@
 ## Simple to use
 ```bash
 npm install -g miru
-miru -w public/bundle.js -e 'webpack -w -o public/bundle.js'
+# miru -w [ <watch command>, <target bundle filepath> ]
+miru --path public -w [ webpack -w src/app.js -o public/bundle.js, public/bundle.js ]
 ```
 
-add `miru.init.js` script to your index.html (created by miru on start inside the `--path` directory or current working directory by default)
+add `miru-connect.js` script to your index.html ( created by miru at start inside the `--path` directory or current working directory by default )
 ```html
-  <script src="miru.init.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link href="bundle.css" rel="stylesheet">
+</head>
+<body>
+  <script src="miru-connect.js"></script>
+  <script src="bundle.js"></script>
+</body>
+</html>
 ```
 
 # About (Who watches the watchers?)
-A simple web server (express and socket.io) intended for running command-line watchers (daemon processes that watch and bundle source files and never exits).
+A simple web server ( express and socket.io ) intended for running command-line watchers (daemon processes that watch and bundle source files and never exits).
 
 # Why
 Most bundlers are great at what they do and come with their own `--watch` modes ([rollup](https://github.com/rollup/rollup), [webpack](https://github.com/webpack/webpack), [stylus](https://github.com/stylus/stylus/) etc), they have great error parsing and do their specific thing very well. Miru embraces this, simply mirroring what they print to the terminal into the browser along with live reloading and some honey on top.
@@ -33,7 +45,7 @@ With miru your browser stays in sync with your terminal output, no longer do you
 
 No need for browser extensions, allows for a nice dev experience across multiple devices, develop simultaneously against tablets, mobiles and desktop monitors.
 
-Miru simply spits the terminal output to the browser (with some prettyfying and honey) as well as cleaning up your command-line watchers into a concice, clear workflow. Keeping them nicely separate but also together.
+Miru simply spits the terminal output to the browser ( with some prettyfying and honey ) as well as cleaning up your command-line watchers into a concice, clear workflow. Keeping them nicely separate but also together.
 
 # For who?
 Probably people who prefer npm scripts over monolithic boilerplates and convoluted configs (not that there's anything wrong with boilerplates or configs, as long as they're well maintained, straightforward and clear!)
@@ -142,30 +154,9 @@ npm install -g miru # globally (not recommended)
 
 Miru would be pretty useless without any bundlers, check the `demos/` directory for examples using webpack, rollup and browserify.
 
-# Demos
-Webpack (--watch)
-```bash
-git clone https://github.com/talmobi/miru
-cd miru
-npm install
-cd demos/webpack
-npm install
-npm start
-open localhost:4040
-```
+# Sample setups with webpack, browserify, rollup and stylus ( css bundler )
 
-Rollup (using [wrollup](https://github.com/talmobi/wrollup) since the "official" --watch plugin is crap)
-```bash
-git clone https://github.com/talmobi/miru
-cd miru
-npm install
-cd demos/rollup
-npm install
-npm start
-open localhost:4040
-```
-
-Browserify (using [watchify](https://github.com/substack/watchify) since browserify doesn't come with a --watch mode)
+Browserify ( using [watchify](https://github.com/substack/watchify) since browserify doesn't come with a --watch mode )
 ```bash
 git clone https://github.com/talmobi/miru
 cd miru
@@ -176,37 +167,24 @@ npm start
 open localhost:4040
 ```
 
-# Sample package.json usage overview combined from all demos
-```js
-{
-  "scripts": {
-    "webpack:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run webpack:watch-js' -e 'npm run watch-css'",
-    "browserify:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run browserify:watch-js' -e 'npm run watch-css'",
-    "rollup:dev": "miru -p public -w bundle.js -w bundle.css -e 'npm run rollup:watch-js' -e 'npm run watch-css'",
-    "webpack:build-js": "webpack --config webpack.config.js",
-    "webpack:watch-js": "webpack -w --config webpack.config.js",
-    "browserify:build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",
-    "browserify:watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",
-    "rollup:build-js": "rollup -c rollup.config.js",
-    "rollup:watch-js": "wrollup -c rollup.config.js",
-    "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
-    "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "miru": "^0.6.0",
-    "webpack": "^1.14.0",
-    "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
-    "babel-preset-es2015": "^6.18.0",
-    "rollup": "^0.36.1",
-    "wrollup": "^0.1.18"
-    "babelify": "^7.3.0",
-    "browserify": "^13.1.1",
-    "watchify": "^3.8.0",
-    "nib": "^1.1.2",
-    "stylus": "^0.54.5"
-  },
-  "dependencies": {}
-}
+Webpack ( --watch )
+```bash
+git clone https://github.com/talmobi/miru
+cd miru
+npm install
+cd demos/webpack
+npm install
+npm start
+open localhost:4040
+```
+
+Rollup ( --watch )
+```bash
+git clone https://github.com/talmobi/miru
+cd miru
+npm install
+cd demos/rollup
+npm install
+npm start
+open localhost:4040
 ```
