@@ -255,6 +255,8 @@ if ( argv[ 'file' ] ) {
   // TODO
   log( 'watched files:' )
   log( fileWatcher.getWatched() )
+
+  console.log( 'number of --files watched: ' + fileWatcher.getWatched().length )
 }
 
 /*
@@ -1228,9 +1230,14 @@ var commands = {
       }
     } )
   },
+  'executions': function () {
+    console.log( 'executions: ' + executions.length )
+    console.log( executions )
+  },
   'files': function () {
-    console.log( 'watched files:' )
-    console.log( fileWatcher.getWatched() )
+    var watched = fileWatcher.getWatched()
+    console.log( 'watched files: ' + watched.length )
+    console.log( watched )
   }
 }
 
