@@ -290,6 +290,7 @@ log( watchers )
  * Save miru-connect.js inside public-path for the user to then
  * link to from his/her html page/pages
  */
+var miruConnectSource = path.join( __dirname, '../../dist/miru-connect.js' )
 var miruConnectDestination = path.join( publicPath, 'miru-connect.js' )
 try {
   if ( !argv[ 'no-miru-connect' ] ) {
@@ -306,7 +307,7 @@ try {
 
   if ( argv[ 'development' ] ) {
     var w = miteru.watch(
-      path.join( __dirname, '../../dist/miru-connect.js' ),
+      miruConnectSource,
       function ( evt, filepath ) {
         switch ( evt ) {
           case 'add':
@@ -342,7 +343,7 @@ function writeMiruConnect () {
 function injectMiruConnect () {
   // load the bundled miru-connect.js from the dist directory
   var text = fs.readFileSync(
-    path.join( __dirname, '../../dist/miru-connect.js' ),
+    miruConnectSource,
     'utf8'
   )
 
