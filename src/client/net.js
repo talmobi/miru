@@ -9,7 +9,18 @@ import io from 'socket.io-client'
 import { HOST, PORT, URI } from './config.js'
 
 console.log( '[miru] socket connecting to: ' + URI )
-let socket = io( URI )
+let socket = io(
+  URI,
+  {
+    reconnection: true, // auto reconnect
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 3000,
+    randomizationFactor: 0.5,
+    query: {
+      transport: 'polling'
+    }
+  }
+)
 
 window.__miru.terminalErrors = {}
 let _connected = false
