@@ -17,6 +17,11 @@
       "from": "ansi-regex@>=2.1.1 <3.0.0",
       "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-2.1.1.tgz"
     },
+    "ansi-to-html": {
+      "version": "0.6.3",
+      "from": "ansi-to-html@latest",
+      "resolved": "https://registry.npmjs.org/ansi-to-html/-/ansi-to-html-0.6.3.tgz"
+    },
     "array-flatten": {
       "version": "1.1.1",
       "from": "array-flatten@1.1.1",
@@ -71,6 +76,11 @@
       "version": "1.2.0",
       "from": "cli-color@>=1.2.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/cli-color/-/cli-color-1.2.0.tgz"
+    },
+    "code-point-at": {
+      "version": "1.1.0",
+      "from": "code-point-at@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/code-point-at/-/code-point-at-1.1.0.tgz"
     },
     "component-bind": {
       "version": "1.0.0",
@@ -195,6 +205,11 @@
       "version": "1.3.2",
       "from": "engine.io-parser@1.3.2",
       "resolved": "https://registry.npmjs.org/engine.io-parser/-/engine.io-parser-1.3.2.tgz"
+    },
+    "entities": {
+      "version": "1.1.1",
+      "from": "entities@>=1.1.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/entities/-/entities-1.1.1.tgz"
     },
     "es5-ext": {
       "version": "0.10.30",
@@ -374,9 +389,9 @@
       "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz"
     },
     "miteru": {
-      "version": "0.1.3",
-      "from": "miteru@>=0.1.3 <0.2.0",
-      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.1.3.tgz"
+      "version": "0.4.3",
+      "from": "miteru@latest",
+      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.4.3.tgz"
     },
     "ms": {
       "version": "2.0.0",
@@ -462,6 +477,11 @@
       "version": "1.2.0",
       "from": "range-parser@>=1.2.0 <1.3.0",
       "resolved": "https://registry.npmjs.org/range-parser/-/range-parser-1.2.0.tgz"
+    },
+    "redom": {
+      "version": "3.4.0",
+      "from": "redom@latest",
+      "resolved": "https://registry.npmjs.org/redom/-/redom-3.4.0.tgz"
     },
     "safe-buffer": {
       "version": "5.0.1",
