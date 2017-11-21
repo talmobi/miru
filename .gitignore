@@ -1,8 +1,15 @@
 node_modules
 
+# vim temp files
 *.sw?
+
+# mac files
 *.DS_Store
 
 npm-debug*
 
 trash
+
+# ignore dist bundles
+dist/miru.js
+dist/miru-connect.js
