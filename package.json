@@ -57,7 +57,7 @@
     "string-width": "~2.1.1",
     "subarg": "~1.0.0",
     "ua-parser-js": "~0.7.17",
-    "wooster": "~0.3.2"
+    "wooster": "~0.3.3"
   },
   "devDependencies": {
     "babel-core": "~6.26.0",
