@@ -1208,7 +1208,7 @@ var commands = {
   },
   'targets': function ( args ) {
     console.log( '  targets: ' )
-    Object.keys( targets ).forEach( function ( target ) {
+    targetWatcher.getWatched().forEach( function ( target ) {
       console.log( target )
     } )
   },
