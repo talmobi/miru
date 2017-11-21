@@ -28,6 +28,18 @@ Options:
 
                                        scripts ( *.js ) and all other files trigger a page reload.
 
+                                       miru-connect.js will listen for DOM Errors -- and if the
+                                       basename of the source file of the error matches a
+                                       file in --targets then it will pass the error
+                                       back to the miru.js sever for parsing. The parsing is
+                                       done by wooster and the result is sent back to the client.
+                                       The parsed error output is then rendered on the screen
+                                       for easier debugging.
+
+                                       Inline source maps are supported:
+                                         If the target file includes inline source maps then
+                                         the parsed output includes the source map as well.
+
 -r, --reload                           Always force a reload when a change event is emitted.
                                        This disables css link.href quick refreshing.
 
@@ -46,7 +58,7 @@ Options:
 -V, --version                          Display miru version
 -h, --help                             Display help information (this text)
 
-Terminal Commands:
+Terminal Commands:        miru.js listens for lined stdio input
 
 devices                   prints a numbered list of connected client/device information
 logs <number>             list console.log output of <number> client ( or all clients if undefined )
