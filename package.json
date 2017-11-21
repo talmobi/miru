@@ -9,6 +9,7 @@
   "files": [
     "cli.js",
     "dist/miru.js",
+    "dist/index.html",
     "dist/miru-connect.js",
     "dist/pesticide.css",
     "dist/favicon.png"
