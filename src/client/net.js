@@ -41,17 +41,27 @@ socket.on( 'disconnect', function () {
 } )
 
 let _reloadTimeout
-socket.on( 'reload', function ( evt ) {
-  console.log( '[miru] reloading the page now!' )
-
+function triggerReload () {
   clearTimeout( _reloadTimeout )
   _reloadTimeout = setTimeout( function () {
     window.location.reload()
   }, 16 )
+}
+
+socket.on( 'reload', function ( evt ) {
+  console.log( '[miru] reloading the page now!' )
+  triggerReload()
 } )
 
-socket.on( 'success', function ( evt ) {
-  console.log( '[miru] success' )
+socket.on( 'target-build', function ( evt ) {
+  console.log( '[miru] target-build' )
+
+  console.log( 'forceReload: ' + window.__miru.forceReload )
+  if ( window.__miru.forceReload ) {
+    console.log( '[miru] forcing reload!' )
+    return triggerReload()
+  }
+
   var target = ( evt.target || '' )
 
   var basename = (
