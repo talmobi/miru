@@ -172,12 +172,8 @@ socket.on( 'terminal-error', function ( error ) {
   handleError( error )
 } )
 
-socket.on( 'pesticide', function ( enable ) {
-  if ( enable ) {
-    pesticide.enablePesticide()
-  } else {
-    pesticide.disablePesticide()
-  }
+socket.on( 'pesticide', function ( isEnabled ) {
+  pesticide.update( isEnabled )
 } )
 
 let _lastErrorTimestamp = 0

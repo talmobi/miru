@@ -1,6 +1,7 @@
 /* global window */
 
 import { el, list, mount } from 'redom'
+import * as pesticide from './pesticide.js'
 
 const MODAL_ID = '__miru-error-modal-id'
 
@@ -133,11 +134,20 @@ function Modal () {
 
       // console.log( 'messages.length: ' + messages.length )
       _list.update( messages )
+
+      // disable pesticide when showing error
+      // this fixes bug in IE11 ( IE11 does not support css unset attribute )
+      pesticide.disablePesticide()
     } else {
       _isVisible = false
+
+      // will show pesticide again if it is enabled
+      pesticide.update()
     }
 
     _el.style[ 'display' ] = ( _isVisible === false ? 'none' : 'block' )
+
+    window.__miru.modalVisible = !!_isVisible
   }
 
   return {

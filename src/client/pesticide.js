@@ -6,19 +6,27 @@ const PESTICIDE_ID = '__miru-pesticide-id'
 const PESTICIDE_URL = ( URI + '/__miru/pesticide.css' )
 
 export default {
-  savePesticideStatus,
+  update,
+  isEnabled,
   enablePesticide,
   disablePesticide,
   togglePesticide
 }
 
-export function savePesticideStatus () {
-  var el = document.getElementById( PESTICIDE_ID )
+var _pesticideUpdateTimeout
+export function update ( bool ) {
+  if ( bool != null ) {
+    window.__miru.pesticide = bool
+  }
 
-  var enabled = !!el
-
-  storage.save( '__miru-pesticide-enabled', enabled )
-  console.log( '[miru] saved pesticide, enabled: ' + enabled )
+  clearTimeout( _pesticideUpdateTimeout )
+  _pesticideUpdateTimeout = setTimeout( function () {
+    if ( !window.__miru.modalVisible && window.__miru.pesticide ) {
+      enablePesticide()
+    } else {
+      disablePesticide()
+    }
+  }, 100 )
 }
 
 export function enablePesticide () {
@@ -35,6 +43,15 @@ export function enablePesticide () {
     linkEl.rel = 'stylesheet'
     linkEl.href = href
     document.head.appendChild( linkEl )
+  }
+}
+
+export function isEnabled () {
+  var el = document.getElementById( PESTICIDE_ID )
+  if ( el ) {
+    return true
+  } else {
+    return false
   }
 }
 
