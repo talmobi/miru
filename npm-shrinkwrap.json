@@ -362,9 +362,9 @@
       "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz"
     },
     "miteru": {
-      "version": "0.5.1",
+      "version": "0.6.1",
       "from": "miteru@latest",
-      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.5.1.tgz"
+      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.6.1.tgz"
     },
     "ms": {
       "version": "0.7.1",
