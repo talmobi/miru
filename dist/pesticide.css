@@ -793,9 +793,10 @@ wbr {
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.6);
   background-color: rgba(255, 255, 255, 0.25); }
 
+
 .__miru-error-modal * {
-  -webkit-box-shadow: unset;
-  box-shadow: unset;
   background-color: unset;
   outline: unset !important;
+  box-shadow: unset;
+  -webkit-box-shadow: unset;
 }
