@@ -4,23 +4,17 @@ import stripAnsi from './strip-ansi.js'
 
 import * as pesticide from './pesticide.js'
 
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
+var kiite = require( 'kiite' )
 
 import { HOST, PORT, URI } from './config.js'
 
 console.log( '[miru] socket connecting to: ' + URI )
-let socket = io(
-  URI,
-  {
-    reconnection: true, // auto reconnect
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 3000,
-    randomizationFactor: 0.5,
-    query: {
-      transport: 'polling'
-    }
-  }
-)
+let socket = kiite.connect( {
+  protocol: 'http',
+  host: window.location.hostname,
+  port: PORT
+} )
 
 window.__miru.terminalErrors = {}
 let _connected = false
