@@ -79,10 +79,15 @@ var http = require( 'http' )
 var express = require( 'express' )
 
 var cors = require( 'cors' )
+var bodyParser = require( 'body-parser' )
 
 var app = express()
 var server = http.createServer( app )
-var io = require( 'socket.io' )( server ) // livereload
+
+// var io = require( 'socket.io' )( server ) // livereload
+// var kiite = require( '/Users/mollie/code/kiite/dist/kiite.js' )
+var kiite = require( 'kiite' )
+var io = kiite( server )
 
 var os = require( 'os' ) // for getNetworkIpAddresses
 
@@ -425,19 +430,82 @@ function injectMiruConnect () {
 log( '[express]: cors' )
 app.use( cors() ) // allow cors
 
-app.use( '/favicon*', function ( req, res ) {
+app.get( '/favicon*', function ( req, res ) {
   res.sendFile( path.join( __dirname, '../../dist/favicon.png' ) )
 } )
 
-app.use( '/__miru/pesticide.css', function ( req, res, next ) {
+app.get( '/__miru/pesticide.css', function ( req, res ) {
   res.sendFile( path.join( __dirname, '../../dist/pesticide.css' ) )
+} )
+
+app.post( '/__miru/woosterify', bodyParser.json(), function ( req, res ) {
+  var data = req.body
+
+  var opts = data
+
+  var ctx = wooster.parseContext( {
+    prettify: true,
+    text: opts.text,
+    filename: opts.filename,
+    lineno: opts.lineno,
+    colno: opts.colno
+  } )
+
+  var clientID = parseClientID( req.headers[ 'user-agent' ])
+
+  var message = wooster.createMessage( {
+    postintro: ( ' ' + clc.bgWhite( 'DOM Error' ) + ' [' + clientID + ']' ),
+    message: opts.message,
+    filename: ctx.filename,
+    ctx: ctx
+  } )
+
+  var origin = undefined
+  if ( ctx.usedSourceMap ) {
+    var originCtx = wooster.parseContext( {
+      prettify: true,
+      disableSourceMaps: true,
+      text: opts.text,
+      filename: opts.filename,
+      lineno: opts.lineno,
+      colno: opts.colno
+    } )
+
+    origin = wooster.createMessage( {
+      message: opts.message,
+      filename: originCtx.filename,
+      ctx: originCtx
+    } )
+  }
+
+  clearConsole()
+
+  print( message )
+  // console.log( 'sending woosterify response length: ' + parsedMessage.length )
+
+  res.status( 200 ).json( {
+    target: 'DOM',
+    name: 'Error',
+    message: message,
+    origin: origin
+  } ).end()
+} )
+
+app.post( '/__miru/console', bodyParser.json(), function ( req, res ) {
+  var data = req.body
+
+  var host = data.host
+  var clientID = parseClientID( req.get( 'user-agent' ) )
+  var client = clients[ clientID ]
+
+  client.logs = logs
 } )
 
 // serve static contents from --public-path for easy quick access
 log( '[express]: static directory: ' + publicPath )
 app.use( express.static( publicPath ) )
 
-app.use( '/', function ( req, res, next ) {
+app.get( '/', function ( req, res, next ) {
   res.sendFile( path.join( __dirname, '../../dist/index.html' ) )
 } )
 
