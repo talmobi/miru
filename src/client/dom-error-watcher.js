@@ -6,6 +6,10 @@ import stripAnsi from './strip-ansi.js'
 import matchesTargets from './matches-targets.js'
 import getFile from './dom-get-file.js'
 
+import dasu from 'dasu'
+
+import { HOST, PORT, URI } from './config.js'
+
 window.addEventListener( 'error', function ( domError ) {
   console.log( '[miru] DOM Error detected.' )
 
@@ -44,75 +48,72 @@ window.addEventListener( 'error', function ( domError ) {
       }
       attemptsCount++
 
-      if ( window.__miru.socket ) {
-        // console.log( 'emitting "woosterify"...' )
-        window.__miru.socket.emit( 'woosterify', errorId, {
+      // console.log( 'emitting "woosterify"...' )
+      dasu.req( {
+        method: 'POST',
+        protocol: 'http',
+        host: window.location.hostname,
+        port: PORT,
+        path: '/__miru/woosterify',
+        data: {
+          errorId: errorId,
           prettify: true,
           filename: filename,
           message: message,
           text: text,
           lineno: lineno,
           colno: colno
-        }, function ( data ) {
-          if ( !done ) {
-            done = true
-            window.__miru.debug( '[miru] got woosterified ( DOM Error parsed through wooster )' )
-            // window.__miruErrorHandler( error )
-            // modal.update( error )
-
-            let messages = []
-
-            // transform ansi text to html
-            let html = stripAnsi( ansiToHtml( data.message ) )
-
-            messages.push( {
-              name: '',
-              text: html
-            } )
-
-            if ( data.origin ) {
-              messages.push( {
-                name: '(' + filename + ')',
-                text: stripAnsi( ansiToHtml( data.origin ) )
-              } )
-            }
-
-            var basename = (
-              filename
-                .split( '/' )
-                .filter( function ( f ) { return f.trim() } )
-                .pop()
-            )
-            console.log( '[miru] error.target basename: ' + basename )
-
-            var fn = function () {
-              // updat the modal with html content
-              modal.update( {
-                title: 'DOM Error (' + filename + ')',
-                messages: messages
-              } )
-            }
-            fn.error = data
-            window.__miru.terminalErrors[ basename ] = fn
-
-            fn()
+        }
+      }, function ( err, res, body ) {
+        if ( err ) {
+          if ( attemptsCount < maxAttempts ) {
+            // console.log( 'not ready, attempting later...' )
+            setTimeout( attempt, 5 + attemptsCount )
           } else {
-            console.log( '[miru] already woosterified' )
+            console.log( '[miru] too many attempts, not sending dom error' )
+          }
+        } else {
+          let data = JSON.parse( body )
+          window.__miru.debug( '[miru] got woosterified ( DOM Error parsed through wooster )' )
+
+          let messages = []
+
+          // transform ansi text to html
+          let html = stripAnsi( ansiToHtml( data.message ) )
+
+          messages.push( {
+            name: '',
+            text: html
+          } )
+
+          if ( data.origin ) {
+            messages.push( {
+              name: '(' + filename + ')',
+              text: stripAnsi( ansiToHtml( data.origin ) )
+            } )
           }
 
-          if ( done === true ) window.__miru.socket.emit( 'ack', errorId )
-        } )
-      }
+          var basename = (
+            filename
+              .split( '/' )
+              .filter( function ( f ) { return f.trim() } )
+              .pop()
+          )
+          console.log( '[miru] error.target basename: ' + basename )
 
-      if ( done ) {
-      } else {
-        if ( attemptsCount < maxAttempts ) {
-          // console.log( 'not ready, attempting later...' )
-          setTimeout( attempt, 5 + attemptsCount )
-        } else {
-          console.log( '[miru] too many attempts, not sending dom error' )
+          var fn = function () {
+            // updat the modal with html content
+            modal.update( {
+              title: 'DOM Error (' + filename + ')',
+              messages: messages
+            } )
+          }
+          fn.error = data
+          window.__miru.terminalErrors[ basename ] = fn
+
+          fn()
         }
-      }
+      } )
     } // attempt
   } ) // getFile
 } ) // window.addEventListener
