@@ -6,12 +6,12 @@ import * as pesticide from './pesticide.js'
 
 // import io from 'socket.io-client'
 // var kiite = require( '/Users/mollie/code/kiite/dist/kiite.min.js' )
-var kiite = require( 'kiite' )
+const kiite = require( 'kiite' )
 
 import { HOST, PORT, URI } from './config.js'
 
 // console.log( '[miru] socket connecting to: ' + URI )
-let socket = kiite.connect( {
+const socket = kiite.connect( {
   protocol: 'http',
   host: window.location.hostname,
   port: PORT
@@ -23,9 +23,14 @@ let _connected = false
 
 // only send connecting message if connecting takesl longer than
 // 1500 milliseconds -- in order to reduce console.log bloat
-let _sendConnectingMessageTimeout = setTimeout( function () {
-  console.log( '[miru] connecting to: ' + URI )
-}, 1500 )
+let _sendConnectingMessageTimeout
+if ( !window.__miru.verbose ) {
+  _sendConnectingMessageTimeout = setTimeout( function () {
+    console.log( '[miru] connecting to: ' + URI )
+  }, 1500 )
+} else {
+  window.__miru.debug( '[miru] connecting to: ' + URI )
+}
 
 socket.on( 'connect', function () {
   // no need to send connecting message anymore
