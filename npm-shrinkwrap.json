@@ -242,9 +242,9 @@
       "resolved": "https://registry.npmjs.org/is-promise/-/is-promise-2.1.0.tgz"
     },
     "kiite": {
-      "version": "0.0.3",
+      "version": "0.0.4",
       "from": "kiite@latest",
-      "resolved": "https://registry.npmjs.org/kiite/-/kiite-0.0.3.tgz"
+      "resolved": "https://registry.npmjs.org/kiite/-/kiite-0.0.4.tgz"
     },
     "lru-queue": {
       "version": "0.1.0",
