@@ -20,7 +20,6 @@ const socket = kiite.connect( {
 window.__miru.terminalErrors = {}
 let _connected = false
 
-
 // only send connecting message if connecting takesl longer than
 // 1500 milliseconds -- in order to reduce console.log bloat
 let _sendConnectingMessageTimeout
