@@ -85,7 +85,7 @@ var app = express()
 var server = http.createServer( app )
 
 // var io = require( 'socket.io' )( server ) // livereload
-// var kiite = require( '/Users/mollie/code/kiite/dist/kiite.js' )
+// var kiite = require( '/Users/mollie/code/kiite/dist/kiite.min.js' )
 var kiite = require( 'kiite' )
 var io = kiite( server )
 

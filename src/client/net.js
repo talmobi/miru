@@ -5,7 +5,7 @@ import stripAnsi from './strip-ansi.js'
 import * as pesticide from './pesticide.js'
 
 // import io from 'socket.io-client'
-// var kiite = require( 'kiite' )
+// var kiite = require( '/Users/mollie/code/kiite/dist/kiite.min.js' )
 var kiite = require( 'kiite' )
 
 import { HOST, PORT, URI } from './config.js'
