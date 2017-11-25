@@ -1,11 +1,10 @@
 import './polyfills.js'
+
 import * as pesticide from './pesticide.js'
-import ansiToHtml from './ansi-to-html.js'
-import * as net from './net.js'
-import UID from './uid.js'
 
 import './dom-error-watcher.js'
 import './dom-console-watcher.js'
+import './net.js'
 
 // attach better monospace font if possible
 // the error modal.js uses Monaco ( OSX terminal font ) if available
