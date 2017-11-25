@@ -100,7 +100,7 @@ function sendLogs () {
   }
 
   sendLogsTimeout = setTimeout( function () {
-    if ( window.__miru.socket ) {
+    if ( window.__miru.socket && window.__miru.connected ) {
       window.__miru.debug( '[miru] logs sent' )
       sendLogsLastSentTime = Date.now()
       window.__miru.socket.emit( 'console', {
