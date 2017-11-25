@@ -10,7 +10,7 @@ var kiite = require( 'kiite' )
 
 import { HOST, PORT, URI } from './config.js'
 
-console.log( '[miru] socket connecting to: ' + URI )
+// console.log( '[miru] socket connecting to: ' + URI )
 let socket = kiite.connect( {
   protocol: 'http',
   host: window.location.hostname,
@@ -20,13 +20,23 @@ let socket = kiite.connect( {
 window.__miru.terminalErrors = {}
 let _connected = false
 
+
+// only send connecting message if connecting takesl longer than
+// 1500 milliseconds -- in order to reduce console.log bloat
+let _sendConnectingMessageTimeout = setTimeout( function () {
+  console.log( '[miru] connecting to: ' + URI )
+}, 1500 )
+
 socket.on( 'connect', function () {
+  // no need to send connecting message anymore
+  clearTimeout( _sendConnectingMessageTimeout )
+
   // should already be set by IIFE concated to the head of miru-connect.js
   window.__miru = ( window.__miru || {} )
   window.__miru.socket = socket
 
   var uri = ( 'http://' + window.location.hostname + ':' + PORT )
-  console.log( '[miru] socket connected to: ' + uri )
+  console.log( '[miru] connected to: ' + uri )
   _connected = true
   window.__miru.connected = true
 } )
