@@ -96,8 +96,6 @@ socket.on( 'target-build', function ( evt ) {
     // matched a link tag ( style )
     console.log( '[miru] found matching style tags -- refreshing styles [ ' + styles.length + ' ]' )
 
-    var href = style.href // remember the href
-
     if ( window.__miru.styleFlicker ) {
       /*
       * By unloading the previous styles and delaying the
@@ -107,11 +105,13 @@ socket.on( 'target-build', function ( evt ) {
       * animations and transformation may reload and/or
       * take effect.
       */
-      style.href = '' // unload the previous styles first
       ;[].forEach.call( styles, function ( el ) {
-        el.href = (
-          href.split( '?' )[ 0 ] + '?cachebuster=' + date.now()
+        // save the new href into memory while we unload the current one
+        el.__miru_href = (
+          el.href.split( '?' )[ 0 ] + '?cachebuster=' + Date.now()
         )
+
+        el.href = '' // unload the previous styles
       } )
 
       var background = document.documentElement.style.background
@@ -121,9 +121,8 @@ socket.on( 'target-build', function ( evt ) {
 
       setTimeout( function () {
         ;[].forEach.call( styles, function ( el ) {
-          el.href = (
-            href.split( '?' )[ 0 ] + '?cachebuster=' + date.now()
-          )
+          el.href = el.__miru_href
+          delete el.__miru_href
         } )
 
         // setTimeout( function () {
@@ -141,7 +140,7 @@ socket.on( 'target-build', function ( evt ) {
        */
       ;[].forEach.call( styles, function ( el ) {
         el.href = (
-          href.split( '?' )[ 0 ] + '?cachebuster=' + date.now()
+          el.href.split( '?' )[ 0 ] + '?cachebuster=' + Date.now()
         )
       } )
     }
