@@ -5,6 +5,7 @@ import stripAnsi from './strip-ansi.js'
 import * as pesticide from './pesticide.js'
 
 // import io from 'socket.io-client'
+// var kiite = require( 'kiite' )
 var kiite = require( 'kiite' )
 
 import { HOST, PORT, URI } from './config.js'
@@ -24,7 +25,8 @@ socket.on( 'connect', function () {
   window.__miru = ( window.__miru || {} )
   window.__miru.socket = socket
 
-  console.log( '[miru] socket connected to: ' + socket.io.uri )
+  var uri = ( 'http://' + window.location.hostname + ':' + PORT )
+  console.log( '[miru] socket connected to: ' + uri )
   _connected = true
   window.__miru.connected = true
 } )
@@ -83,16 +85,16 @@ socket.on( 'target-build', function ( evt ) {
     }
   }, 16 )
 
-  var styles = document.querySelectorAll( 'link' )
-  var style = (
-    [].filter.call( styles, function ( el ) {
+  var links = document.querySelectorAll( 'link' )
+  var styles = (
+    [].filter.call( links, function ( el ) {
       return ( el.href.indexOf( basename ) >= 0 )
-    } )[ 0 ]
+    } )
   )
 
-  if ( style ) {
+  if ( styles.length > 0 ) {
     // matched a link tag ( style )
-    console.log( '[miru] found matching style tag -- refreshing styles' )
+    console.log( '[miru] found matching style tags -- refreshing styles [ ' + styles.length + ' ]' )
 
     var href = style.href // remember the href
 
@@ -106,6 +108,11 @@ socket.on( 'target-build', function ( evt ) {
       * take effect.
       */
       style.href = '' // unload the previous styles first
+      ;[].forEach.call( styles, function ( el ) {
+        el.href = (
+          href.split( '?' )[ 0 ] + '?cachebuster=' + date.now()
+        )
+      } )
 
       var background = document.documentElement.style.background
       // make sure the background flickers white to easily
@@ -113,9 +120,11 @@ socket.on( 'target-build', function ( evt ) {
       // document.documentElement.style.background = 'gray'
 
       setTimeout( function () {
-        style.href = (
-          href.split( '?' )[ 0 ] + '?cachebuster=' + Date.now()
-        )
+        ;[].forEach.call( styles, function ( el ) {
+          el.href = (
+            href.split( '?' )[ 0 ] + '?cachebuster=' + date.now()
+          )
+        } )
 
         // setTimeout( function () {
         //   document.documentElement.style.background = background
@@ -130,9 +139,11 @@ socket.on( 'target-build', function ( evt ) {
        *  2. Certain things will not be reloaded such as
        *     certain animation or animation keyframes.
        */
-      style.href = (
-        href.split( '?' )[ 0 ] + '?cachebuster=' + Date.now()
-      )
+      ;[].forEach.call( styles, function ( el ) {
+        el.href = (
+          href.split( '?' )[ 0 ] + '?cachebuster=' + date.now()
+        )
+      } )
     }
 
     return
