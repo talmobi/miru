@@ -412,7 +412,7 @@ function injectMiruConnect () {
   text = ( `
     ;(function () {
       window.__miru = {
-        verbose: true,
+        verbose: ${ !!verbose },
         forceReload: ${ !!argv[ 'reload' ] },
         styleFlicker: ${ !argv[ 'noflicker' ] },
         targets: ${ JSON.stringify( targetWatcher.getWatched() ) }
@@ -1168,7 +1168,7 @@ function clearConsole () {
 
   // This seems to work best on Windows and other systems.
   // The intention is to clear the output so you can focus on most recent build.
-  if ( verbose ||  process.env.MIRU_NOCLEAR ) {
+  if ( verbose || process.env.MIRU_NOCLEAR ) {
     console.log()
     console.log( ' === CLEAR === ' + timestring )
     console.log()
