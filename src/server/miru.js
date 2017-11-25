@@ -1156,7 +1156,7 @@ function print ( output ) {
     }
 
     if ( line[ line.length - 1 ] !== '\n' ) {
-      line += '\n'
+      line += clc.white( '\n' )
     }
 
     process.stdout.write( line )
