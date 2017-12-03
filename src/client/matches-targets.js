@@ -10,6 +10,8 @@
 export default function matchesTarget ( filename ) {
   var matchesTarget = false
 
+  if ( typeof filepath !== 'string' ) return false
+
   window.__miru.targets.forEach( function ( filepath ) {
     var split = filepath.split( /[/\\]/ )
     for ( let i = split.length; i > 0; --i ) {
