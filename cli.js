@@ -6,11 +6,11 @@ var path = require( 'path' )
 var assets = {}
 
 assets.packageJson = fs.readFileSync(
-  path.join( __dirname, 'package.json' )
+  path.join( __dirname, 'package.json' ), 'utf8'
 )
 
 assets.usage = fs.readFileSync(
-  path.join( __dirname, 'dist/usage.txt' )
+  path.join( __dirname, 'dist/usage.txt' ), 'utf8'
 )
 
 assets.miruConnectSource = path.join( __dirname, 'dist/miru-connect.js' )
