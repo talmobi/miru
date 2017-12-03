@@ -7,7 +7,7 @@ export const HOST = (
 )
 
 export const PORT = (
-  process.env.PORT || 4040
+  4040
 )
 
 export const URI = (
