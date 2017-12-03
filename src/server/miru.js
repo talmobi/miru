@@ -2,10 +2,11 @@
 
 var fs = require( 'fs' )
 var path = require( 'path' )
+
 var childProcess = require( 'child_process' )
 var spawns = [] // keep track of all spawns
 
-var faviconBase64 = Buffer.from( require( './favicon.json' ).base64, 'base64' )
+// var faviconBase64 = Buffer.from( require( './favicon.json' ).base64, 'base64' )
 
 // var useragent = require( 'useragent' )
 var useragent = {
@@ -102,7 +103,13 @@ var os = require( 'os' ) // for getNetworkIpAddresses
 var clc = require( 'cli-color' ) // for colored output
 
 // load the projects package.json
-var packageJson = require( path.resolve( __dirname, '../../package.json' ) )
+// var packageJson = require( path.join( __dirname, '../../package.json' ) )
+var packageJson = JSON.parse(
+  fs.readFileSync(
+    path.join( __dirname, '../../package.json' ),
+    'utf8'
+  )
+)
 
 var _recoveryFiles = []
 var _lastPrintOutput = ''
