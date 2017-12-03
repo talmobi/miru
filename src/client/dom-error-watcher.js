@@ -20,6 +20,10 @@ window.addEventListener( 'error', function ( domError ) {
   console.log( '[miru] dom error' )
   console.log( domError )
 
+  if ( typeof filename === 'undefined' ) {
+    return console.log( 'Unknown DOM Error' )
+  }
+
   console.log( '[miru] getting file... [' + filename + ']' )
   getFile( filename, function ( err, text ) {
     if ( err ) {
