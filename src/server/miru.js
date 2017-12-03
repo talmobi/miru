@@ -38,7 +38,14 @@ var wooster = require( 'wooster' )
 
 // watch arbitrary files and execute commands when they change
 var executions = []
+
+var fileWatcherInitTimeout
 var fileWatcher = miteru.watch( function ( evt, filepath ) {
+  clearTimeout( fileWatcherInitTimeout )
+  fileWatcherInitTimeout = setTimeout( function () {
+    console.log( 'number of --files watched: ' + fileWatcher.getWatched().length )
+  }, 1000 )
+
   if ( evt === 'add' || evt === 'change' ) {
     var file = path.relative( process.cwd(), filepath )
 
@@ -261,7 +268,7 @@ if ( argv[ 'file' ] ) {
   log( 'watched files:' )
   log( fileWatcher.getWatched() )
 
-  console.log( 'number of --files watched: ' + fileWatcher.getWatched().length )
+  // console.log( 'number of --files watched: ' + fileWatcher.getWatched().length )
 }
 
 /*
@@ -679,19 +686,30 @@ function parseClientID ( userAgent ) {
 }
 
 // start server
-log( '[express]: starting server at ' + ADDRESS + ':' + PORT )
-server.listen(
-  PORT,
-  ADDRESS,
-  function () {
-    var addr = server.address()
-    console.log(
-      'server listening at *:' + addr.port +
-      ' ( ' + addr.family + ' ' + addr.address + ' )'
+var _serverRunning = false
+setTimeout( function () {
+  if ( targetWatcher.getWatched().length > 0 ) {
+    log( '[express]: starting server at ' + ADDRESS + ':' + PORT )
+
+    _serverRunning = true
+    server.listen(
+      PORT,
+      ADDRESS,
+      function () {
+        var addr = server.address()
+        console.log(
+          'server listening at *:' + addr.port +
+          ' ( ' + addr.family + ' ' + addr.address + ' )'
+        )
+        printNetworkIpAddresses()
+      }
     )
-    printNetworkIpAddresses()
+
+  } else {
+    console.log( '[miru]: no --targets ( or --watch ) specified' )
+    console.log( '[miru]: -> no need for server, server not started.' )
   }
-)
+}, 500 )
 
 function printNetworkIpAddresses () {
   console.log( 'LAN addresses: ' + getNetworkIpAddresses().join( ',' ) )
