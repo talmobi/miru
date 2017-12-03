@@ -102,7 +102,10 @@ socket.on( 'target-build', function ( evt ) {
   var links = document.querySelectorAll( 'link' )
   var styles = (
     [].filter.call( links, function ( el ) {
-      return ( el.href.indexOf( basename ) >= 0 )
+      return (
+        ( typeof el.href === 'string' ) &&
+        ( el.href.indexOf( basename ) >= 0 )
+      )
     } )
   )
 
@@ -165,7 +168,10 @@ socket.on( 'target-build', function ( evt ) {
   var scripts = document.querySelectorAll( 'script' )
   var script = (
     [].filter.call( scripts, function ( el ) {
-      return ( el.src.indexOf( basename ) >= 0 )
+      return (
+        ( typeof el.src === 'string' ) &&
+        ( el.src.indexOf( basename ) >= 0 )
+      )
     } )[ 0 ]
   )
 
