@@ -5,8 +5,6 @@ import ansiToHtml from './ansi-to-html.js'
 import stripAnsi from './strip-ansi.js'
 import matchesTargets from './matches-targets.js'
 
-import getFile from './dom-get-file.js'
-
 // ref: https://stackoverflow.com/questions/8000009/is-there-a-way-in-javascript-to-listen-console-events
 // this method will proxy your custom method with the original one
 function proxy( context, method, callback ) {
