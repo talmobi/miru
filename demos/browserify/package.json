@@ -1,24 +1,26 @@
 {
   "name": "miru-demo-browserify",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "node ../../index.js -p public -w bundle.js -w bundle.css -e 'npm run watch-js' -e 'npm run watch-css'",
-    "build-js": "browserify scripts/app.js -t babelify -o public/bundle.js",
-    "watch-js": "watchify scripts/app.js -v -t babelify -o public/bundle.js",
-    "build-css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
-    "watch-css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
+    "start": "miru -p public -w [ 'npm run watch:js', public/bundle.js ] -w [ 'npm run watch:css', public/bundle.css ]",
+    "build:js": "browserify -t [ babelify --presets [ env ] ] scripts/app.js -o public/bundle.js",
+    "watch:js": "watchify -d -v -t [ babelify --presets [ env ] ] scripts/app.js -o public/bundle.js",
+    "build:css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
+    "watch:css": "stylus -u nib -w -r styles/app.styl -o public/bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "babel-preset-es2015": "^6.18.0",
-    "babelify": "^7.3.0",
-    "browserify": "^13.1.1",
-    "nib": "^1.1.2",
-    "stylus": "^0.54.5",
-    "watchify": "^3.8.0"
+    "babel-core": "~6.26.0",
+    "babel-preset-env": "~1.6.1",
+    "babelify": "~8.0.0",
+    "browserify": "~14.5.0",
+    "miru": "~0.9.3",
+    "nib": "~1.1.2",
+    "stylus": "~0.54.5",
+    "watchify": "~3.9.0"
   },
   "dependencies": {}
 }
