@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-require( './dist/miru.js' )
+var path = require( 'path' )
+require( path.join( __dirname, 'dist', 'miru.js' ) )
