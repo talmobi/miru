@@ -242,9 +242,9 @@
       "resolved": "https://registry.npmjs.org/is-promise/-/is-promise-2.1.0.tgz"
     },
     "kiite": {
-      "version": "0.0.4",
+      "version": "0.0.5",
       "from": "kiite@latest",
-      "resolved": "https://registry.npmjs.org/kiite/-/kiite-0.0.4.tgz"
+      "resolved": "https://registry.npmjs.org/kiite/-/kiite-0.0.5.tgz"
     },
     "lru-queue": {
       "version": "0.1.0",
@@ -478,9 +478,9 @@
       "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz"
     },
     "wooster": {
-      "version": "0.3.3",
-      "from": "wooster@>=0.3.3 <0.4.0",
-      "resolved": "https://registry.npmjs.org/wooster/-/wooster-0.3.3.tgz"
+      "version": "0.3.4",
+      "from": "wooster@latest",
+      "resolved": "https://registry.npmjs.org/wooster/-/wooster-0.3.4.tgz"
     }
   }
 }
