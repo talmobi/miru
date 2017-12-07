@@ -1,17 +1,27 @@
 #  見る miru - Simple dev server for command-line watchers
 
-![](https://fat.gfycat.com/MaleSelfassuredBrahmanbull.gif)
-
-[![npm](https://img.shields.io/npm/v/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
-[![npm](https://img.shields.io/npm/dm/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
-[![npm](https://img.shields.io/npm/l/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
-
-
 ## Simple to use
 ```bash
 npm install -g miru
 # miru -w [ <watch command>, <target bundle filepath> ]
 miru --path public -w [ webpack -w src/app.js -o public/bundle.js, public/bundle.js ]
+```
+
+![](https://i.imgur.com/HmLQzqV.gif)
+
+[![npm](https://img.shields.io/npm/v/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/dm/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/l/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+
+> TIP! make an npm script of each step!
+
+```js
+// package.json
+"scripts": {
+  "watch:js": "webpack -w src/app.js -o public/bundle.js",
+  "watch:css": "stylus -w src/app.css -o public/bundle.css",
+  "watch": "miru -p public -w [ npm run watch:js, public/bundle.js ] -w [ npm run watch:css, public/bundle.css ]"
+}
 ```
 
 add `miru-connect.js` script to your index.html ( created by miru at start inside the `--path` directory or current working directory by default )
