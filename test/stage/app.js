@@ -1,4 +1,4 @@
 // successful build
-var text = 'giraffe'
+var text = require( './module.js' )
 // redom
 console.log( text )
