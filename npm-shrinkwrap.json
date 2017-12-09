@@ -297,9 +297,9 @@
       "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz"
     },
     "miteru": {
-      "version": "0.6.1",
-      "from": "miteru@>=0.6.1 <0.7.0",
-      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.6.1.tgz"
+      "version": "0.6.4",
+      "from": "miteru@latest",
+      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.6.4.tgz"
     },
     "ms": {
       "version": "2.0.0",
@@ -362,9 +362,9 @@
       "resolved": "https://registry.npmjs.org/redom/-/redom-3.4.0.tgz"
     },
     "redstar": {
-      "version": "0.0.1",
-      "from": "redstar@0.0.1",
-      "resolved": "https://registry.npmjs.org/redstar/-/redstar-0.0.1.tgz"
+      "version": "0.0.2",
+      "from": "redstar@0.0.2",
+      "resolved": "https://registry.npmjs.org/redstar/-/redstar-0.0.2.tgz"
     },
     "send": {
       "version": "0.14.2",
