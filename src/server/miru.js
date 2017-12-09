@@ -937,8 +937,10 @@ module.exports = function ( assets ) {
     var shouldSkip = false
     if ( prevError ) {
       var delta = ( now - prevError.time )
+
       if (
         ( delta < errors.THROTTLE ) && (
+          ( isFamily( prevError.raw, error.raw ) ) ||
           ( prevError.raw === error.raw ) ||
           ( prevError.text === error.text ) || (
             ( error.context ) &&
@@ -969,11 +971,12 @@ module.exports = function ( assets ) {
     if ( !shouldSkip ) {
       errors.history.push( error )
 
-      targets[ path.resolve( target ) ] = {
+      target =  path.resolve( target )
+      targets[ target ] = {
         error: error
       }
 
-      if ( errors.history.length > 20 ) errors.history.shift() // cap history
+      while ( errors.history.length > 20 ) errors.history.shift() // cap history
 
       log( 'debouncing error' )
       clearTimeout( errors.timeout ) // error debounce
@@ -1087,15 +1090,24 @@ module.exports = function ( assets ) {
           // investigate approx first 500 characters
           var slice = text.slice( 0, 500 )
           if (
-              ( slice.toLowerCase().indexOf( 'error') !== -1 )
+              ( slice.toLowerCase().indexOf( 'error' ) >= 0 ) &&
+              ( slice.indexOf( 'console' ) >= 0 ) &&
+              ( slice.indexOf( ':' ) >= 0 )
             ) {
             // Could be an error, make sure with wooster.
             var errorText = wooster( slice )
 
             // wooster outputs the input unchanged if no errors are found.
             if ( errorText !== slice ) {
-              // wooster found an error ( input !== output )
+              // wooster found an error ( input !== output ), definitely an error
               hasErrors = true
+            } else {
+              if (
+                ( text.length < 300 ) ||
+                ( text.lastIndexOf( path.sep ) < 5 )
+              ) { // most likely an error
+                hasErrors = true
+              }
             }
           }
 
@@ -1115,13 +1127,15 @@ module.exports = function ( assets ) {
             } )
           } else {
             log( ' === target error detected === ' )
+            var target = path.resolve( filepath )
             var error = handleError( target, slice, -1 )
 
             // attach error to target if it doesn't have one already
             var target = path.resolve( filepath )
-            if ( !targets[ target ].error ) {
+            var t = targets[ targets ]
+            if (t && !t.error) {
               log( 'target error attached' )
-              targets[ target ].error = error
+              t.error = error
             }
           }
         } )
@@ -1214,6 +1228,30 @@ module.exports = function ( assets ) {
     }
 
     return addresses
+  }
+
+  function isFamily ( a, b ) {
+    a = alphaOnly( a.toLowerCase() )
+    b = alphaOnly( b.toLowerCase() )
+
+    var fam = false
+
+    if ( a.length >= b.length ) {
+      fam = ( a.indexOf( b ) >= 0 )
+    } else {
+      fam = ( b.indexOf( a ) >= 0 )
+    }
+
+    log( 'family: ' + fam )
+    return fam
+  }
+
+  function alphaOnly(a) {
+    var b = ''
+    for ( var i = 0; i < a.length; ++i ) {
+      if ( a[ i ] >= 'A' && a[ i ] <= 'z' ) b += a[ i ]
+    }
+    return b
   }
 
   /*
