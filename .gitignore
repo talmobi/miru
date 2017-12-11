@@ -14,5 +14,9 @@ trash
 dist/miru.js
 dist/miru-connect.js
 
+
 # ignore stage miru-connect.js
 test/stage/miru-connect.js
+
+# ignore ./srccli.js generated testing miru-connect.js
+miru-connect.js
