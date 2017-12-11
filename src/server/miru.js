@@ -1343,7 +1343,36 @@ module.exports = function ( assets ) {
       } )
     },
     'targets': function ( args ) {
-      var watched = targetWatcher.getWatched()
+      var _filter = String( args[ 0 ] || '' ).trim()
+
+      var watched = targetWatcher.getWatched().map( function ( file ) {
+        return path.relative( process.cwd(), file )
+      } ).sort()
+
+      watched.sort( function ( a, b ) {
+        var sa = a.slice( a.lastIndexOf( '.' ) + 1 )
+        var sb = b.slice( b.lastIndexOf( '.' ) + 1 )
+
+        if ( sa === a || sb === b ) return 0
+
+        if ( sa > sb ) return 1
+        if ( sa < sb ) return -1
+        return 0
+      } )
+
+      if ( _filter ) {
+        watched = watched.filter( function ( file ) {
+          var suffix = file.slice( file.lastIndexOf( '.' ) )
+
+          if ( _filter[ 0 ] === '.' ) {
+            return ( suffix === _filter )
+          } else {
+            return ( file.indexOf( _filter ) >= 0 )
+          }
+
+        } )
+      }
+
       watched.forEach( function ( filepath ) {
         console.log( '  ' + filepath )
       } )
@@ -1367,8 +1396,37 @@ module.exports = function ( assets ) {
       console.log( 'executions: ' + executions.length )
       console.log( executions )
     },
-    'files': function () {
-      var watched = fileWatcher.getWatched()
+    'files': function ( args ) {
+      var _filter = String( args[ 0 ] || '' ).trim()
+
+      var watched = fileWatcher.getWatched().map( function ( file ) {
+        return path.relative( process.cwd(), file )
+      } ).sort()
+
+      watched.sort( function ( a, b ) {
+        var sa = a.slice( a.lastIndexOf( '.' ) + 1 )
+        var sb = b.slice( b.lastIndexOf( '.' ) + 1 )
+
+        if ( sa === a || sb === b ) return 0
+
+        if ( sa > sb ) return 1
+        if ( sa < sb ) return -1
+        return 0
+      } )
+
+      if ( _filter ) {
+        watched = watched.filter( function ( file ) {
+          var suffix = file.slice( file.lastIndexOf( '.' ) )
+
+          if ( _filter[ 0 ] === '.' ) {
+            return ( suffix === _filter )
+          } else {
+            return ( file.indexOf( _filter ) >= 0 )
+          }
+
+        } )
+      }
+
       watched.forEach( function ( filepath ) {
         console.log( '  ' + filepath )
       } )
