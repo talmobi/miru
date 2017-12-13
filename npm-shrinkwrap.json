@@ -288,7 +288,7 @@
     },
     "minimatch": {
       "version": "3.0.4",
-      "from": "minimatch@>=3.0.4 <3.1.0",
+      "from": "https://registry.npmjs.org/minimatch/-/minimatch-3.0.4.tgz",
       "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.0.4.tgz"
     },
     "minimist": {
@@ -478,9 +478,9 @@
       "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz"
     },
     "wooster": {
-      "version": "0.3.4",
+      "version": "0.3.7",
       "from": "wooster@latest",
-      "resolved": "https://registry.npmjs.org/wooster/-/wooster-0.3.4.tgz"
+      "resolved": "https://registry.npmjs.org/wooster/-/wooster-0.3.7.tgz"
     }
   }
 }
