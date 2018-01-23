@@ -66,7 +66,8 @@ socket.on( 'reload', function ( evt ) {
 socket.on( 'target-build', function ( evt ) {
   console.log( '[miru] target-build' )
 
-  console.log( 'forceReload: ' + window.__miru.forceReload )
+  // console.log( 'forceReload: ' + window.__miru.forceReload )
+
   if ( window.__miru.forceReload ) {
     console.log( '[miru] forcing reload!' )
     return triggerReload()
