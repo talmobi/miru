@@ -37,7 +37,7 @@
     "build:stage:css": "stylus -u nib -r test/stage/app.styl -o test/stage/bundle.css",
     "watch:stage:css": "stylus -w -u nib -r test/stage/app.styl -o test/stage/bundle.css",
     "lint": "spacestandard src/**/*.js",
-    "pass": "passlint dist/*.js",
+    "pass": "passlint dist/miru.js dist/miru-connect.js",
     "pretest": "npm run pass",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
