@@ -1,6 +1,6 @@
 {
   "name": "miru",
-  "version": "0.9.11",
+  "version": "0.10.0",
   "description": "web development server for bundlers and/or static files, parses terminal and DOM errors ( inline sourcemaps supported )",
   "main": "cli.js",
   "bin": {
