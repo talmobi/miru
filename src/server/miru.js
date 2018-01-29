@@ -7,7 +7,7 @@ module.exports = function ( assets ) {
   var childProcess = require( 'child_process' )
   var spawns = [] // keep track of all spawns
 
-  var crossSpawn = require( 'cross-spawn' )
+  var crossSpawn = require( 'cross-spawn-with-kill' )
   // var npmWhich = require( 'npm-which' )( process.cwd() )
   var findRoot = require( 'find-root' )
 
