@@ -55,7 +55,7 @@
     "dasu": "0.0.22",
     "express": "~4.14.0",
     "kiite": "0.0.6",
-    "miteru": "~0.6.4",
+    "miteru": "~0.6.5",
     "redom": "~3.4.0",
     "string-width": "~2.1.1",
     "subarg": "~1.0.0",
