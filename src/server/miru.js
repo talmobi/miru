@@ -8,7 +8,7 @@ module.exports = function ( assets ) {
   var spawns = [] // keep track of all spawns
 
   var crossSpawn = require( 'cross-spawn' )
-  var npmWhich = require( 'npm-which' )( process.cwd() )
+  // var npmWhich = require( 'npm-which' )( process.cwd() )
   var findRoot = require( 'find-root' )
 
   // var faviconBase64 = Buffer.from( require( './favicon.json' ).base64, 'base64' )
@@ -758,49 +758,33 @@ module.exports = function ( assets ) {
 
     var cmd = commands[ 0 ] // first item
     var args = commands.slice( 1 ) // all except first item
+    var last = commands.slice( -1 )[ 0 ]
 
-    console.log( 'cmd: ' + cmd )
+    try {
+      // attempt to replace npm script with local package.json
+      if ( cmd === 'npm' ) {
+        var npmScript = (
+          require(
+            path.join(
+              findRoot( process.cwd() ),
+              'package.json'
+            )
+          )[ 'scripts' ][ last ]
+        )
 
-    if ( cmd === 'npm' ) {
-      // is an npm script, try to resolve it manually
-      // for compatability reasons ( windows etc 9
-      var npmScriptName = commands.slice( -1 )[ 0 ] // last item
-
-      console.log( 'npmScriptName: ' + npmScriptName )
-
-      var npmScript = (
-        require(
-          path.join(
-            findRoot( process.cwd() ),
-            'package.json'
-          )
-        )[ 'scripts' ][ npmScriptName ]
-      )
-
-      console.log( 'npmScript: ' + npmScript )
-
-      if ( npmScript ) {
-        commands = npmScript.split( /\s+/ )
-        cmd = commands[ 0 ] // first item
-        args = commands.slice( 1 ) // all except first item
-
-        console.log( 'before: ' + cmd )
-
-        try {
-          cmd = npmWhich.sync( cmd ) || cmd
-        } catch ( err ) {
-          /* ignore */
-          console.log( err )
-          console.log( 'npm-which failed' )
+        if ( npmScript ) {
+          commands = npmScript.split( /\s+/ )
+          cmd = commands[ 0 ] // first item
+          args = commands.slice( 1 ) // all except first item
         }
-
-        console.log( 'after: ' + cmd )
-      } else {
-        console.log( 'no npm script' )
       }
+    } catch ( err ) {
+      /* ignore */
     }
 
+    console.log( 'cmd: ' + w.command )
     console.log( 'spawning: ' + cmd + ' ' + args.join( ' ' ) )
+
     // var spawn = childProcess.spawn( cmd, args )
     var spawn = crossSpawn( cmd, args )
 
