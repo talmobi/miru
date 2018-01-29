@@ -368,13 +368,22 @@ module.exports = function ( assets ) {
       writeMiruConnect()
     }
 
-    fs.readFileSync(
-      miruConnectDestination
-    ).equals(
-      injectMiruConnect()
-    )
+    try {
+      if (
+        fs.readFileSync(
+          miruConnectDestination,
+          'utf8'
+        ) === injectMiruConnect()
+      ) {
+        log( 'up to date miru-connect.js found at: ' + miruConnectDestination )
+      } else {
+        throw new Error( 'failed to save miru-connect.js to: ' + miruConnectDestination )
+      }
+    } catch ( err ) {
+      log( 'failed to save miru-connect.js to: ' + miruConnectDestination )
+      throw err
+    }
 
-    log( 'up to date miru-connect.js found at: ' + miruConnectDestination )
 
     if ( argv[ 'development' ] ) {
       var w = miteru.watch(
@@ -431,7 +440,7 @@ module.exports = function ( assets ) {
       ${ text }
     ` )
 
-    return Buffer.from( text )
+    return text
   }
 
   /*
