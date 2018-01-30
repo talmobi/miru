@@ -29,10 +29,12 @@ const ansiToHtmlFilter = new AnsiToHtmlFilter({
 import stripAnsi from './strip-ansi.js'
 
 export default function ansiToHtml ( text ) {
-  // text = text.split( /\r.?*?\n/ ).join( '\n' )
 
+  // normalize \r\n to \n and take ansi characters into consideration
   var lines = text.split( /[\r\n]/ )
 
+  // there can be ansi characters between the \r and \n
+  // so filter them out
   lines = lines.filter( function ( line ) {
     // if line is not empty but only has ansi colors in it, ignore it
     if (
