@@ -26,6 +26,27 @@ const ansiToHtmlFilter = new AnsiToHtmlFilter({
   stream: false // do not save style state across invocations of toHtml()
 })
 
+import stripAnsi from './strip-ansi.js'
+
 export default function ansiToHtml ( text ) {
+  // text = text.split( /\r.?*?\n/ ).join( '\n' )
+
+  var lines = text.split( /[\r\n]/ )
+
+  lines = lines.filter( function ( line ) {
+    // if line is not empty but only has ansi colors in it, ignore it
+    if (
+        ( line.length > 0 ) &&
+        ( stripAnsi( line ).length === 0 )
+      ) {
+      // console.log( 'removing empty line, ansi length was: ' + line.length )
+      return false
+    }
+    return true
+  } )
+
+  // normalize lines to \n
+  text = lines.join( '\n' )
+
   return ansiToHtmlFilter.toHtml( text )
 }
