@@ -461,7 +461,7 @@ module.exports = function ( assets ) {
     res.sendFile( assets.pesticide )
   } )
 
-  app.post( '/__miru/woosterify', bodyParser.json(), function ( req, res ) {
+  app.post( '/__miru/woosterify', bodyParser.json( { limit: '50mb' } ), function ( req, res ) {
     var data = req.body
 
     var opts = data
@@ -514,7 +514,7 @@ module.exports = function ( assets ) {
     } ).end()
   } )
 
-  app.post( '/__miru/console', bodyParser.json(), function ( req, res ) {
+  app.post( '/__miru/console', bodyParser.json( { limit: '50mb' } ), function ( req, res ) {
     var data = req.body
 
     var host = data.host
