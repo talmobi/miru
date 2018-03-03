@@ -18,6 +18,17 @@ api.set = function ( key, data ) {
     if ( typeof data === 'object' ) {
       data = JSON.stringify( data )
     }
+
+    if ( typeof data === 'string' ) {
+      // rough estimate of size..
+      var size = ( data.length )
+      var HALF_MEGABYTE = 1024 * 1024 * 512
+      if ( size > HALF_MEGABYTE ) {
+        // don't save this crap
+        return undefined
+      }
+    }
+
     window.localStorage.setItem( key, data )
   }
   return undefined
