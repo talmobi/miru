@@ -15,8 +15,9 @@ dist/miru.js
 dist/miru-connect.js
 
 
-# ignore stage miru-connect.js
+# ignore stage files
 test/stage/miru-connect.js
+test/stage/bundle.*
 
 # ignore ./srccli.js generated testing miru-connect.js
 miru-connect.js
