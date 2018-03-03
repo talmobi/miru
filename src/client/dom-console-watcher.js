@@ -38,36 +38,38 @@ if ( !window.__miru.verbose ) {
 
 window.__miru._console = Object.assign( {}, console )
 
-/*
- * overwrite console methods ( log, error, warn )
- * with our custom proxy
- */
-console.log = proxy( console, console.log, function ( args ) {
-  push( {
-    type: 'log',
-    args: args,
-    timestamp: Date.now()
+if ( window.__miru.enableLogs ) {
+  /*
+  * overwrite console methods ( log, error, warn )
+  * with our custom proxy
+  */
+  console.log = proxy( console, console.log, function ( args ) {
+    push( {
+      type: 'log',
+      args: args,
+      timestamp: Date.now()
+    } )
+    return args
   } )
-  return args
-} )
 
-console.error = proxy( console, console.error, function ( args ) {
-  push( {
-    type: 'error',
-    args: args,
-    timestamp: Date.now()
+  console.error = proxy( console, console.error, function ( args ) {
+    push( {
+      type: 'error',
+      args: args,
+      timestamp: Date.now()
+    } )
+    return args
   } )
-  return args
-} )
 
-console.warn = proxy( console, console.warn, function ( args ) {
-  push( {
-    type: 'warn',
-    args: args,
-    timestamp: Date.now()
+  console.warn = proxy( console, console.warn, function ( args ) {
+    push( {
+      type: 'warn',
+      args: args,
+      timestamp: Date.now()
+    } )
+    return args
   } )
-  return args
-} )
+}
 
 function push ( data ) {
   window.__miru.logs.push( data )
