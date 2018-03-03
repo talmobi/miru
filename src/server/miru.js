@@ -46,11 +46,24 @@ module.exports = function ( assets ) {
   var executions = []
 
   var fileWatcherInitTimeout
+  var fileWatcherInitTimeout2
+  var fileWatcherInitWatchedCount = 0
   var fileWatcher = miteru.watch( function ( evt, filepath ) {
     clearTimeout( fileWatcherInitTimeout )
+    clearTimeout( fileWatcherInitTimeout2 )
+
     fileWatcherInitTimeout = setTimeout( function () {
-      console.log( 'number of --files watched: ' + fileWatcher.getWatched().length )
+      var len = fileWatcher.getWatched().length
+      fileWatcherInitWatchedCount = len
+      console.log( 'number of --files watched: ' + len )
     }, 1000 )
+
+    fileWatcherInitTimeout2 = setTimeout( function () {
+      var len = fileWatcher.getWatched().length
+      if ( fileWatcherInitWatchedCount !== len ) {
+        console.log( 'number of --files watched: ' + len )
+      }
+    }, 6000 )
 
     if ( evt === 'add' || evt === 'change' ) {
       var file = path.relative( process.cwd(), filepath )
@@ -134,6 +147,12 @@ module.exports = function ( assets ) {
 
       // always force a reload instead of attempting to refresh css files
       'reload': [ 'r' ],
+
+      // override DOM console ( log, warn, error ) and push them
+      // them to the miru server, see 'logs' stdinput command
+      // ( can useful when you can't directly see log output on the
+      // device you are testing/developing against )
+      'logs': [ 'log' ],
 
       'debounce': [],
       'throttle': [],
@@ -436,6 +455,7 @@ module.exports = function ( assets ) {
       ;(function () {
         window.__miru = {
           verbose: ${ !!verbose },
+          enableLogs: ${ !!argv[ 'logs' ] },
           forceReload: ${ !!argv[ 'reload' ] },
           styleFlicker: ${ !argv[ 'noflicker' ] },
           targets: ${ JSON.stringify( targetWatcher.getWatched() ) }
@@ -1203,6 +1223,13 @@ module.exports = function ( assets ) {
         /* ignore */
       }
     } )
+
+    try {
+      clearTimeout( fileWatcherInitTimeout )
+      clearTimeout( fileWatcherInitTimeout2 )
+    } catch ( err ) {
+      /* ignore */
+    }
   } )
 
   function print ( output ) {
