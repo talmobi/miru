@@ -201,6 +201,10 @@ socket.on( 'pesticide', function ( isEnabled ) {
   pesticide.update( isEnabled )
 } )
 
+socket.on( 'cssreload', function ( isEnabled ) {
+  window.__miru.forceReload = !!isEnabled
+} )
+
 let _lastErrorTimestamp = 0
 let _handleErrorAttempts = 0
 export function handleError ( err ) {

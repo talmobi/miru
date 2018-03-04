@@ -146,7 +146,7 @@ module.exports = function ( assets ) {
       'targets': [ 't', 'targets' ],
 
       // always force a reload instead of attempting to refresh css files
-      'reload': [ 'r' ],
+      'reload': [ 'r', 'cssreload' ],
 
       // override DOM console ( log, warn, error ) and push them
       // them to the miru server, see 'logs' stdinput command
@@ -188,6 +188,8 @@ module.exports = function ( assets ) {
       // process.exit( 1 )
     }
   } )
+
+  var _lastCSSReload = !!argv.reload
 
   // console.dir( argv )
   // console.dir( argv.watch )
@@ -456,7 +458,7 @@ module.exports = function ( assets ) {
         window.__miru = {
           verbose: ${ !!verbose },
           enableLogs: ${ !!argv[ 'logs' ] },
-          forceReload: ${ !!argv[ 'reload' ] },
+          forceReload: ${ _lastCSSReload },
           styleFlicker: ${ !argv[ 'noflicker' ] },
           targets: ${ JSON.stringify( targetWatcher.getWatched() ) }
         }
@@ -571,6 +573,11 @@ module.exports = function ( assets ) {
     // turn on pesticide if it's set
     if ( _lastPesticide ) {
       socket.emit( 'pesticide', _lastPesticide )
+    }
+
+    // turn on CSSReload if it's set
+    if ( _lastCSSReload ) {
+      socket.emit( 'cssreload', _lastCSSReload )
     }
 
     // if there's an uncleared error, send it to the new client
@@ -1346,6 +1353,32 @@ module.exports = function ( assets ) {
           console.log.apply( this, [ log.type + ':' ].concat( log.args ) )
         } )
       } )
+    },
+    'cssreload': function ( args ) {
+      /*
+      * turn on force reload when css changes
+      */
+      /*
+      * Enable or Disable reload when css changes
+      * to all connected clients
+      */
+      var bool = false
+      var arg = String( args[ 0 ] || '' ).trim()
+      switch ( arg ) {
+        case 'false':
+        case 'off':
+        case '0':
+        case '':
+          bool = false // turn off
+          break
+        default:
+          bool = true // turn on
+
+      }
+      console.log( 'sending CSSReload: ' + bool )
+      // set pesticide for newly connected clients
+      _lastCSSReload = bool
+      io.emit( 'cssreload', bool )
     },
     'reload': function () {
       /*
