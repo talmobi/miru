@@ -13,6 +13,8 @@ module.exports = function ( assets ) {
 
   // var faviconBase64 = Buffer.from( require( './favicon.json' ).base64, 'base64' )
 
+  var pathShorten = require( 'path-shorten' )
+
   // var useragent = require( 'useragent' )
   var useragent = {
     parse: require( 'ua-parser-js' )
@@ -994,9 +996,40 @@ module.exports = function ( assets ) {
       }
     }
 
-    // log( ' vvvvvvvvvvvvvvvvvvv ' )
-    // log( error.text )
-    // log( ' ^^^^^^^^^^^^^^^^^^^ ' )
+    // attempt prettify special watchify error message bundle case
+    if (
+      error.text === text &&
+      text.indexOf( 'console.error' ) >= 0 &&
+      text.indexOf( 'console.error' ) <= 20
+    ) {
+      try {
+        var newText = text
+
+        var startIndex = newText.indexOf( 'console.error("' )
+        if ( startIndex >= 0 ) {
+          newText = newText.slice( startIndex + 'console.error("'.length )
+        }
+
+        var endIndex = newText.lastIndexOf( '");' )
+        if ( endIndex >= 0 ) {
+          newText = newText.slice( 0, endIndex )
+        }
+
+        var pathShortenOpts = {
+          post: function ( word ) {
+            if ( word.length > 5 ) {
+              return wooster.colorify( word, 'magentaBright' ) + '\n'
+            } else {
+              return word
+            }
+          }
+        }
+
+        error.text = pathShorten( newText, pathShortenOpts )
+      } catch ( err ) {
+        console.log( 'info: failed to prettify watchify bundle error' )
+      }
+    }
 
     var prevError = errors.history[ errors.history.length - 1 ]
 
@@ -1194,6 +1227,10 @@ module.exports = function ( assets ) {
           } else {
             log( ' === target error detected === ' )
             var target = path.resolve( filepath )
+
+            slice = slice.split( ':' ).join( ':\n' )
+            slice = slice.split( ';' ).join( ';\n' )
+
             var error = handleError( target, slice, -1 )
 
             // attach error to target if it doesn't have one already

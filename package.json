@@ -59,6 +59,7 @@
     "find-root": "~1.1.0",
     "kiite": "0.0.6",
     "miteru": "~0.6.5",
+    "path-shorten": "0.0.3",
     "redom": "~3.4.0",
     "string-width": "~2.1.1",
     "subarg": "~1.0.0",
