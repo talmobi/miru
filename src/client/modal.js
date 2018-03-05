@@ -128,9 +128,8 @@ function Modal () {
         messages = [ messages ]
       }
 
-      title = '[miru] ' + title
-
-      _name.innerHTML = title || '[ unknown title ]'
+      title = '[miru] ' + ( title || '[ unknown title ]' )
+      _name.innerHTML = title
 
       // console.log( 'messages.length: ' + messages.length )
       _list.update( messages )
