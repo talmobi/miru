@@ -238,7 +238,8 @@ export function handleError ( err ) {
     // updat the modal with html content
     modal.update( {
       name: 'Terminal Error',
-      text: html
+      text: _text
+      // html: html
     } )
   }
   fn.error = err

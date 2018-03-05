@@ -3,6 +3,9 @@
 import { el, list, mount } from 'redom'
 import * as pesticide from './pesticide.js'
 
+import ansiToHtml from './ansi-to-html.js'
+import stripAnsi from './strip-ansi.js'
+
 const MODAL_ID = '__miru-error-modal-id'
 
 let _isVisible = false
@@ -31,7 +34,13 @@ function Message () {
   )
 
   function update ( message ) {
-    _el.innerHTML = ( message.text || message )
+    var text = ( message.text || message )
+
+    // mouse hover for stripped message
+    _el.title = stripAnsi( text )
+
+    let html = stripAnsi( ansiToHtml( text ) )
+    _el.innerHTML = html
   }
 
   return {

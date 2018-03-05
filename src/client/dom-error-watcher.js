@@ -87,13 +87,14 @@ window.addEventListener( 'error', function ( domError ) {
 
           messages.push( {
             name: '',
-            text: html
+            text: data.message
           } )
 
           if ( data.origin ) {
             messages.push( {
               name: '(' + filename + ')',
-              text: stripAnsi( ansiToHtml( data.origin ) )
+              text: data.origin
+              // text: stripAnsi( ansiToHtml( data.origin ) )
             } )
           }
 
