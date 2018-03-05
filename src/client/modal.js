@@ -24,7 +24,8 @@ function Message () {
         'color': '#fbf1c7',
         'background': '#1d2021',
         'padding': '4px 8px',
-        'margin-bottom': '8px'
+        'margin-bottom': '8px',
+        'overflow-x': 'auto'
       }
     }
   )
