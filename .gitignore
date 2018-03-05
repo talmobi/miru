@@ -13,6 +13,8 @@ trash
 # ignore dist bundles
 dist/miru.js
 dist/miru-connect.js
+dist/miru.js*
+dist/miru-connect.js*
 
 
 # ignore stage files
