@@ -1,6 +1,11 @@
-#  見る miru - Simple dev server for command-line watchers
+[![npm](https://img.shields.io/npm/v/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/dm/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
+[![npm](https://img.shields.io/npm/l/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
 
-## Simple to use
+#  見る miru
+development CLI utility tool and web server for module bundlers (eg: webpack, browserify ) and/or static files
+
+## Easy to use
 ```bash
 npm install -g miru
 # miru -w [ <watch command>, <target bundle filepath> ]
@@ -8,10 +13,6 @@ miru --path public -w [ webpack -w src/app.js -o public/bundle.js, public/bundle
 ```
 
 ![](https://i.imgur.com/HmLQzqV.gif)
-
-[![npm](https://img.shields.io/npm/v/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
-[![npm](https://img.shields.io/npm/dm/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
-[![npm](https://img.shields.io/npm/l/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
 
 > TIP! make an npm script of each step!
 
@@ -39,14 +40,26 @@ add `miru-connect.js` script to your index.html ( created by miru at start insid
 </body>
 </html>
 ```
+## Features
+* run and organize/synchronize multiple module bundling watchers at the same time
+* connect across any number of devices and browsers at the same time
+* parses and prettifies errors on the terminal and displays it across all connected browsers
+* parses and prettifies inline source maps automatically
+* parses and prettifies DOM Errors and displays them also on the terminal
+* live reloading and css quick refreshing across all connected browsers
+* css debugging on/off (using [pesticide](https://github.com/mrmrs/pesticide)) across all connected browsers ( browser: `F8`, STDIN `pest on` )
+* watch arbitrary files and execute shell scripts on changes
+* inspect console output from any of the connected browsers ( including mobile )
+* turn css quick refeshing off ( will page reload instead ) ( on by default )
+* control and inspect connected devices/browsers in various ways using the STDIN interface ( list devices, issue page reload, inspect console output, list watch process, list target files, etc ) - see bottom of [## Arguments](https://github.com/talmobi/miru#arguments) section for details
 
-# About (Who watches the watchers?)
-A simple web server ( express and socket.io ) intended for running command-line watchers (daemon processes that watch and bundle source files and never exits).
+## About (Who watches the watchers?)
+A simple web server ( express and socket.io ) originally intended for running module bundlers in watch mode ( eg: `webpack -w`, `watchify` ) with added support for web development and Shell Execution on file changes.
 
-# Why
+## Why
 Most bundlers are great at what they do and come with their own `--watch` modes ([rollup](https://github.com/rollup/rollup), [webpack](https://github.com/webpack/webpack), [stylus](https://github.com/stylus/stylus/) etc), they have great error parsing and do their specific thing very well. Miru embraces this, simply mirroring what they print to the terminal into the browser along with live reloading and some honey on top.
 
-# ...but why though?
+## ...but why though?
 Because it reduces the contexts you're switching between by at least 1 (usually from 3 to 2).
 
 Without miru you'll have your eyes between your source code, your terminal running your watcher and the browser running your code.
@@ -57,17 +70,17 @@ No need for browser extensions, allows for a nice dev experience across multiple
 
 Miru simply spits the terminal output to the browser ( with some prettyfying and honey ) as well as cleaning up your command-line watchers into a concice, clear workflow. Keeping them nicely separate but also together.
 
-# For who?
+## For who?
 Probably people who prefer npm scripts over monolithic boilerplates and convoluted configs (not that there's anything wrong with boilerplates or configs, as long as they're well maintained, straightforward and clear!)
 
-# How
+## How
 miru simply runs commands, preferably npm scripts, as child_process.spawn's and attaches listeners to their std.out and std.err streams to figure out when various interesting events occur, such as successful builds, errors and crashes, additionally providing useful things like auto-recovery, live reloads and errors in the browser.
 
 miru creates a `miru-connect.js` file on startup in the `--path` directory (current working directory by default) that you link to in your index.html page. This script (miru-connect.js) simply connects to the miru express (w/ socket.io) server on port 4040 to listen for interesting events.
 
 miru serves the `-p, --path` directory but you'll probably want to run your own http server to serve your content and simply have the miru dev server (running on port 4040) available for the `miru-connect.js` script to connect to.
 
-# Sample index.html
+## Sample index.html
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -86,7 +99,7 @@ miru serves the `-p, --path` directory but you'll probably want to run your own 
 
 ```
 
-# Arguments
+## Arguments
 ```bash
 $ miru --help
   
@@ -150,7 +163,7 @@ $ miru --help
   -V, --version                         Display miru version
   -h, --help                            Display help information (this text)
 
-  Terminal Commands:        miru.js listens for lined stdio input
+  STDIN Terminal Commands:  the miru process listens for line separated std input
 
   devices                   prints a numbered list of connected client/device information
   logs <number>             list console.log output of <number> client ( or all clients if undefined )
@@ -165,7 +178,7 @@ $ miru --help
   pesticide <bool>          enable or disable pesticide ( css debugger ) on all connected clients
 ```
 
-# Installation
+## Installation
 ```bash
 npm install --save-dev miru # locally (for use with npm scripts)
 ```
@@ -174,9 +187,9 @@ or
 npm install -g miru # globally
 ```
 
-# Usages
+## Usages
 
-## With bundling tools like `browserify`, `webpack`, `rollup` or `stylus`
+### With bundling tools like `browserify`, `webpack`, `rollup` or `stylus`
 
 miru works best with bundling tools like `browserify`, `webpack`, `rollup` or `stylus` etc that are equipped with a `--watch` mode.
 
@@ -218,7 +231,7 @@ wat
   echo giraffe    test/stage/bundle.js
 ```
 
-## static files
+### static files
 
 miru can also work without a bundler and treat files as --targets without any watch processes attached.
 
@@ -244,7 +257,7 @@ sending target build success: test/stage/bundle.js
 sending target build success: test/stage/bundle.js
 ```
 
-## execute terminal commands on file changes
+### execute terminal commands on file changes
 
 miru can also watch an arbitrary number of `--files` and `--execute` terminal commands on them.
 
@@ -278,7 +291,7 @@ executions: 1
 [ 'echo file: $file' ]
 ```
 
-# Sample setups with webpack, browserify, rollup and stylus ( css bundler )
+## Examples with webpack, browserify, rollup and stylus
 
 Browserify ( using [watchify](https://github.com/substack/watchify) since browserify doesn't come with a --watch mode )
 ```bash
