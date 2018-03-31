@@ -19,7 +19,7 @@ export default function matchesTarget ( filename ) {
       if ( last && last.length > 1 ) {
         i = 0
         if ( filename.indexOf( last ) > 0 ) {
-          console.log( '[miru] matches: ' + last )
+          window.__miru.debug( '[miru] basename matches target: ' + last )
           matchesTarget = true
         }
       }

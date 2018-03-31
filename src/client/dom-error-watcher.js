@@ -29,7 +29,6 @@ window.addEventListener( 'error', function ( domError ) {
     return console.log( 'Unknown DOM Error' )
   }
 
-  console.log( '[miru] getting file... [' + filename + ']' )
   getFile( filename, function ( err, text ) {
     if ( err ) {
       return console.log( '[miru] file get error: ' + err )
@@ -83,7 +82,7 @@ window.addEventListener( 'error', function ( domError ) {
           }
         } else {
           let data = JSON.parse( body )
-          window.__miru.debug( '[miru] got woosterified ( DOM Error parsed through wooster )' )
+          console.log( '[miru] success! ( DOM Error parsed through wooster )' )
 
           let messages = []
 
@@ -109,7 +108,7 @@ window.addEventListener( 'error', function ( domError ) {
               .filter( function ( f ) { return f.trim() } )
               .pop()
           )
-          console.log( '[miru] error.target basename: ' + basename )
+          window.__miru.debug( '[miru] error.target basename: ' + basename )
 
           var fn = function () {
             // updat the modal with html content

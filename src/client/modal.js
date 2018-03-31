@@ -127,7 +127,7 @@ function Modal () {
   _list.el.style[ 'padding' ] = '0'
 
   function update ( opts ) {
-    window.__miru.debug && console.log( '[miru] modal update called' )
+    window.__miru.debug( '[miru] modal update called' )
     _isVisible = true
 
     if ( opts ) {

@@ -5,12 +5,12 @@
  * returns the output back to the client/DOM.
  */
 export default function getFile ( filename, callback ) {
-  console.log( ' >> getting file: ' + filename )
+  window.__miru.debug( '  << [miru] << requesting file... ' + filename )
   var req = new XMLHttpRequest()
   req.open( 'GET', filename, true )
 
   req.onload = function () {
-    console.log( ' << got file: ' + filename )
+    window.__miru.debug( '  >> [miru] >> file received! ' + filename )
 
     if ( req.status >= 200 && req.status < 500 ) {
       // success
