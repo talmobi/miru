@@ -1,6 +1,6 @@
 {
   "name": "miru",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "dependencies": {
     "accepts": {
       "version": "1.3.4",
