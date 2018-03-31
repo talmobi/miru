@@ -11,13 +11,18 @@ import dasu from 'dasu'
 import { HOST, PORT, URI } from './config.js'
 
 window.addEventListener( 'error', function ( domError ) {
-  console.log( '[miru] DOM Error detected.' )
-
   var message = domError.message
   var filename = domError.filename
   var lineno = domError.lineno
   var colno = domError.colno
-  console.log( '[miru] dom error' )
+
+  // handle implicit index.html filenames
+  if ( filename && filename[ filename.length - 1 ] === '/' ) {
+    filename += 'index.html'
+  }
+
+  var span = '( ' + filename + ' ' + lineno + ':' + colno + ' )'
+  console.log( '[miru] DOM Error detected: ' + span )
   console.log( domError )
 
   if ( typeof filename === 'undefined' ) {
