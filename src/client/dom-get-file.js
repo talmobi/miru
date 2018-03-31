@@ -26,5 +26,6 @@ export default function getFile ( filename, callback ) {
     callback( 'error: failed to connect to server' )
   }
 
+  // launch request
   req.send()
 }
