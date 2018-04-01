@@ -84,11 +84,11 @@ module.exports = function ( assets ) {
         console.log( 'executing: ' + command )
 
         childProcess.exec( command, function ( error, stdout, stderr ) {
-          if ( error ) {
-            console.error( 'exec error: ' + error )
-          } else {
-            stdout && console.log( stdout )
-            stderr && console.log( stderr )
+          stdout && console.log( stdout )
+          stderr && console.log( stderr )
+
+          if ( error && error.code ) {
+            console.error( 'exec err code: ' + error.code + ', cmd: ' + command )
           }
         } )
       } )
