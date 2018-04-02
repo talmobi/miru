@@ -36,6 +36,7 @@ window.addEventListener( 'error', function ( domError ) {
 
     if ( !matchesTargets( filename ) ) {
       // skip non-bundle errors
+      window.__miru.debug( '[miru] skipping file, did not match targets' )
       return undefined
     }
 

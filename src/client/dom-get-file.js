@@ -11,6 +11,7 @@ export default function getFile ( filename, callback ) {
 
   req.onload = function () {
     window.__miru.debug( '  >> [miru] >> file received! ' + filename )
+    window.__miru.debug( '  >> [miru] >> status: ' + req.status )
 
     if ( req.status >= 200 && req.status < 500 ) {
       // success
