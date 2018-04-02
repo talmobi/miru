@@ -390,48 +390,50 @@ module.exports = function ( assets ) {
   var miruConnectSource = assets.miruConnectSource
   var miruConnectDestination = path.join( publicPath, 'miru-connect.js' )
 
-  try {
-    if ( !argv[ 'no-miru-connect' ] ) {
-      writeMiruConnect()
-    }
-
+  function tryToSaveMiruConnect () {
     try {
-      if (
-        fs.readFileSync(
-          miruConnectDestination,
-          'utf8'
-        ) === injectMiruConnect()
-      ) {
-        log( 'up to date miru-connect.js found at: ' + miruConnectDestination )
-      } else {
-        throw new Error( 'failed to save miru-connect.js to: ' + miruConnectDestination )
+      if ( !argv[ 'no-miru-connect' ] ) {
+        writeMiruConnect()
+      }
+
+      try {
+        if (
+          fs.readFileSync(
+            miruConnectDestination,
+            'utf8'
+          ) === injectMiruConnect()
+        ) {
+          log( 'up to date miru-connect.js found at: ' + miruConnectDestination )
+        } else {
+          throw new Error( 'failed to save miru-connect.js to: ' + miruConnectDestination )
+        }
+      } catch ( err ) {
+        log( 'failed to save miru-connect.js to: ' + miruConnectDestination )
+        throw err
+      }
+
+
+      if ( argv[ 'development' ] ) {
+        var w = miteru.watch(
+          miruConnectSource,
+          function ( evt, filepath ) {
+            switch ( evt ) {
+              case 'add':
+              case 'change':
+                writeMiruConnect()
+                console.log( 'emitting reload on miru-connect.js change' )
+                emit( 'reload' )
+                break;
+            }
+          }
+        )
+
+        console.log( 'watching miru-connect.js' )
       }
     } catch ( err ) {
-      log( 'failed to save miru-connect.js to: ' + miruConnectDestination )
+      log( 'failed to load or save miru-connect.js to users project' )
       throw err
     }
-
-
-    if ( argv[ 'development' ] ) {
-      var w = miteru.watch(
-        miruConnectSource,
-        function ( evt, filepath ) {
-          switch ( evt ) {
-            case 'add':
-            case 'change':
-              writeMiruConnect()
-              console.log( 'emitting reload on miru-connect.js change' )
-              emit( 'reload' )
-              break;
-          }
-        }
-      )
-
-      console.log( 'watching miru-connect.js' )
-    }
-  } catch ( err ) {
-    log( 'failed to load or save miru-connect.js to users project' )
-    throw err
   }
 
   function writeMiruConnect () {
@@ -733,6 +735,8 @@ module.exports = function ( assets ) {
   // start server
   var _serverRunning = false
   setTimeout( function () {
+    tryToSaveMiruConnect()
+
     if ( targetWatcher.getWatched().length > 0 ) {
       log( '[express]: starting server at ' + ADDRESS + ':' + PORT )
 
@@ -754,7 +758,7 @@ module.exports = function ( assets ) {
       console.log( '[miru]: no --targets ( or --watch ) specified' )
       console.log( '[miru]: -> no need for server, server not started.' )
     }
-  }, 500 )
+  }, 700 )
 
   function printNetworkIpAddresses () {
     console.log( 'LAN addresses: ' + getNetworkIpAddresses().join( ',' ) )
