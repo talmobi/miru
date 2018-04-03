@@ -32,6 +32,7 @@
     "dev": "node src/server/miru.js -v -p test/stage/ --development -w [ npm run watch:stage:js, test/stage/bundle.js ] -w [ npm run watch:stage:css, test/stage/bundle.css ]",
     "dev:dist": "./cli.js -v -p test/stage/ --development -w [ npm run watch:stage:js, test/stage/bundle.js ] -w [ npm run watch:stage:css, test/stage/bundle.css ]",
     "cli": "./cli.js -p test/stage/ --development -w [ npm run watch:stage:js, test/stage/bundle.js ] -w [ npm run watch:stage:css, test/stage/bundle.css ] -t test/stage/index.html",
+    "srccli": "./srccli.js -p test/stage/ --development -w [ npm run watch:stage:js, test/stage/bundle.js ] -w [ npm run watch:stage:css, test/stage/bundle.css ] -t test/stage/index.html",
     "cliWithLogs": "./cli.js --logs -p test/stage/ --development -w [ npm run watch:stage:js, test/stage/bundle.js ] -w [ npm run watch:stage:css, test/stage/bundle.css ] -t test/stage/index.html",
     "build:stage:js": "browserify -t [ babelify --presets [ env ] ] test/stage/app.js -o test/stage/bundle.js",
     "watch:stage:js": "watchify -v --debug -t [ babelify --presets [ env ] ] test/stage/app.js -o test/stage/bundle.js",
