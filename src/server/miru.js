@@ -572,7 +572,12 @@ module.exports = function ( assets ) {
     socket.miru = {
       client: client
     }
-    console.log( 'client connected: ' +  clientID )
+
+    process.stdout.write( clc.move.to( 0, clc.windowSize.height ) )
+    process.stdout.write( clc.erase.line )
+    process.stdout.write(
+      'client connected: ' +  clientID
+    )
 
     // turn on pesticide if it's set
     if ( _lastPesticide ) {
@@ -986,7 +991,7 @@ module.exports = function ( assets ) {
       *  If it fails the output text is left unchanged from the
       *  original input text.
       */
-      var wp = wooster.parse( text )
+      var wp = wooster.parse( text, { intro: ' ' } )
       if ( wp ) {
         error.text = wp.text
         error.context = wp.context
@@ -1088,7 +1093,7 @@ module.exports = function ( assets ) {
 
         // make it easy to distinguish changes/builds
         // that produce the same error or similar errors
-        output += ( getIterationErrorBox() + '\n' )
+        output += ( getIterationErrorBox() + ' ' )
 
         output += error.text
 
@@ -1141,27 +1146,16 @@ module.exports = function ( assets ) {
   * by making changes/rebuilds but the error output is the same so you are not sure
   * if your change/rebuild took place or not.
   */
-  var _iterationBoxErrorCounter = -1
-  var _iterationBoxErrorLimit = 4
-  function getIterationErrorBox () {
-    // increment horizontal position of the box
-    _iterationBoxErrorCounter = (
-      ( _iterationBoxErrorCounter + 1 ) % _iterationBoxErrorLimit
-    )
-
-    var box = ''
-    for ( var i = 0; i < _iterationBoxErrorLimit; i++ ) {
-      if ( i === _iterationBoxErrorCounter ) {
-        // draw a colored box in terminal text
-        box += clc.bgMagentaBright( '  ' )
-      } else {
-        // padding between iterations/positions
-        box += '      '
-      }
-    }
-
-    return box
+  var progressBox = require( 'cli-progress-box' )
+  var _iterationBox = {
+    colors: [ 'bgMagentaBright', 'bgBlueBright' ],
+    padding: 1,
+    width: 2,
+    margin: 6,
+    maxStep: 4,
   }
+  // var getIterationErrorBox = require( 'cli-progress-box' )( _iterationBox )
+  var getIterationErrorBox = progressBox( _iterationBox )
 
   /*
   * Handle file change events.
@@ -1285,6 +1279,26 @@ module.exports = function ( assets ) {
 
     // TODO add argv to limit line length to 80 chars ( ignoring ansi chars )
     var lines = output.split( '\n' )
+
+    // cut off extra lines in the terminal output
+    var numLines = lines.length
+
+    if ( numLines > clc.windowSize.height ) {
+      // first cut off empty lines
+      lines = (
+        lines
+        .filter( function ( line ) {
+          return line.trim().length > 0
+        } )
+      )
+
+      numLines = lines.length
+    }
+
+    // longer than terminal window height
+    if ( numLines > clc.windowSize.height ) {
+      lines = lines.slice( 0, clc.windowSize.height - 1 )
+    }
 
     var limit = ( process.stdout.columns - 1 )
 
