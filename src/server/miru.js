@@ -477,6 +477,7 @@ module.exports = function ( assets ) {
   * setup and start express server
   */
   log( '[express]: cors' )
+  app.options( cors() ) // enable pre-flight
   app.use( cors() ) // allow cors
 
   app.get( '/favicon*', function ( req, res ) {
