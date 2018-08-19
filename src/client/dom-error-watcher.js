@@ -12,7 +12,7 @@ import { HOST, PORT, URI } from './config.js'
 
 window.addEventListener( 'error', function ( domError ) {
   var message = domError.message
-  var filename = domError.filename
+  var filename = domError.filename || domError.source
   var lineno = domError.lineno
   var colno = domError.colno
 
