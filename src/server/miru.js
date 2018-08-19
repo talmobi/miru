@@ -613,6 +613,8 @@ module.exports = function ( assets ) {
     /*
     * client wants to woosterify something ( usually DOM error )
     */
+    /*
+     * TODO unused/delete/old
     socket.on( 'woosterify', function ( id, opts, callback ) {
       // console.log( 'pre-woosterify' )
 
@@ -670,6 +672,7 @@ module.exports = function ( assets ) {
         } )
       }
     } )
+    */
 
     /*
     * gather logs form clients
