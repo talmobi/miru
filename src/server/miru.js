@@ -379,7 +379,11 @@ module.exports = function ( assets ) {
 
       var targetPath = path.resolve( w.target )
       log( 'initializing target: ' + w.target )
-      targets[ targetPath ] = {}
+      targets[ targetPath ] = {
+        w: w,
+        error: undefined,
+        output: undefined
+      }
 
       targetWatcher.add( targetPath )
 
