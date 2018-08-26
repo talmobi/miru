@@ -894,11 +894,52 @@ module.exports = function ( assets ) {
         if ( hasErrors ) {
           log( ' == Errors found == ' )
           var text = lines.join( '\n' )
-          handleError( target, text )
+          handleError( path.resolve( w.target ), text )
         } else { // no errors, output as is
           lines.forEach( function ( line ) {
             console.log( line )
           } )
+
+          // if regex mode, clear previous errors
+          // only on specific std output from the
+          // watcher process
+          if ( w.regex ) {
+            var regexMatched = false
+            var re = RegExp( w.regex )
+
+            for ( var i = 0; i < lines.length; i++ ) {
+              var line = lines[ i ]
+              if ( re.test( line ) ) {
+                regexMatched = true
+              }
+            }
+
+            if ( regexMatched ) {
+              console.log( ' ========= REGEX MATCHED ======= ' )
+              console.log( ' ========= REGEX MATCHED ======= ' )
+              console.log( ' ========= REGEX MATCHED ======= ' )
+
+              var target = path.resolve( w.target )
+
+              // clear target errors
+              var t = targets[ target ]
+              console.log( 'clearing: ' + target )
+              console.log( t )
+              if ( t ) {
+                t.error = undefined
+                t.output = undefined
+              }
+
+              // notify of successful target build
+              io.emit( 'target-build', {
+                target: w.target
+              } )
+            } else {
+              console.log( ' -- no regex match --' )
+              console.log( ' -- no regex match --' )
+              console.log( ' -- no regex match --' )
+            }
+          }
 
           // warn the user if the target is not recognized
           fs.stat( path.resolve( w.target ), function ( err, stats ) {
@@ -1009,6 +1050,8 @@ module.exports = function ( assets ) {
   function handleError ( target, text, ranking ) {
     var now = Date.now()
 
+    console.log( 'handleError TOP target: ' + target )
+
     var error = {
       time: Date.now(),
       raw: text,
@@ -1118,54 +1161,64 @@ module.exports = function ( assets ) {
     if ( !shouldSkip ) {
       errors.history.push( error )
 
-      target =  path.resolve( target )
-      targets[ target ] = {
-        error: error
-      }
-
       while ( errors.history.length > 20 ) errors.history.shift() // cap history
 
       log( 'debouncing error' )
       clearTimeout( errors.timeout ) // error debounce
+
+      /*
+       * create the error object before debouncing
+       **/
+
+      // reset target watcher error
+      console.log( 'handleError target: ' + target )
+      var t = targets[ target ]
+      if ( t ) {
+        t.error = undefined
+        t.output = undefined
+      }
+
+      var output = ''
+      // make it easy to distinguish changes/builds
+      // that produce the same error or similar errors
+      output += ( getIterationErrorBox() + ' ' )
+      output += error.text
+
+      // update target watcher error
+      var t = targets[ target ]
+      t.error = error
+      t.output = output
+
+      // print and send only after errors.timeout
+      var timestamp = ( Date.now() )
+
       errors.timeout = setTimeout( function () {
-        var output = ''
-
-        // make it easy to distinguish changes/builds
-        // that produce the same error or similar errors
-        output += ( getIterationErrorBox() + ' ' )
-
-        output += error.text
+        // var t = targets[ target ]
 
         clearConsole()
+        print( t.output ) // print to terminal
 
-        print( output )
-
-        var timestamp = ( Date.now() )
-
+        // send to connected clients
         io.emit( 'terminal-error', {
           target: target,
           timestamp: timestamp,
-          output: output,
-          error: error
+          output: t.output,
+          error: t.error
         } )
 
+        // send again to clients redundantly to
+        // improve consistency
         ;[ 33, 100, 300, 500 ].forEach( function ( t ) {
           setTimeout( function () {
             // console.log( 'emitting old error' )
             io.emit( 'terminal-error', {
+              target: target,
               timestamp: timestamp,
-              output: output,
-              error: error
+              output: t.output,
+              error: t.error
             } )
           }, t )
         } )
-
-        var t = targets[ path.resolve( target )]
-        if ( t ) {
-          t.output = output
-        }
-        // TODO attach output to error object
-        // TODO send unresolved errors to newly connected clients
       }, errors.DEBOUNCE )
     } else {
       log( 'skipping error' )
@@ -1211,50 +1264,54 @@ module.exports = function ( assets ) {
       case 'add':
       case 'change':
         /*
-        * Check an exception case when a watcher overwrites the
-        * build destination with an error log ( e.g. watchify )
-        *
-        * e.g. watchify might overwrite the destination bundle with this:
-        * console.error("SyntaxError: /Users/mollie/code/miru/test/stage/app.js: Unexpected token, expected ; (2:20) while parsing file: /Users/mollie/code/miru/test/stage/app.js");
-        *
-        * In other words, a change in the build destination
-        * doesn't always mean that the build was successful!
+         * We can not be sure that a change on the target
+         * destination file indicates a successful build.
+         * This is because sometimes bundlers like webpack
+         * or watchify embeds an error to the target bundle
+         * that executes in the browser.
+         * The generate bundle with the embedded error
+         * is hard to parse since it varies a lot not only
+         * across watchers but also the plugins and
+         * configurations used.
+         * We will rely on the regex inspecting the watchers
+         * stdout stream to determine a successful build.
+         * If a regex is not defined then a change in the
+         * target bundle is assumed as a successful build.
         */
         fs.readFile( filepath, 'utf8', function ( err, text ) {
-          var hasErrors = false
+          var hasErrors = !!err
 
-          // investigate approx first 500 characters
-          var slice = text.slice( 0, 500 )
-          if (
-              ( slice.toLowerCase().indexOf( 'error' ) >= 0 ) &&
-              ( slice.indexOf( 'console' ) >= 0 ) &&
-              ( slice.indexOf( ':' ) >= 0 )
-            ) {
-            // Could be an error, make sure with wooster.
-            var errorText = wooster( slice )
+          var target = path.resolve( filepath )
+          var t = target && targets[ target ]
+          var w = t && t.w
 
-            // wooster outputs the input unchanged if no errors are found.
-            if ( errorText !== slice ) {
-              // wooster found an error ( input !== output ), definitely an error
+          // check that no errors produced by watchers
+          if ( !hasErrors ) {
+            if ( t && t.error ) {
               hasErrors = true
-            } else {
-              if (
-                ( text.length < 300 ) ||
-                ( text.lastIndexOf( path.sep ) < 5 )
-              ) { // most likely an error
-                hasErrors = true
-              }
             }
           }
 
-          if ( hasErrors === false ) {
-            // clear target
-            var target = path.resolve( filepath )
-
+          if ( w && w.regex ) {
+            //  let regex parsing of stdout to handle clearing
+          } else {
+            // by default without regex treat a change
+            // in target file as a success and clear errors
+            console.log( 'clearing errors on target change without regex' )
             if ( target && targets[ target ] ) {
               targets[ target ].error = undefined
               targets[ target ].output = undefined
             }
+          }
+
+          if ( hasErrors === false ) {
+            // a change on target file does not clear
+            // errors by itself anymore
+            // // clear target
+            // if ( target && targets[ target ] ) {
+            //   targets[ target ].error = undefined
+            //   targets[ target ].output = undefined
+            // }
 
             console.log( 'sending target build success: ' + path.relative( process.cwd(), filepath ) )
 
@@ -1262,21 +1319,7 @@ module.exports = function ( assets ) {
               target: filepath
             } )
           } else {
-            log( ' === target error detected === ' )
-            var target = path.resolve( filepath )
-
-            slice = slice.split( ':' ).join( ':\n' )
-            slice = slice.split( ';' ).join( ';\n' )
-
-            var error = handleError( target, slice, -1 )
-
-            // attach error to target if it doesn't have one already
-            var target = path.resolve( filepath )
-            var t = targets[ targets ]
-            if (t && !t.error) {
-              log( 'target error attached' )
-              t.error = error
-            }
+            log( ' === target error detected [' + target + '] ignoring === ' )
           }
         } )
     } // switch ( evt )
@@ -1421,6 +1464,26 @@ module.exports = function ( assets ) {
     return b
   }
 
+  function hasTerminalErrors () {
+    var keys = Object.keys( targets )
+    for ( var i = 0; i < keys.length; i++ ) {
+      var target = keys[ i ]
+      var t = targets[ target ]
+
+      if ( target && t && t.output && t.error ) {
+        console.log( ' === TERMINAL ERROR FOUND: ' + target )
+        console.log( ' === TERMINAL ERROR FOUND: ' + target )
+        console.log( ' === TERMINAL ERROR FOUND: ' + target )
+
+        console.log( target )
+
+        return true
+      }
+    }
+
+    return false
+  }
+
   /*
   * listen for standard input
   * TODO
@@ -1532,7 +1595,19 @@ module.exports = function ( assets ) {
         var shift = ( maxCommandLength - w.command.length + 4 )
         process.stdout.write( '  ' + w.command )
         for ( var i = 0; i < shift; i++ ) process.stdout.write( ' ' )
-        process.stdout.write( w.target + '\n' )
+        process.stdout.write( w.target )
+
+        // status
+        process.stdout.write( ', status: ' )
+
+        var t = targets[ path.resolve( w.target ) ]
+        if ( t && t.error ) {
+          process.stdout.write( 'error' )
+        } else {
+          process.stdout.write( 'ok' )
+        }
+
+        process.stdout.write( '\n' )
       } )
     },
     'targets': function ( args ) {
