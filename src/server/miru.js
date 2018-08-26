@@ -549,17 +549,24 @@ module.exports = function ( assets ) {
       } )
     }
 
-    clearConsole()
+    // only send/show DOM errors when there are no terminal errors
+    if ( !hasTerminalErrors() ) {
+      // clearConsole()
 
-    print( message )
-    // console.log( 'sending woosterify response length: ' + parsedMessage.length )
+      console.log( 'no Terminal Errors detected' )
 
-    res.status( 200 ).json( {
-      target: 'DOM',
-      name: 'Error',
-      message: message,
-      origin: origin
-    } ).end()
+      print( message )
+      // console.log( 'sending woosterify response length: ' + parsedMessage.length )
+
+      res.status( 200 ).json( {
+        target: 'DOM',
+        name: 'Error',
+        message: message,
+        origin: origin
+      } ).end()
+    } else {
+      console.log( 'Terminal Errors detected, ignoring DOM Error' )
+    }
   } )
 
   app.post( '/__miru/console', bodyParser.json( { limit: '50mb' } ), function ( req, res ) {
@@ -614,8 +621,11 @@ module.exports = function ( assets ) {
     // if there's an uncleared error, send it to the new client
     Object.keys( targets ).forEach( function ( target ) {
       var t = targets[ target ]
-      if ( t.output && t.error ) {
-        log( 'emitting unresolved error to new connection' )
+      if ( t && t.output && t.error ) {
+        console.log( 'emitting unresolved error to new connection' )
+
+        console.log( target )
+
         socket.emit( 'terminal-error', {
           timestamp: Date.now(),
           output: t.output,
@@ -816,6 +826,9 @@ module.exports = function ( assets ) {
 
     var commands = w.command
     var target = path.resolve( w.target )
+
+    console.log( '__WATCH TARGET: ' + target )
+    console.log( '__WATCH w.TARGET: ' + w.target )
 
     if ( typeof commands === 'string' ) commands = commands.split( /\s+/ )
 
