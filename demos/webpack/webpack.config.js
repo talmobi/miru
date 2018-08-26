@@ -1,17 +1,18 @@
+const path = require( 'path' )
+
 module.exports = {
   entry: './scripts/app.js',
   output: {
     filename: 'bundle.js',
-    path: './public'
+    path: path.resolve( __dirname, 'public' )
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015']
+        use: {
+          loader: 'babel-loader'
         }
       }
     ]
