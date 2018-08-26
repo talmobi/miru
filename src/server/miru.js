@@ -232,7 +232,8 @@ module.exports = function ( assets ) {
   * set publicPath
   *
   * publicPath is the destination where miru-connect.js is saved in and
-  * where default contents will be statically served.
+  * it's also the static directory miru will serve and look for
+  * an index.html.
   */
   var publicPath = ( argv[ 'public-path' ] )
   if ( !publicPath ) {
