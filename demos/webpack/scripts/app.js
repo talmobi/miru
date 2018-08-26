@@ -15,6 +15,8 @@ var colors = [
 
 // colors = ['yellow']
 
+// console.log( undefvar )
+
 function tick () {
   root.innerHTML = new Date().toLocaleString()
   setTimeout(tick, 100)
