@@ -883,6 +883,7 @@ module.exports = function ( assets ) {
           if ( line.toLowerCase().indexOf( 'error' ) !== -1 ) hasErrors = true
         } )
 
+        // filter out annoying node_modules files
         lines = (
           lines
           .filter( function ( line ) {
