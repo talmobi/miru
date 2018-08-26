@@ -148,7 +148,7 @@ module.exports = function ( assets ) {
       'targets': [ 't', 'targets' ],
 
       // always force a reload instead of attempting to refresh css files
-      'reload': [ 'r', 'cssreload' ],
+      'reload': [ 'force-reload', 'r', 'cssreload' ],
 
       // override DOM console ( log, warn, error ) and push them
       // them to the miru server, see 'logs' stdinput command
