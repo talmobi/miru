@@ -349,7 +349,7 @@ module.exports = function ( assets ) {
     var list = []
     watchers.forEach( function ( w ) {
       var split = w._.join( ' ' ).split( ',' )
-      if ( split.length !== 2 ) {
+      if ( split.length !== 1 ) {
         console.error( '-w, --watch [ <command>, <file> ]    parse error - invalid format?' )
         console.error( 'samples:' )
         console.error( '  miru -w [ npm run watch:js, dist/bundle.js ]' )
@@ -357,10 +357,20 @@ module.exports = function ( assets ) {
         process.exit( 1 )
       }
 
+      if ( !w.o ) {
+        console.error( '  no --watch [ --output,o <file> ] detected.' )
+        process.exit( 1 )
+      }
+
       var w = {
         command: split[ 0 ].trim(),
-        target: split[ 1 ].trim()
+        target: w.o.trim(),
+        regex: w.r
       }
+
+      if ( w.regex ) w.regex = w.regex.trim()
+
+      console.log( w )
 
       log( 'command: ' + w.command )
       log( 'target file: ' + w.target )
