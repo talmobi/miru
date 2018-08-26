@@ -255,6 +255,12 @@ module.exports = function ( assets ) {
   // target bundles
   var targets = {}
 
+  // debugging
+  // setInterval( function () {
+  //   var keys = Object.keys( targets )
+  //   console.log( 'TARGETS LENGTH: ' + keys.length )
+  // }, 1000 )
+
   // client hosts
   var clients = {}
 
