@@ -1,25 +1,26 @@
 {
   "name": "miru-demo-webpack",
-  "version": "0.0.1",
-  "description": "small demo using 'miru'",
+  "version": "0.0.2",
+  "description": "small demo using 'miru' with webpack (and react)",
   "scripts": {
-    "start": "node ../../index.js -p public --watch bundle.js -w bundle.css --execute 'npm run watch-js' -e 'npm run watch-css'",
-    "build-js": "webpack --config webpack.config.js",
-    "watch-js": "webpack -w --config webpack.config.js",
-    "build-css": "stylus -u nib -r ./styles/app.styl -o ./public/bundle.css",
-    "watch-css": "stylus -u nib -w -r ./styles/app.styl -o ./public/bundle.css",
-    "cli:watch-js": "webpack -w --entry ./scripts/app.js --output ./public/bundle.js",
+    "start": "node ../../srccli.js -p public -w [ npm run watch:js -o public/bundle.js -r main.*built ] -w [ npm run watch:css -o public/bundle.css ]",
+    "build:js": "NODE_ENV=production webpack --mode=production --config webpack.config.js",
+    "watch:js": "webpack --mode=development --config webpack.config.js --watch --debug --devtool=inline-source-map",
+    "build:css": "stylus -u autoprefixer-stylus -r ./styles/app.styl -o ./public/bundle.css",
+    "watch:css": "stylus -u autoprefixer-stylus -w -r ./styles/app.styl -o ./public/bundle.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "talmobi <talmo.christian@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "webpack": "^1.14.0",
-    "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
-    "babel-preset-es2015": "^6.18.0",
-    "nib": "^1.1.2",
-    "stylus": "^0.54.5"
+    "autoprefixer-stylus": "~0.14.0",
+    "babel-core": "~6.26.3",
+    "babel-loader": "~7.1.5",
+    "babel-preset-env": "~1.7.0",
+    "babel-preset-react": "~6.24.1",
+    "stylus": "~0.54.5",
+    "webpack": "~4.17.1",
+    "webpack-cli": "~3.1.0"
   },
   "dependencies": {}
 }
