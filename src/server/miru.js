@@ -370,10 +370,9 @@ module.exports = function ( assets ) {
 
       if ( w.regex ) w.regex = w.regex.trim()
 
-      console.log( w )
-
       log( 'command: ' + w.command )
       log( 'target file: ' + w.target )
+      log( 'regex: ' + w.regex )
 
       list.push( w )
 
@@ -915,16 +914,16 @@ module.exports = function ( assets ) {
             }
 
             if ( regexMatched ) {
-              console.log( ' ========= REGEX MATCHED ======= ' )
-              console.log( ' ========= REGEX MATCHED ======= ' )
-              console.log( ' ========= REGEX MATCHED ======= ' )
+              log( ' ========= REGEX MATCHED ======= ' )
+              log( ' ========= REGEX MATCHED ======= ' )
+              log( ' ========= REGEX MATCHED ======= ' )
 
               var target = path.resolve( w.target )
 
               // clear target errors
               var t = targets[ target ]
-              console.log( 'clearing: ' + target )
-              console.log( t )
+              log( 'clearing: ' + target )
+              log( t )
               if ( t ) {
                 t.error = undefined
                 t.output = undefined
@@ -935,9 +934,9 @@ module.exports = function ( assets ) {
                 target: w.target
               } )
             } else {
-              console.log( ' -- no regex match --' )
-              console.log( ' -- no regex match --' )
-              console.log( ' -- no regex match --' )
+              log( ' -- no regex match --' )
+              log( ' -- no regex match --' )
+              log( ' -- no regex match --' )
             }
           }
 
@@ -1050,7 +1049,7 @@ module.exports = function ( assets ) {
   function handleError ( target, text, ranking ) {
     var now = Date.now()
 
-    console.log( 'handleError TOP target: ' + target )
+    log( 'handleError TOP target: ' + target )
 
     var error = {
       time: Date.now(),
@@ -1171,7 +1170,7 @@ module.exports = function ( assets ) {
        **/
 
       // reset target watcher error
-      console.log( 'handleError target: ' + target )
+      log( 'handleError target: ' + target )
       var t = targets[ target ]
       if ( t ) {
         t.error = undefined
@@ -1285,19 +1284,12 @@ module.exports = function ( assets ) {
           var t = target && targets[ target ]
           var w = t && t.w
 
-          // check that no errors produced by watchers
-          if ( !hasErrors ) {
-            if ( t && t.error ) {
-              hasErrors = true
-            }
-          }
-
           if ( w && w.regex ) {
             //  let regex parsing of stdout to handle clearing
           } else {
             // by default without regex treat a change
             // in target file as a success and clear errors
-            console.log( 'clearing errors on target change without regex' )
+            log( 'clearing errors on target change without regex' )
             if ( target && targets[ target ] ) {
               targets[ target ].error = undefined
               targets[ target ].output = undefined
@@ -1471,11 +1463,9 @@ module.exports = function ( assets ) {
       var t = targets[ target ]
 
       if ( target && t && t.output && t.error ) {
-        console.log( ' === TERMINAL ERROR FOUND: ' + target )
-        console.log( ' === TERMINAL ERROR FOUND: ' + target )
-        console.log( ' === TERMINAL ERROR FOUND: ' + target )
-
-        console.log( target )
+        log( ' === TERMINAL ERROR FOUND: ' + target )
+        log( ' === TERMINAL ERROR FOUND: ' + target )
+        log( ' === TERMINAL ERROR FOUND: ' + target )
 
         return true
       }
