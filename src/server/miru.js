@@ -923,7 +923,6 @@ module.exports = function ( assets ) {
               // clear target errors
               var t = targets[ target ]
               log( 'clearing: ' + target )
-              log( t )
               if ( t ) {
                 t.error = undefined
                 t.output = undefined
@@ -1192,7 +1191,14 @@ module.exports = function ( assets ) {
       var timestamp = ( Date.now() )
 
       errors.timeout = setTimeout( function () {
-        // var t = targets[ target ]
+        var t = targets[ target ]
+
+        if ( !t || !t.output || !t.error ) {
+          console.log( 'errors.timeout exited -- no error found' )
+          console.log( 'this can happen if your build watcher writes or embeds and error to the destination bundle during errors.' )
+          console.log( 'By default miru treats a change in the destination bundle as a successful build -- you can instead listen to the stdin of the watch process to determine when a build has been succesfful by using the -r,--regex flag' )
+          return
+        }
 
         clearConsole()
         print( t.output ) // print to terminal
