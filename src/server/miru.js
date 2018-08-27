@@ -1296,6 +1296,13 @@ module.exports = function ( assets ) {
             }
           }
 
+          // check that no errors produced by watchers
+          if ( !hasErrors ) {
+            if ( t && t.error ) {
+              hasErrors = true
+            }
+          }
+
           if ( hasErrors === false ) {
             // a change on target file does not clear
             // errors by itself anymore
