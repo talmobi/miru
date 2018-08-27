@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "small demo using 'miru'",
   "scripts": {
-    "start": "miru -p public -w [ 'npm run watch:js', public/bundle.js ] -w [ 'npm run watch:css', public/bundle.css ]",
+    "start": "../../srccli.js -p public -w [ 'npm run watch:js' -o public/bundle.js -r bytes.*written.*bundle ] -w [ 'npm run watch:css' -o public/bundle.css ]",
     "build:js": "browserify -t [ babelify --presets [ env ] ] scripts/app.js -o public/bundle.js",
     "watch:js": "watchify -d -v -t [ babelify --presets [ env ] ] scripts/app.js -o public/bundle.js",
     "build:css": "stylus -u nib -r styles/app.styl -o public/bundle.css",
