@@ -348,31 +348,61 @@ module.exports = function ( assets ) {
 
     var list = []
     watchers.forEach( function ( w ) {
-      var split = w._.join( ' ' ).split( ',' )
-      if ( split.length !== 1 ) {
-        console.error( '-w, --watch [ <command>, <file> ]    parse error - invalid format?' )
-        console.error( 'samples:' )
-        console.error( '  miru -w [ npm run watch:js, dist/bundle.js ]' )
-        console.error( '  miru -w [ webpack --watch src/main.js -o dist/bundle.js, dist/bundle.js ]' )
+      var command = w._.join( ' ' )
+
+      // -o, --output
+      w.o = w.o || w.output
+
+      // -r, --regex
+      w.r = w.r || w.regex
+
+      // console.log( 'command: ' + command )
+
+      if ( w.o instanceof Array ) {
+        console.error( 'invalid --watch [ <command> -o <file> ] syntax detected.' )
+        console.error( '  multiple -o args detected!' )
+        console.error( '  wrap your <command> inside string quotations "<command>" or \'<command>\'' )
+
+        console.error( w )
+
         process.exit( 1 )
       }
 
       if ( !w.o ) {
-        console.error( '  no --watch [ --output,o <file> ] detected.' )
+        console.error( 'invalid --watch [ <command> -o <file> ] syntax detected!' )
+        console.error( 'Missing -o,--output <file>.' )
+        console.error( 'samples:' )
+        console.error( '  miru -w [ npm run watch:js -o dist/bundle.js ]' )
+        console.error( '  miru -w [ \'webpack --watch src/main.js -o dist/bundle.js\' -o dist/bundle.js ]' )
+
+        console.error( w )
+
         process.exit( 1 )
       }
 
       var w = {
-        command: split[ 0 ].trim(),
+        command: command.trim(),
         target: w.o.trim(),
         regex: w.r
       }
 
-      if ( w.regex ) w.regex = w.regex.trim()
+      if ( w.regex ) {
+        var r = w.regex = w.regex.trim()
 
-      log( 'command: ' + w.command )
-      log( 'target file: ' + w.target )
-      log( 'regex: ' + w.regex )
+        // normalize regex
+        // make  /main.*build/  and  main.*build  result in the same regex
+        if ( r[ 0 ] === '/' && r[ r.length - 1 ] === '/' ) {
+          r = r.slice( 1, -1 )
+        }
+
+        // precompile regex
+        w.RegExp = RegExp( r )
+      }
+
+      // TODO
+      console.log( 'command: ' + w.command )
+      console.log( 'target file: ' + w.target )
+      console.log( 'regex: ' + w.regex )
 
       list.push( w )
 
@@ -381,7 +411,8 @@ module.exports = function ( assets ) {
       targets[ targetPath ] = {
         w: w,
         error: undefined,
-        output: undefined
+        output: undefined,
+        emit_timestamp: 0
       }
 
       targetWatcher.add( targetPath )
