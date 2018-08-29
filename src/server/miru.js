@@ -632,11 +632,18 @@ module.exports = function ( assets ) {
       client: client
     }
 
+    // move to bottom line
     process.stdout.write( clc.move.to( 0, clc.windowSize.height ) )
+
+    // erase line
     process.stdout.write( clc.erase.line )
+
     process.stdout.write(
       'client connected: ' +  clientID
     )
+
+    // TODO batch incoming client connections?
+    process.stdout.write( '\n' )
 
     // turn on pesticide if it's set
     if ( _lastPesticide ) {
