@@ -54,6 +54,7 @@
     "body-parser": "~1.18.2",
     "cli-color": "~1.2.0",
     "cli-progress-box": "0.0.2",
+    "compression": "~1.7.3",
     "cors": "~2.8.4",
     "cross-spawn-with-kill": "~1.0.0",
     "dasu": "0.0.22",

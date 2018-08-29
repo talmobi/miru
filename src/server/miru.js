@@ -109,6 +109,9 @@ module.exports = function ( assets ) {
   var cors = require( 'cors' )
   var bodyParser = require( 'body-parser' )
 
+  // gzip assets
+  var compression = require( 'compression' )
+
   var app = express()
   var server = http.createServer( app )
 
@@ -530,6 +533,9 @@ module.exports = function ( assets ) {
   log( '[express]: cors' )
   app.options( cors() ) // enable pre-flight
   app.use( cors() ) // allow cors
+
+  // gzip assets (even though primarly used locally)
+  app.use( compression() )
 
   app.get( '/favicon*', function ( req, res ) {
     res.sendFile( assets.favicon )
