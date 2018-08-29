@@ -967,10 +967,27 @@ module.exports = function ( assets ) {
             for ( var i = 0; i < lines.length; i++ ) {
               var line = lines[ i ]
 
-              if ( re.test( line ) ) {
+              var result = re.exec( line )
+
+              // reset regex
+              re.lastIndex = 0
+
+              // check the result
+              if ( result != null ) {
                 regexMatched = true
-                console.log( clc.bgGreen( line ) )
+
+                // highlight the matched text
+                var matchedText = result[ 0 ]
+
+                console.log(
+                  line
+                  .split( matchedText )
+                  .join(
+                    clc.bgGreen( matchedText )
+                  )
+                )
               } else {
+                // print normally
                 console.log( line )
               }
             }
@@ -990,20 +1007,22 @@ module.exports = function ( assets ) {
                 t.output = undefined
               }
 
-              // console.log( '(regex) ' + clc.green( 'target built' ) + ': ' + clc.magenta( path.relative( process.cwd(), target ) ) )
+              onceFileStable( target, function ( err ) {
+                if ( err ) console.error( err )
 
-              var delta = Date.now() - t.emit_timestamp
-              if ( delta < 150 ) {
-                return log( 'already recently emitted, ignoring' )
-              } else {
-                printSuccess( 'regex', path.relative( process.cwd(), target ) )
+                var delta = Date.now() - t.emit_timestamp
+                if ( delta < 750 ) {
+                  return console.log( 'already recently emitted, ignoring' )
+                }
+
+                printSuccess( 'stdout regex matched', path.relative( process.cwd(), target ) )
 
                 // notify of successful target build
                 t.emit_timestamp = Date.now()
                 io.emit( 'target-build', {
                   target: w.target
                 } )
-              }
+              } )
             } else {
               log( ' -- no regex match --' )
               log( ' -- no regex match --' )
@@ -1373,7 +1392,7 @@ module.exports = function ( assets ) {
 
           var target = path.resolve( filepath )
           var t = target && targets[ target ]
-          var w = t && t.w
+          var w = t && t.w // not all target files have a watcher process attached
 
           if ( w && w.regex ) {
             //  let regex parsing of stdout to handle clearing
@@ -1392,8 +1411,9 @@ module.exports = function ( assets ) {
           } else {
             // by default without regex treat a change
             // in target file as a success and clear errors
-            log( 'clearing errors on target change without regex' )
-            if ( target && targets[ target ] ) {
+            if ( t ) {
+              log( 'clearing errors on target change without regex' )
+
               t.error = undefined
               t.output = undefined
             }
@@ -1404,6 +1424,10 @@ module.exports = function ( assets ) {
             hasErrors = true
           }
 
+          // in regex mode don't emit events on file changes
+          // rely on stdout regex matching instead
+          if ( w && w.regex ) return
+
           if ( hasErrors === false ) {
             // a change on target file does not clear
             // errors by itself anymore
@@ -1413,12 +1437,11 @@ module.exports = function ( assets ) {
             //   targets[ target ].output = undefined
             // }
 
-
             var delta = Date.now() - t.emit_timestamp
-            if ( delta < 150 ) {
+            if ( delta < 750 ) {
               return log( 'already recently emitted, ignoring' )
             } else {
-              printSuccess( 'change', path.relative( process.cwd(), filepath ) )
+              printSuccess( 'file change detected', path.relative( process.cwd(), filepath ) )
 
               t.emit_timestamp = Date.now()
               io.emit( 'target-build', {
@@ -1465,8 +1488,8 @@ module.exports = function ( assets ) {
 
   function printSuccess ( type, filepath ) {
     console.log(
-      '(' + type + ') ' +
-      clc.green( 'target built' ) + ': ' +
+      '(' + clc.blue( type ) + ') ' +
+      clc.green( 'broadcasting' ) + ': ' +
       clc.magenta( filepath )
     )
   }
@@ -1595,6 +1618,43 @@ module.exports = function ( assets ) {
     }
 
     return false
+  }
+
+  function onceFileStable ( filepath, callback ) {
+    filepath = path.resolve( filepath )
+
+    var attempts = 0
+    var MAX_ATTEMPTS = 15
+    var prevSize = undefined
+    var INTERVAL = 16
+
+    next()
+
+    function next () {
+      setTimeout( poll, INTERVAL )
+    }
+
+    function poll () {
+      if ( attempts > MAX_ATTEMPTS ) {
+        return callback( 'max attempts reached' )
+      }
+
+      attempts++
+
+      fs.stat( filepath, function ( err, stats ) {
+        if ( err ) {
+          return next()
+        } else {
+          if ( stats.size > 0 && ( prevSize === stats.size ) ) {
+            // stable and OK!
+            return callback( null )
+          } else {
+            prevSize = stats.size
+            return next()
+          }
+        }
+      } )
+    }
   }
 
   /*
