@@ -933,21 +933,26 @@ module.exports = function ( assets ) {
           var text = lines.join( '\n' )
           handleError( path.resolve( w.target ), text )
         } else { // no errors, output as is
-          lines.forEach( function ( line ) {
-            console.log( line )
-          } )
 
-          // if regex mode, clear previous errors
-          // only on specific std output from the
-          // watcher process
-          if ( w.regex ) {
+          if ( !w.regex ) {
+            lines.forEach( function ( line ) {
+              console.log( line )
+            } )
+          } else {
+            // if regex mode, clear previous errors
+            // only on specific std output from the
+            // watcher process
             var regexMatched = false
-            var re = RegExp( w.regex )
+            var re = w.RegExp
 
             for ( var i = 0; i < lines.length; i++ ) {
               var line = lines[ i ]
+
               if ( re.test( line ) ) {
                 regexMatched = true
+                console.log( clc.bgGreen( line ) )
+              } else {
+                console.log( line )
               }
             }
 
@@ -966,10 +971,20 @@ module.exports = function ( assets ) {
                 t.output = undefined
               }
 
-              // notify of successful target build
-              io.emit( 'target-build', {
-                target: w.target
-              } )
+              // console.log( '(regex) ' + clc.green( 'target built' ) + ': ' + clc.magenta( path.relative( process.cwd(), target ) ) )
+
+              var delta = Date.now() - t.emit_timestamp
+              if ( delta < 150 ) {
+                return log( 'already recently emitted, ignoring' )
+              } else {
+                printSuccess( 'regex', path.relative( process.cwd(), target ) )
+
+                // notify of successful target build
+                t.emit_timestamp = Date.now()
+                io.emit( 'target-build', {
+                  target: w.target
+                } )
+              }
             } else {
               log( ' -- no regex match --' )
               log( ' -- no regex match --' )
@@ -1316,13 +1331,26 @@ module.exports = function ( assets ) {
          * is hard to parse since it varies a lot not only
          * across watchers but also the plugins and
          * configurations used.
+         *
+         * in 0.11.x some of these embedded errors were detected for webpack
+         * and browserify -- but instead for 0.12.x we are removing those
+         * in favour of a user defined RegExp to test against the watchers
+         * std output to determine when a successful build has taken place
+         * and trigger reload events.
+         *
          * We will rely on the regex inspecting the watchers
          * stdout stream to determine a successful build.
+         *
          * If a regex is not defined then a change in the
          * target bundle is assumed as a successful build.
         */
         fs.readFile( filepath, 'utf8', function ( err, text ) {
-          var hasErrors = !!err
+          var hasErrors = false
+
+          if ( err ) {
+            console.log( clc.bgRed( 'warning:' + ' target file [' + clc.magenta( pathShorten( filepath ) ) + '] was unreadable' ) )
+            console.log( err )
+          }
 
           var target = path.resolve( filepath )
           var t = target && targets[ target ]
@@ -1330,21 +1358,31 @@ module.exports = function ( assets ) {
 
           if ( w && w.regex ) {
             //  let regex parsing of stdout to handle clearing
+            //  more info:
+            //  a regex flag ( eg: --watch [ <command> -o <targetFile> -r foo.*bar ] )
+            //  has been set for this target file -- default behavour will be overriden
+            //  and no longer will a change in the target file trigger a successful build
+            //  and reload/refresh by itself -- a success trigger will only trigger if the
+            //  regex matches any standard output (stdout) of the watcher process.
+            //  eg:
+            //    regex :   -r compiled
+            //    stdout:   "bla blah compiled in 80ms" ( like stylus )
+            //   or "{main} [built]"
+            //    regex :   -r main.*built
+            //    stdout:   "{main} [built]" ( like webpack )
           } else {
             // by default without regex treat a change
             // in target file as a success and clear errors
             log( 'clearing errors on target change without regex' )
             if ( target && targets[ target ] ) {
-              targets[ target ].error = undefined
-              targets[ target ].output = undefined
+              t.error = undefined
+              t.output = undefined
             }
           }
 
           // check that no errors produced by watchers
-          if ( !hasErrors ) {
-            if ( t && t.error ) {
-              hasErrors = true
-            }
+          if ( t && t.error ) {
+            hasErrors = true
           }
 
           if ( hasErrors === false ) {
@@ -1356,11 +1394,18 @@ module.exports = function ( assets ) {
             //   targets[ target ].output = undefined
             // }
 
-            console.log( 'sending target build success: ' + path.relative( process.cwd(), filepath ) )
 
-            io.emit( 'target-build', {
-              target: filepath
-            } )
+            var delta = Date.now() - t.emit_timestamp
+            if ( delta < 150 ) {
+              return log( 'already recently emitted, ignoring' )
+            } else {
+              printSuccess( 'change', path.relative( process.cwd(), filepath ) )
+
+              t.emit_timestamp = Date.now()
+              io.emit( 'target-build', {
+                target: filepath
+              } )
+            }
           } else {
             log( ' === target error detected [' + target + '] ignoring === ' )
           }
