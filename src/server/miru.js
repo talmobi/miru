@@ -1444,6 +1444,14 @@ module.exports = function ( assets ) {
     }
   } )
 
+  function printSuccess ( type, filepath ) {
+    console.log(
+      '(' + type + ') ' +
+      clc.green( 'target built' ) + ': ' +
+      clc.magenta( filepath )
+    )
+  }
+
   function print ( output ) {
     _lastPrintOutput = output
 
