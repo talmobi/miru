@@ -203,6 +203,13 @@ module.exports = function ( assets ) {
 
   var verbose = !!argv[ 'verbose' ]
 
+  // target files -- files that emit reload events to clients ( or css refreshes )
+  // when they are changed.
+  // some targets have --watch processes attached and can be used in --regex
+  // mode where an event is emitted only when the regex matches the stdout
+  // of the watcher process
+  var targets = {}
+
   // watch arbitrary files as build targets without an associated watch process
   if ( argv[ 'targets' ] ) {
     var files = argv[ 'targets' ]
@@ -219,6 +226,15 @@ module.exports = function ( assets ) {
     files.forEach( function ( file ) {
       log( 'adding watch target: ' + file )
       targetWatcher.add( file )
+
+      var filepath = path.resolve( file)
+      log( 'initializing target: ' + filepath)
+      targets[ filepath ] = {
+        // w: w // no watcher process attached to this target file
+        error: undefined, // for watcher
+        output: undefined, // for watcher
+        emit_timestamp: 0
+      }
     } )
 
     log( 'target files watched :' )
@@ -254,9 +270,6 @@ module.exports = function ( assets ) {
     THROTTLE: 1000,
     history: []
   }
-
-  // target bundles
-  var targets = {}
 
   // debugging
   // setInterval( function () {
