@@ -19,13 +19,16 @@ miru --path public -w [ webpack -w src/app.js -o public/bundle.js, public/bundle
 ```js
 // package.json
 "scripts": {
-  "watch:js": "webpack -w src/app.js -o public/bundle.js",
-  "watch:css": "stylus -w src/app.css -o public/bundle.css",
-  "watch": "miru -p public -w [ npm run watch:js, public/bundle.js ] -w [ npm run watch:css, public/bundle.css ]"
+  "watch:js:browserify": "watchify --debug --verbose -t babelify src/app.js -o public/bundle.js",
+  "watch:js": "webpack --watch --mode=development --debug --devtool=inline-source-map --config webpack.config.js",
+  "watch:css": "stylus -w -u autoprefixer-stylus src/app.styl -o public/bundle.css",
+  "html:dev": "cp templates/index-dev.html public/index.html",
+  "prewatch": "npm run html:dev",
+  "watch": "miru -p public -w [ npm run watch:js -o public/bundle.js -r '/bytes.written/' ] -w [ npm run watch:css -o public/bundle.css ] -t public/index.html -f templates/index-dev.html -e 'npm run html:dev'"
 }
 ```
 
-add `miru-connect.js` script to your index.html ( created by miru at start inside the `--path` directory or current working directory by default )
+add `miru-connect.js` script to your index-dev.html (index.html) ( created by miru at start inside the `--path` directory or current working directory by default )
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -115,7 +118,12 @@ $ miru --help
                                         page to enable live reloads and error reporting directly
                                         within the page/browser.
 
-  -w, --watch [ <command>, <file> ]     Specify watch command and target file bundle.
+  -w, --watch [ <command> -o <file> [-r '/regexPattern/'] ]
+
+                                        Specify watch command and target file bundle and optionally
+                                        a regex pattern for triggering reload events. When the regex
+                                        pattern matches the stdout of the watch process an event is sent
+                                        to all connected clients to reload or refresh their js/css.
 
                                         miru-connect.js refreshes corresponding <link href="file.css">
                                         or reloads <script src="file.js"> tags on the html page where
@@ -125,11 +133,12 @@ $ miru --help
                                         when miru starts
 
   -t, --targets <file>                  Add arbitrary target files not linked to a watch process.
-                                        When these files change, they will be assumed as if they have been
-                                        successfully built and will be emitted to miru-connect.js.
+                                        When these files change, they will send a reload event
+                                        (or css refresh if they are css files) to all connected clients.
 
                                         styles ( *.css ) are attempted to refresh if the basename
-                                        is found on a link tag inside the DOM.
+                                        is found on a link tag inside the DOM. This makes live editing
+                                        CSS super fast and smooth.
 
                                         scripts ( *.js ) and all other files trigger a page reload.
 
@@ -145,12 +154,12 @@ $ miru --help
                                           If the target file includes inline source maps then
                                           the parsed output includes the source map as well.
 
-  -r, --reload                          Always force a reload when a change event is emitted.
-                                        This disables css link.href quick refreshing.
+  -r, --reload                          Always force a page reload when a change event is emitted.
+                                        This disables css quick refreshing.
 
   -f, --files <file>                    Watch arbitray files for changes and execute commands.
 
-  -e, --execute <command>               Execute commands when --files have changed.
+  -e, --execute <command>               Execute commands when any of the --files have changed.
 
                                         '$evt' and '$file' strings in the <command> parameter
                                         are substituted accordingly.
@@ -195,29 +204,24 @@ miru works best with bundling tools like `browserify`, `webpack`, `rollup` or `s
 
 eg:
 
-  `miru --path public --watch [ watchify -v src/app.js -o public/bundle.js, public/bundle.js ]`
-  `miru -p public -w [ webpack -w -e src/app.js -o public/bundle.js, public/bundle.js ]`
+  `miru --path public --watch [ 'watchify -v src/app.js -o public/bundle.js' -o public/bundle.js ]`
+  `miru -p public -w [ 'webpack -w -e src/app.js -o public/bundle.js' -o public/bundle.js ]`
 
 combine watchers ( usually 1 for css and 1 for js )
-  `miru -p public -w [ rollup -w src/app.js -o public/bundle.js, public/bundle.js ] --watch [ stylus -w -r src/app.styl -o public/bundle.css, public/bundle.js ]`
+  `miru -p public -w [ 'rollup -w src/app.js -o public/bundle.js' -o public/bundle.js ] --watch [ 'stylus -w -r src/app.styl -o public/bundle.css' -o public/bundle.js ]`
 
 
 miru can also work with bundlers without a `--watch` mode relying on the built-in recovery watcher. But this isn't ideal.
 
 by default the recovery watcher watches for changes on **/*.js or **/*.(css|less|sass|scss|styl) files
-depending on the target file suffix -- you can override this recovery glob by passing in a third
-argument to the --watch subarg
-
-eg:
-
-  `miru -w [ npm run build, public/bundle.js, src/**/*.js ]`
+depending on the target file suffix.
 
 It gets its name because it's mainly used to recover when your build watcher exits/crashes for some reason.. ( *hits rollup with a large trout* )
 
 You can list the `--watch` commands and their targets with the stdin command `watch`:
 
 ```bash
-$ miru --watch [ echo 'giraffe', test/stage/bundle.js ]
+$ miru --watch [ 'echo "giraffe"' -o test/stage/bundle.js ]
 server listening at *:4040 ( IPv4 0.0.0.0 )
 LAN addresses: 192.168.0.101
 giraffe
@@ -243,7 +247,7 @@ Use the `--reload` flag to force all changes to reload the page and disable css 
 
 You can list the `--targets` with the stdin command `targets`.
 This also includes any targets bound to watch processes with
-the `-w, --watch [ <command>, <file> ]` command:
+the `-w, --watch [ <command> -o <file> ]` command:
 
 ```bash
 $ miru --targets test/stage/bundle.js

@@ -2,63 +2,69 @@ Usage: miru [options]
 
 Options:
 
--p, --path <dir>                       Specify path (current directory by default)
-                                       Usually path to public directory.
+-p, --path <dir>                      Specify path (current directory by default)
+                                      Usually path to public directory.
 
-                                       This is also the path where miru creates "miru-connect.js"
-                                       which you should <script src="miru-connect.js"> on your html
-                                       page to enable live reloads and error reporting directly
-                                       within the page/browser.
+                                      This is also the path where miru creates "miru-connect.js"
+                                      which you should <script src="miru-connect.js"> on your html
+                                      page to enable live reloads and error reporting directly
+                                      within the page/browser.
 
--w, --watch [ <command>, <file> ]      Specify watch command and target file bundle.
+-w, --watch [ <command> -o <file> [-r '/regexPattern/'] ]
 
-                                       miru-connect.js refreshes corresponding <link href="file.css">
-                                       or reloads <script src="file.js"> tags on the html page where
-                                       <script src="miru-connect.js"> is loaded.
+                                      Specify watch command and target file bundle and optionally
+                                      a regex pattern for triggering reload events. When the regex
+                                      pattern matches the stdout of the watch process an event is sent
+                                      to all connected clients to reload or refresh their js/css.
 
-                                       "miru-connect.js" is created inside the --path directory
-                                       when miru starts
+                                      miru-connect.js refreshes corresponding <link href="file.css">
+                                      or reloads <script src="file.js"> tags on the html page where
+                                      <script src="miru-connect.js"> is loaded.
 
--t, --targets <file>                   Add arbitrary target files not linked to a watch process.
-                                       When these files change, they will be assumed as if they have been
-                                       successfully built and will be emitted to miru-connect.js.
+                                      "miru-connect.js" is created inside the --path directory
+                                      when miru starts
 
-                                       styles ( *.css ) are attempted to refresh if the basename
-                                       is found on a link tag inside the DOM.
+-t, --targets <file>                  Add arbitrary target files not linked to a watch process.
+                                      When these files change, they will send a reload event
+                                      (or css refresh if they are css files) to all connected clients.
 
-                                       scripts ( *.js ) and all other files trigger a page reload.
+                                      styles ( *.css ) are attempted to refresh if the basename
+                                      is found on a link tag inside the DOM. This makes live editing
+                                      CSS super fast and smooth.
 
-                                       miru-connect.js will listen for DOM Errors -- and if the
-                                       basename of the source file of the error matches a
-                                       file in --targets then it will pass the error
-                                       back to the miru.js sever for parsing. The parsing is
-                                       done by wooster and the result is sent back to the client.
-                                       The parsed error output is then rendered on the screen
-                                       for easier debugging.
+                                      scripts ( *.js ) and all other files trigger a page reload.
 
-                                       Inline source maps are supported:
-                                         If the target file includes inline source maps then
-                                         the parsed output includes the source map as well.
+                                      miru-connect.js will listen for DOM Errors -- and if the
+                                      basename of the source file of the error matches a
+                                      file in --targets then it will pass the error
+                                      back to the miru.js sever for parsing. The parsing is
+                                      done by wooster and the result is sent back to the client.
+                                      The parsed error output is then rendered on the screen
+                                      for easier debugging.
 
--r, --reload                           Always force a reload when a change event is emitted.
-                                       This disables css link.href quick refreshing.
+                                      Inline source maps are supported:
+                                        If the target file includes inline source maps then
+                                        the parsed output includes the source map as well.
 
--f, --files <file>                     Watch arbitray files for changes and execute commands.
+-r, --reload                          Always force a page reload when a change event is emitted.
+                                      This disables css quick refreshing.
 
--e, --execute <command>                Execute commands when --files have changed.
+-f, --files <file>                    Watch arbitray files for changes and execute commands.
 
-                                       '$evt' and '$file' strings in the <command> parameter
-                                       are substituted accordingly.
+-e, --execute <command>               Execute commands when any of the --files have changed.
 
-                                       eg:
+                                      '$evt' and '$file' strings in the <command> parameter
+                                      are substituted accordingly.
+
+                                      eg:
                                           miru -f package.json -e 'echo $evt: $file'
 
--v, --verbose                          Enable verbose mode
+-v, --verbose                         Enable verbose mode
 
--V, --version                          Display miru version
--h, --help                             Display help information (this text)
+-V, --version                         Display miru version
+-h, --help                            Display help information (this text)
 
-Terminal Commands:        miru.js listens for lined stdio input
+STDIN Terminal Commands:  the miru process listens for line separated std input
 
 devices                   prints a numbered list of connected client/device information
 logs <number>             list console.log output of <number> client ( or all clients if undefined )
@@ -66,6 +72,8 @@ recovery                  prints recovery watcher ( if watcher exits ( should no
 previous                  prints out previous error
 lan, ip, address          prints out LAN address ( use this address to connect from other devices )
 watchers                  prints watcher commands and targets
-targets                   prints only target bundles
+targets                   prints watch targets ( set by --targets and --watch )
+files                     prints watch files ( set by --files )
+executions                prints executions ( set by --execute )
 error                     prints active watcher errors ( or empty if nothing is active )
 pesticide <bool>          enable or disable pesticide ( css debugger ) on all connected clients
