@@ -7,7 +7,7 @@ import matchesTargets from './matches-targets.js'
 
 // ref: https://stackoverflow.com/questions/8000009/is-there-a-way-in-javascript-to-listen-console-events
 // this method will proxy your custom method with the original one
-function proxy( context, method, callback ) {
+function proxy ( context, method, callback ) {
   return function () {
     var args = [].slice.apply( arguments )
 
@@ -101,8 +101,13 @@ function sendLogs () {
 
   sendLogsTimeout = setTimeout( function () {
     if ( window.__miru.socket && window.__miru.connected ) {
-      window.__miru.debug( '[miru] logs sent' )
+      // window.__miru.debug( '[miru] logs sent' )
+
       sendLogsLastSentTime = Date.now()
+
+      // var logs = window.__miru.logs.slice( -100 )
+      // window.__miru.logs = []
+
       window.__miru.socket.emit( 'console', {
         host: window.location.host,
         ua: window.navigator.userAgent,

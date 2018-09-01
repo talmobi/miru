@@ -793,7 +793,6 @@ module.exports = function ( assets ) {
 
     var id = ''
 
-
     // id += agent.os.toString()
     id += agent.os.name
     id += ' ' + agent.os.version
@@ -812,7 +811,8 @@ module.exports = function ( assets ) {
 
     // id += ' ' + agent.engine.name
 
-    id = id
+    id = (
+      id
       .split( /\s+/ )
       .filter( function ( word ) {
         var w = word.toLowerCase().trim()
@@ -824,6 +824,7 @@ module.exports = function ( assets ) {
         )
       } )
       .join( ' ' ).trim()
+    )
 
     return id
   }
