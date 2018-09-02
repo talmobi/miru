@@ -1,3 +1,3 @@
 // syntax error
-var text = 'giraffe':
+var text = 'giraffe'
 console.log( text )
