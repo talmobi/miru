@@ -45,7 +45,7 @@ function prepareStage ( done ) {
   )
 }
 
-test( 'test -w,--watch', function ( t ) {
+test( 'test -w,--watch with syntax error reporting', function ( t ) {
   t.timeoutAfter( 1000 * 20 )
 
   prepareStage( function ( err ) {

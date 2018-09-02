@@ -45,7 +45,7 @@ function prepareStage ( done ) {
   )
 }
 
-test( 'succesful build', function ( t ) {
+test( 'test -t,--target', function ( t ) {
   t.timeoutAfter( 1000 * 20 )
 
   prepareStage( function ( err ) {
