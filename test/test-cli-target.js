@@ -112,7 +112,7 @@ test( 'succesful build', function ( t ) {
 
       t.ok(
         stripAnsi( log ).indexOf( '(file change detected) broadcasting: stage/app.js' ) > 0,
-        'app.css target-build OK!'
+        'app.js target-build OK!'
       )
 
       spawn.kill()
