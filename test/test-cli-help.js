@@ -2,15 +2,21 @@ const test = require( 'tape' )
 
 const cp = require( 'child_process' )
 
-var path = require( 'path' )
-
-var miruPath = path.join( __dirname, '..', 'srccli.js' )
-var publicPath = path.join( __dirname, 'test/stage' )
-
 const fs = require( 'fs' )
-const usage = fs.readFileSync( '../dist/usage.txt', 'utf8' ).trim()
+const path = require( 'path' )
+
+const miruPath = path.join( __dirname, '..', 'srccli.js' )
+const publicPath = path.join( __dirname, 'test/stage' )
 
 let spawns = []
+
+process.on( 'exit', function () {
+  try {
+    spawn && spawn.kill()
+  } catch ( err ) { /* ignore*/ }
+} )
+
+const usage = fs.readFileSync( '../dist/usage.txt', 'utf8' ).trim()
 
 test( 'miru --help', function ( t ) {
   t.timeoutAfter( 3000 )
@@ -73,10 +79,3 @@ test( 'miru -h', function ( t ) {
     t.end()
   } )
 } )
-
-process.on( 'exit', function () {
-  try {
-    spawn && spawn.kill()
-  } catch ( err ) { /* ignore*/ }
-} )
-

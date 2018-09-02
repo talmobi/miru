@@ -2,14 +2,21 @@ const test = require( 'tape' )
 
 const cp = require( 'child_process' )
 
-var path = require( 'path' )
+const fs = require( 'fs' )
+const path = require( 'path' )
 
-var miruPath = path.join( __dirname, '..', 'srccli.js' )
-var publicPath = path.join( __dirname, 'test/stage' )
-
-const pkgj = require( '../package.json' )
+const miruPath = path.join( __dirname, '..', 'srccli.js' )
+const publicPath = path.join( __dirname, 'test/stage' )
 
 let spawns = []
+
+process.on( 'exit', function () {
+  try {
+    spawn && spawn.kill()
+  } catch ( err ) { /* ignore*/ }
+} )
+
+const pkgj = require( '../package.json' )
 
 test( 'miru --version', function ( t ) {
   t.timeoutAfter( 3000 )
@@ -72,10 +79,3 @@ test( 'miru -V', function ( t ) {
     t.end()
   } )
 } )
-
-process.on( 'exit', function () {
-  try {
-    spawn && spawn.kill()
-  } catch ( err ) { /* ignore*/ }
-} )
-
