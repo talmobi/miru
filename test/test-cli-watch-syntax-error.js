@@ -113,12 +113,12 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
 
       t.ok(
         stripAnsi( log ).indexOf( 'compiled' ) > 0,
-        'app.css compiled OK!'
+        'app.styl compiled OK!'
       )
 
       t.ok(
         stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) > 0,
-        'app.css target-build watch OK!'
+        'app.styl target-build watch OK!'
       )
 
       // reset log
