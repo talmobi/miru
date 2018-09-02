@@ -68,18 +68,21 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       log += msg
 
       // console.log( msg )
-    }
 
-    setTimeout( function () {
-      triggerFile(
-        function () {
-          start()
-        }
-      )
-    }, 1000 * 3 )
+      if ( msg.indexOf( 'server listening' ) >= 0 ) {
+        setTimeout( function () {
+          triggerFile(
+            function () {
+              end()
+            }
+          )
+        }, 1000 * 1 )
+      }
+    }
 
     function triggerFile ( done ) {
       // reset log
+      // console.log( 'clearing log' )
       log = ''
 
       // rewrite file to trigger file watcher and target-build event
@@ -92,9 +95,9 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
         fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
 
         setTimeout( function () {
-          done()
+          start()
         }, 1000 * 2 )
-      }, 1000 )
+      }, 1000 * 2 )
     }
 
     function start () {

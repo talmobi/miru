@@ -68,18 +68,21 @@ test( 'test -w,--watch', function ( t ) {
       log += msg
 
       // console.log( msg )
-    }
 
-    setTimeout( function () {
-      triggerFile(
-        function () {
-          end()
-        }
-      )
-    }, 1000 * 3 )
+      if ( msg.indexOf( 'server listening' ) >= 0 ) {
+        setTimeout( function () {
+          triggerFile(
+            function () {
+              end()
+            }
+          )
+        }, 1000 * 1 )
+      }
+    }
 
     function triggerFile ( done ) {
       // reset log
+      // console.log( 'clearing log' )
       log = ''
 
       // rewrite file to trigger file watcher and target-build event
@@ -94,7 +97,7 @@ test( 'test -w,--watch', function ( t ) {
         setTimeout( function () {
           done()
         }, 1000 * 2 )
-      }, 1000 )
+      }, 1000 * 2 )
     }
 
     function end () {
