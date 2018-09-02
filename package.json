@@ -29,6 +29,7 @@
     "uglify:client": "uglifyjs dist/miru-connect.js -cmo dist/miru-connect.js",
     "srccli": "./srccli.js -p test/stage/ --development -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "srcclil": "./srccli.js --logs -p test/stage/ --development -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
+    "watch:stage": "./srccli.js -p test/stage/ -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "watch:stage:js": "watchify --bare --verbose --debug -t [ babelify --presets [ env ] ] test/stage/app.js -o test/stage/bundle.js",
     "watch:stage:css": "stylus -w -u nib test/stage/app.styl -o test/stage/bundle.css",
     "lint": "spacestandard src/**/*.js",
