@@ -67,7 +67,7 @@ test( 'test -w,--watch', function ( t ) {
       let msg = chunk.toString( 'utf8' )
       log += msg
 
-      console.log( msg )
+      // console.log( msg )
     }
 
     setTimeout( function () {
@@ -79,17 +79,22 @@ test( 'test -w,--watch', function ( t ) {
     }, 1000 * 3 )
 
     function triggerFile ( done ) {
+      // reset log
+      log = ''
+
       // rewrite file to trigger file watcher and target-build event
       var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.js' ), 'utf8' )
       fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
 
-      // rewrite file to trigger file watcher and target-build event
-      var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
-      fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
-
       setTimeout( function () {
-        done()
-      }, 1000 * 3 )
+        // rewrite file to trigger file watcher and target-build event
+        var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
+        fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
+
+        setTimeout( function () {
+          done()
+        }, 1000 * 2 )
+      }, 1000 )
     }
 
     function end () {
