@@ -8,13 +8,13 @@ import * as pesticide from './pesticide.js'
 // var kiite = require( '/Users/mollie/code/kiite/dist/kiite.min.js' )
 const kiite = require( 'kiite' )
 
-import { HOST, PORT, URI } from './config.js'
+import { getUri } from './config.js'
 
 // console.log( '[miru] socket connecting to: ' + URI )
 const socket = kiite.connect( {
   protocol: 'http',
   host: window.location.hostname,
-  port: PORT
+  port: window.__miru.port
 } )
 
 window.__miru.terminalErrors = {}
@@ -25,10 +25,10 @@ let _connected = false
 let _sendConnectingMessageTimeout
 if ( !window.__miru.verbose ) {
   _sendConnectingMessageTimeout = setTimeout( function () {
-    console.log( '[miru] connecting to: ' + URI )
+    console.log( '[miru] connecting to: ' + getUri() )
   }, 1500 )
 } else {
-  window.__miru.debug( '[miru] connecting to: ' + URI )
+  window.__miru.debug( '[miru] connecting to: ' + getUri() )
 }
 
 socket.on( 'connect', function () {
@@ -39,7 +39,7 @@ socket.on( 'connect', function () {
   window.__miru = ( window.__miru || {} )
   window.__miru.socket = socket
 
-  var uri = ( 'http://' + window.location.hostname + ':' + PORT )
+  var uri = ( 'http://' + window.location.hostname + ':' + window.__miru.port )
   console.log( '[miru] connected to: ' + uri )
   _connected = true
   window.__miru.connected = true

@@ -8,8 +8,6 @@ import getFile from './dom-get-file.js'
 
 import dasu from 'dasu'
 
-import { HOST, PORT, URI } from './config.js'
-
 window.addEventListener( 'error', function ( domError ) {
   var message = domError.message
   var filename = domError.filename || domError.source
@@ -62,7 +60,7 @@ window.addEventListener( 'error', function ( domError ) {
         method: 'POST',
         protocol: 'http',
         host: window.location.hostname,
-        port: PORT,
+        port: window.__miru.port,
         path: '/__miru/woosterify',
         data: {
           errorId: errorId,

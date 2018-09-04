@@ -171,6 +171,9 @@ module.exports = function ( assets ) {
 
       'development': [ 'D' ],
 
+      'port': [ 'P' ], // default 4040
+      'address': [ 'A' ], // default '0.0.0.0'
+
       'verbose': [ 'v' ],
 
       'version': [ 'V' ],
@@ -527,6 +530,7 @@ module.exports = function ( assets ) {
     text = ( `
       ;(function () {
         window.__miru = {
+          port: ${ PORT },
           verbose: ${ !!verbose },
           enableLogs: ${ !!argv[ 'logs' ] },
           forceReload: ${ _lastCSSReload },

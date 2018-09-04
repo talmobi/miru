@@ -1,15 +1,15 @@
-export const HOSTNAME = (
-  window.location.hostname
-)
+export function getHostname () {
+  return window.location.hostname
+}
 
-export const HOST = (
-  'http:' + '//' + HOSTNAME
-)
+export function getHost () {
+  return ( 'http:' + '//' + getHostname() )
+}
 
-export const PORT = (
-  4040
-)
+export function getPort () {
+  return window.__miru.port
+}
 
-export const URI = (
-  HOST + ':' + PORT
-)
+export function getUri() {
+  return ( getHost() + ':' + getPort() )
+}

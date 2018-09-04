@@ -1,9 +1,9 @@
 const storage = require( './storage.js' )
 
-import { HOST, PORT, URI } from './config.js'
+import { getUri } from './config.js'
 
 const PESTICIDE_ID = '__miru-pesticide-id'
-const PESTICIDE_URL = ( URI + '/__miru/pesticide.css' )
+const PESTICIDE_URL = ( getUri() + '/__miru/pesticide.css' )
 
 export default {
   update,
