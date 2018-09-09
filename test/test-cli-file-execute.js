@@ -70,15 +70,18 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
       log += msg
 
       // console.log( msg )
+
+      if ( msg.indexOf( 'no need for server' ) >= 0 ) {
+        setTimeout( function () {
+          triggerFile(
+            function () {
+              end()
+            }
+          )
+        }, 1000 * 1 )
+      }
     }
 
-    setTimeout( function () {
-      triggerFile(
-        function () {
-          end()
-        }
-      )
-    }, 1000 * 3 )
 
     function triggerFile ( done ) {
       // rewrite file to trigger file watcher and target-build event
