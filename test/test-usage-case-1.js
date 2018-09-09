@@ -20,6 +20,12 @@ process.on( 'exit', function () {
   } catch ( err ) { /* ignore*/ }
 } )
 
+// debug
+var console = {
+  log: function () {
+  }
+}
+
 // https://github.com/chalk/ansi-regex
 const ansiRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g
 function stripAnsi ( str ) {
@@ -99,13 +105,13 @@ test( 'puppeteer', function ( t ) {
       await page.goto( 'http://localhost:4050' )
       console.log( ' === page opened === ' )
 
-      const bodyInnerHTML = await page.evaluate( function () {
-        return document.body.innerHTML
+      const rootInnerHTML = await page.evaluate( function () {
+        return document.getElementById( 'root' ).innerHTML
       } )
 
       t.ok(
-        bodyInnerHTML.indexOf( 'whale' ) >= 0,
-        'page loaded properly OK!'
+        rootInnerHTML.indexOf( 'whale' ) >= 0,
+        'root content is whale still OK!'
       )
 
       // rewrite file to trigger file watcher and target-build event
@@ -136,34 +142,32 @@ test( 'puppeteer', function ( t ) {
       updateCss()
     }
 
-    function updateCss () {
+    async function updateCss () {
       // reset log
       console.log( 'clearing log' )
       log = ''
 
-      ;( async function () {
-        const headInnerHTML = await page.evaluate( function () {
-          return document.head.innerHTML
-        } )
+      const headInnerHTML = await page.evaluate( function () {
+        return document.head.innerHTML
+      } )
 
-        console.log( headInnerHTML )
+      console.log( headInnerHTML )
 
-        t.ok(
-          headInnerHTML.indexOf( 'bundle.css?cachebuster=' ) === -1,
-          'css not refreshed yet OK!'
-        )
+      t.ok(
+        headInnerHTML.indexOf( 'bundle.css?cachebuster=' ) === -1,
+        'css not refreshed yet OK!'
+      )
 
-        // rewrite file to trigger file watcher and target-build event
-        var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
-        fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
+      // rewrite file to trigger file watcher and target-build event
+      var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
+      fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
 
-        setTimeout( function () {
-          checkCss()
-        }, 1000 * 2 )
-      } )()
+      setTimeout( function () {
+        checkCss()
+      }, 1000 * 2 )
     }
 
-    function checkCss () {
+    async function checkCss () {
       t.ok(
         stripAnsi( log ).indexOf( 'compiled' ) >= 0,
         'app.styl compiled OK!'
@@ -174,21 +178,19 @@ test( 'puppeteer', function ( t ) {
         'app.styl target-build watch OK!'
       )
 
-      ;( async function () {
-        const headInnerHTML = await page.evaluate( function () {
-          return document.head.innerHTML
-        } )
+      const headInnerHTML = await page.evaluate( function () {
+        return document.head.innerHTML
+      } )
 
-        // css was refreshed
-        t.ok(
-          headInnerHTML.indexOf( 'bundle.css?cachebuster=' ) >= 0,
-          'css refreshed!'
-        )
+      // css was refreshed
+      t.ok(
+        headInnerHTML.indexOf( 'bundle.css?cachebuster=' ) >= 0,
+        'css refreshed!'
+      )
 
-        setTimeout( function () {
-          jsError()
-        }, 1000 )
-      } )()
+      setTimeout( function () {
+        jsError()
+      }, 1000 * 2 )
     }
 
     function jsError () {
@@ -198,7 +200,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         jsErrorCheck()
-      }, 1000 * 1 )
+      }, 1000 * 3 )
     }
 
     function jsErrorCheck () {
@@ -219,7 +221,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         cssError()
-      }, 1000 * 1 )
+      }, 1000 * 2 )
     }
 
     function cssError () {
@@ -229,7 +231,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         cssErrorCheck()
-      }, 1000 * 1 )
+      }, 1000 * 3 )
     }
 
     function cssErrorCheck () {
@@ -248,13 +250,127 @@ test( 'puppeteer', function ( t ) {
         'app.styl wooster context OK!'
       )
 
+      setTimeout( function () {
+        startFixes()
+      }, 1000 * 2 )
+    }
+
+    async function startFixes () {
+      // check current css result
+      const backgroundColor = await page.evaluate( function () {
+        return window.getComputedStyle(
+          document.body
+        )[ 'background-color' ]
+      } )
+
+      // salmon rgba -> rgb(250, 128, 114)
+
+      t.equal(
+        backgroundColor,
+        'rgb(250, 128, 114)',
+        'body background-color was salmon OK!'
+      )
+
+      // check current js result
+      const rootInnerHTML = await page.evaluate( function () {
+        return document.getElementById( 'root' ).innerHTML
+      } )
+
+      console.log( rootInnerHTML )
+
+      t.ok(
+        rootInnerHTML.indexOf( 'whale' ) >= 0,
+        'root content is whale still OK!'
+      )
+
+      // fix js
+      fixJs()
+    }
+
+    function fixJs () {
+      // reset log
+      log = ''
+
+      // rewrite with fix
+      var text = fs.readFileSync( path.join( __dirname, 'src', 'pup3', 'app.js' ), 'utf8' )
+      fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
+
+      setTimeout( function () {
+        checkFixJs()
+      }, 1000 * 2 )
+    }
+
+    async function checkFixJs () {
+      t.ok(
+        stripAnsi( log ).indexOf( 'bytes written' ) >= 0,
+        'app.js bytes written OK!'
+      )
+
+      t.ok(
+        stripAnsi( log ).indexOf( '(stdout regex matched) broadcasting: test/stage/bundle.js' ) >= 0,
+        'app.js target-build watch OK!'
+      )
+
+      t.ok(
+        stripAnsi( log ).indexOf( 'client connected' ) >= 0,
+        'client connected aka reload was successful'
+      )
+
+      // critical check that the content has updated successfully
+      const rootInnerHTML = await page.evaluate( function () {
+        return document.getElementById( 'root' ).innerHTML
+      } )
+
+      t.ok(
+        rootInnerHTML.indexOf( '猿が一番だ！' ) >= 0,
+        'root content was changed OK!'
+      )
+
+      fixCss()
+    }
+
+    function fixCss () {
+      // reset log
+      log = ''
+
+      // rewrite with fix
+      var text = fs.readFileSync( path.join( __dirname, 'src', 'pup3', 'app.styl' ), 'utf8' )
+      fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
+
+      setTimeout( function () {
+        checkFixCss()
+      }, 1000 * 2 )
+    }
+
+    async function checkFixCss () {
+      t.ok(
+        stripAnsi( log ).indexOf( 'compiled' ) >= 0,
+        'app.styl compiled OK!'
+      )
+
+      t.ok(
+        stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) >= 0,
+        'app.styl target-build watch OK!'
+      )
+
+      const backgroundColor = await page.evaluate( function () {
+        return window.getComputedStyle(
+          document.body
+        )[ 'background-color' ]
+      } )
+
+      // salmon rgba -> rgb(250, 128, 114)
+
+      t.equal(
+        backgroundColor,
+        'rgb(0, 0, 255)',
+        'body background-color was blue OK!'
+      )
+
       end()
     }
 
     function end () {
-      // TODO fix the app errors and expect changes to appear
-      // in the DOM ( styles and javascript )
-
       spawn.kill()
     }
 
