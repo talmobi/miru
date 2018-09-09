@@ -68,7 +68,7 @@ test( 'puppeteer', function ( t ) {
       let msg = chunk.toString( 'utf8' )
       log += msg
 
-      console.log( msg )
+      // console.log( msg )
 
       if ( msg.indexOf( 'server listening' ) >= 0 ) {
         startPuppeteer()
@@ -80,7 +80,7 @@ test( 'puppeteer', function ( t ) {
 
     function startPuppeteer () {
       ;( async function () {
-        browser = await puppeteer.launch( { headless: false } )
+        browser = await puppeteer.launch( { headless: true } )
         page = await browser.newPage()
 
         setTimeout( function () {
