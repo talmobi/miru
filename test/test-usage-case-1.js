@@ -85,7 +85,12 @@ test( 'puppeteer', function ( t ) {
 
     function startPuppeteer () {
       ;( async function () {
-        browser = await puppeteer.launch( { headless: true } )
+        const opts = {
+          headless: true,
+          args: [ '--no-sandbox' ]
+        }
+
+        browser = await puppeteer.launch( opts )
         page = await browser.newPage()
 
         setTimeout( function () {
