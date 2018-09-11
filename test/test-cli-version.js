@@ -1,6 +1,7 @@
 const test = require( 'tape' )
 
 const cp = require( 'child_process' )
+const kill = require( 'tree-kill' )
 
 const fs = require( 'fs' )
 const path = require( 'path' )
@@ -10,10 +11,8 @@ const publicPath = path.join( __dirname, 'test/stage' )
 
 let spawns = []
 
-process.on( 'exit', function () {
-  try {
-    spawn && spawn.kill()
-  } catch ( err ) { /* ignore*/ }
+require( './on-exit.js' )( function () {
+  kill( process.pid )
 } )
 
 const pkgj = require( '../package.json' )

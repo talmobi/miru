@@ -1,6 +1,7 @@
 const test = require( 'tape' )
 
 const cp = require( 'child_process' )
+const kill = require( 'tree-kill' )
 
 const fs = require( 'fs' )
 const path = require( 'path' )
@@ -13,10 +14,8 @@ const publicPath = path.join( __dirname, 'stage' )
 
 let spawns = []
 
-process.on( 'exit', function () {
-  try {
-    spawn && spawn.kill()
-  } catch ( err ) { /* ignore*/ }
+require( './on-exit.js' )( function () {
+  kill( process.pid )
 } )
 
 // https://github.com/chalk/ansi-regex
@@ -121,7 +120,8 @@ test( 'test -w,--watch', function ( t ) {
         'app.css target-build watch OK!'
       )
 
-      spawn.kill()
+      // spawn.kill()
+      kill( spawn.pid )
     }
 
     spawn.on( 'exit', function () {

@@ -2,6 +2,7 @@ const test = require( 'tape' )
 const puppeteer = require( 'puppeteer' )
 
 const cp = require( 'child_process' )
+const kill = require( 'tree-kill' )
 
 const fs = require( 'fs' )
 const path = require( 'path' )
@@ -14,10 +15,8 @@ const publicPath = path.join( __dirname, 'stage' )
 
 let spawns = []
 
-process.on( 'exit', function () {
-  try {
-    spawn && spawn.kill()
-  } catch ( err ) { /* ignore*/ }
+require( './on-exit.js' )( function () {
+  kill( process.pid )
 } )
 
 // debug
@@ -371,7 +370,8 @@ test( 'puppeteer', function ( t ) {
     }
 
     function end () {
-      spawn.kill()
+      // spawn.kill()
+      kill( spawn.pid )
     }
 
     spawn.on( 'exit', async function () {

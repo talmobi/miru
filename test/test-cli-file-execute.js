@@ -1,6 +1,12 @@
 const test = require( 'tape' )
 
+// const cp = {
+//   spawn: require( 'spawn-command-with-kill' )
+// }
+
 const cp = require( 'child_process' )
+const kill = require( 'tree-kill' )
+// var crossSpawn = require( 'cross-spawn-with-kill' )
 
 const fs = require( 'fs' )
 const path = require( 'path' )
@@ -13,10 +19,8 @@ const publicPath = path.join( __dirname, 'stage' )
 
 let spawns = []
 
-process.on( 'exit', function () {
-  try {
-    spawn && spawn.kill()
-  } catch ( err ) { /* ignore*/ }
+require( './on-exit.js' )( function () {
+  kill( process.pid )
 } )
 
 // https://github.com/chalk/ansi-regex
@@ -61,6 +65,14 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
     )
     spawns.push( spawn )
 
+    // console.log( 'process PID: ' + process.pid )
+    // console.log( 'spawn PID: ' + spawn.pid )
+
+    spawn.on( 'exit', function () {
+      console.log( 'spawn exited.' )
+      t.end()
+    } )
+
     spawn.stdout.on( 'data', out )
     spawn.stderr.on( 'data', out )
 
@@ -81,7 +93,6 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
         }, 1000 * 1 )
       }
     }
-
 
     function triggerFile ( done ) {
       // rewrite file to trigger file watcher and target-build event
@@ -119,12 +130,9 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
         'number of --files correct'
       )
 
-      spawn.kill()
+      // spawn.kill()
+      // process.kill( spawn.pid )
+      kill( spawn.pid )
     }
-
-    spawn.on( 'exit', function () {
-      console.log( 'spawn exited.' )
-      t.end()
-    } )
   } )
 } )
