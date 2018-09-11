@@ -8,6 +8,7 @@ module.exports = function ( assets ) {
   var spawns = [] // keep track of all spawns
 
   var crossSpawn = require( 'cross-spawn-with-kill' )
+  var kill = require( 'tree-kill' )
   // var npmWhich = require( 'npm-which' )( process.cwd() )
   var findRoot = require( 'find-root' )
 
@@ -1474,7 +1475,9 @@ module.exports = function ( assets ) {
   /*
   * Make sure no zombie spawns are left behind.
   */
-  process.on( 'exit', function () {
+  onExit( function () {
+    kill( process.pid )
+
     spawns.forEach( function ( spawn ) {
       try {
         spawn.kill()
@@ -1490,6 +1493,19 @@ module.exports = function ( assets ) {
       /* ignore */
     }
   } )
+
+  function onExit ( callback ) {
+    let called = false
+    function once () {
+      if ( !called ) {
+        called = true
+        callback && callback()
+      }
+    }
+
+    process.on( 'SIGINT', once )
+    process.on( 'exit', once )
+  }
 
   function printSuccess ( type, filepath ) {
     console.log(
