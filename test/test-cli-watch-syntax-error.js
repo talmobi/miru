@@ -101,22 +101,22 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
 
     function start () {
       t.ok(
-        stripAnsi( log ).indexOf( 'bytes written' ) > 0,
+        stripAnsi( log ).indexOf( 'bytes written' ) >= 0,
         'app.js bytes written OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(stdout regex matched) broadcasting: test/stage/bundle.js' ) > 0,
+        stripAnsi( log ).indexOf( '(stdout regex matched) broadcasting: test/stage/bundle.js' ) >= 0,
         'app.js target-build watch OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( 'compiled' ) > 0,
+        stripAnsi( log ).indexOf( 'compiled' ) >= 0,
         'app.styl compiled OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) > 0,
+        stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) >= 0,
         'app.styl target-build watch OK!'
       )
 
@@ -151,32 +151,32 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
 
     function end () {
       t.ok(
-        stripAnsi( log ).indexOf( 'SyntaxError:  ./tes/sta/app.js: Unexpected token' ) > 0,
+        stripAnsi( log ).indexOf( 'SyntaxError:  ./tes/sta/app.js: Unexpected token' ) >= 0,
         'app.js SyntaxError OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '@  ./test/stage/app.js 2:20' ) > 0,
+        stripAnsi( log ).indexOf( '@  ./test/stage/app.js 2:20' ) >= 0,
         'app.js wooster source file OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( `> 2 | var text = 'giraffe':` ) > 0,
+        stripAnsi( log ).indexOf( `> 2 | var text = 'giraffe':` ) >= 0,
         'app.js wooster context OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( 'TypeError:  ./tes/sta/app.styl:2:21' ) > 0,
+        stripAnsi( log ).indexOf( 'TypeError:  ./tes/sta/app.styl:2:21' ) >= 0,
         'app.styl error detected and reported OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '@  ./test/stage/app.styl 2:21' ) > 0,
+        stripAnsi( log ).indexOf( '@  ./test/stage/app.styl 2:21' ) >= 0,
         'app.styl wooster source file OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '> 2 |   background: salmon%' ) > 0,
+        stripAnsi( log ).indexOf( '> 2 |   background: salmon%' ) >= 0,
         'app.styl wooster context OK!'
       )
 

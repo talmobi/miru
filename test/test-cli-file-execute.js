@@ -106,27 +106,27 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
 
     function end () {
       t.ok(
-        stripAnsi( log ).indexOf( 'server not started' ) > 0,
+        stripAnsi( log ).indexOf( 'server not started' ) >= 0,
         'server not started ( no targets, only files and executions )'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( 'command: echo \"giraffes are great\"' ) > 0,
+        stripAnsi( log ).indexOf( 'command: echo \"giraffes are great\"' ) >= 0,
         'command log OK'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( 'executing: echo \"giraffes are great\"' ) > 0,
+        stripAnsi( log ).indexOf( 'executing: echo \"giraffes are great\"' ) >= 0,
         'executing log OK'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '\ngiraffes are great' ) > 0,
+        stripAnsi( log ).indexOf( '\ngiraffes are great' ) >= 0,
         'echo output correct'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( 'number of --files watched: 1' ) > 0,
+        stripAnsi( log ).indexOf( 'number of --files watched: 1' ) >= 0,
         'number of --files correct'
       )
 

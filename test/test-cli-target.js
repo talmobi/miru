@@ -105,12 +105,12 @@ test( 'test -t,--target', function ( t ) {
 
     function end () {
       t.ok(
-        stripAnsi( log ).indexOf( '(file change detected) broadcasting: stage/app.css' ) > 0,
+        stripAnsi( log ).indexOf( '(file change detected) broadcasting: stage/app.css' ) >= 0,
         'app.css target-build OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(file change detected) broadcasting: stage/app.js' ) > 0,
+        stripAnsi( log ).indexOf( '(file change detected) broadcasting: stage/app.js' ) >= 0,
         'app.js target-build OK!'
       )
 

@@ -101,22 +101,22 @@ test( 'test -w,--watch', function ( t ) {
 
     function end () {
       t.ok(
-        stripAnsi( log ).indexOf( 'bytes written' ) > 0,
+        stripAnsi( log ).indexOf( 'bytes written' ) >= 0,
         'app.js bytes written OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(stdout regex matched) broadcasting: test/stage/bundle.js' ) > 0,
+        stripAnsi( log ).indexOf( '(stdout regex matched) broadcasting: test/stage/bundle.js' ) >= 0,
         'app.js target-build watch OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( 'compiled' ) > 0,
+        stripAnsi( log ).indexOf( 'compiled' ) >= 0,
         'app.css compiled OK!'
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) > 0,
+        stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) >= 0,
         'app.css target-build watch OK!'
       )
 
