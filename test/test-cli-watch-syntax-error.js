@@ -45,7 +45,7 @@ function prepareStage ( done ) {
 }
 
 test( 'test -w,--watch with syntax error reporting', function ( t ) {
-  t.timeoutAfter( 1000 * 20 )
+  t.timeoutAfter( 1000 * 25 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
@@ -68,9 +68,11 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
 
       // console.log( msg )
 
+      // we rely on this happening only once at the start
+      // when miru is setup and ready
       if ( msg.indexOf( 'server listening' ) >= 0 ) {
         setTimeout( function () {
-          triggerFile(
+          triggerChangesToJSandCSSFiles(
             function () {
               end()
             }
@@ -84,7 +86,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
 
         setTimeout( function () {
           fn()
-        }, 1000 )
+        }, 1000 ) // TODO unsure of this timeout, dynamically set through arg?
       }
     }
 
@@ -93,7 +95,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       _stdoutTriggerCallback = callback
     }
 
-    function triggerFile ( done ) {
+    function triggerChangesToJSandCSSFiles ( done ) {
       // reset log
       // console.log( 'clearing log' )
       log = ''
@@ -138,7 +140,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       // introduce syntax errors to source files
       setTimeout( function () {
         jsError()
-      }, 1000 * 3 )
+      }, 1000 )
     }
 
     function jsError () {
@@ -146,9 +148,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       var text = fs.readFileSync( path.join( __dirname, 'src', 'app2', 'app.js' ), 'utf8' )
       fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
 
-      setTimeout( function () {
-        cssError()
-      }, 1000 * 1 )
+      _triggerOnStdout( cssError )
     }
 
     function cssError () {
@@ -156,9 +156,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       var text = fs.readFileSync( path.join( __dirname, 'src', 'app2', 'app.styl' ), 'utf8' )
       fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
 
-      setTimeout( function () {
-        end()
-      }, 1000 * 1 )
+      _triggerOnStdout( end )
     }
 
     function end () {
