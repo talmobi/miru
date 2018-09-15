@@ -77,6 +77,20 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
           )
         }, 1000 * 1 )
       }
+
+      if ( _stdoutTriggerCallback ) {
+        var fn = _stdoutTriggerCallback
+        _stdoutTriggerCallback = undefined
+
+        setTimeout( function () {
+          fn()
+        }, 1000 )
+      }
+    }
+
+    let _stdoutTriggerCallback
+    function _triggerOnStdout ( callback ) {
+      _stdoutTriggerCallback = callback
     }
 
     function triggerFile ( done ) {
@@ -93,9 +107,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
         var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
         fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
 
-        setTimeout( function () {
-          start()
-        }, 1000 * 2 )
+        _triggerOnStdout( start )
       }, 1000 * 2 )
     }
 
