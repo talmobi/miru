@@ -92,7 +92,7 @@ test( 'test -t,--target', function ( t ) {
 
         setTimeout( function () {
           fn()
-        }, 1000 ) // TODO unsure of this timeout, dynamically set through arg?
+        }, 1000 * 2 ) // TODO unsure of this timeout, dynamically set through arg?
       }
     }
 
