@@ -69,28 +69,44 @@ test( 'test -t,--target', function ( t ) {
       log += msg
 
       // console.log( msg )
-    }
 
-    setTimeout( function () {
-      cpyCss(
-        function () {
-          cpyJs(
+      // we rely on this happening only once at the start
+      // when miru is setup and ready
+      if ( msg.indexOf( 'server listening' ) >= 0 ) {
+        setTimeout( function () {
+          cpyCss(
             function () {
-              end()
+              cpyJs(
+                function () {
+                  end()
+                }
+              )
             }
           )
-        }
-      )
-    }, 1000 * 3 )
+        }, 1000 * 1 )
+      }
+
+      if ( _stdoutTriggerCallback ) {
+        var fn = _stdoutTriggerCallback
+        _stdoutTriggerCallback = undefined
+
+        setTimeout( function () {
+          fn()
+        }, 1000 ) // TODO unsure of this timeout, dynamically set through arg?
+      }
+    }
+
+    let _stdoutTriggerCallback
+    function _triggerOnStdout ( callback ) {
+      _stdoutTriggerCallback = callback
+    }
 
     function cpyCss ( done ) {
       // rewrite file to trigger file watcher and target-build event
       var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.css' ), 'utf8' )
       fs.writeFileSync( path.join( __dirname, 'stage', 'app.css' ), text, 'utf8' )
 
-      setTimeout( function () {
-        done()
-      }, 1000 )
+      _triggerOnStdout( done )
     }
 
     function cpyJs ( done ) {
@@ -98,9 +114,7 @@ test( 'test -t,--target', function ( t ) {
       var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.js' ), 'utf8' )
       fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
 
-      setTimeout( function () {
-        done()
-      }, 1000 )
+      _triggerOnStdout( done )
     }
 
     function end () {
