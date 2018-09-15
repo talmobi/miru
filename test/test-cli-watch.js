@@ -70,16 +70,30 @@ test( 'test -w,--watch', function ( t ) {
 
       if ( msg.indexOf( 'server listening' ) >= 0 ) {
         setTimeout( function () {
-          triggerFile(
+          triggerChangesToJSandCSSFiles(
             function () {
               end()
             }
           )
         }, 1000 * 1 )
       }
+
+      if ( _stdoutTriggerCallback ) {
+        var fn = _stdoutTriggerCallback
+        _stdoutTriggerCallback = undefined
+
+        setTimeout( function () {
+          fn()
+        }, 1000 ) // TODO unsure of this timeout, dynamically set through arg?
+      }
     }
 
-    function triggerFile ( done ) {
+    let _stdoutTriggerCallback
+    function _triggerOnStdout ( callback ) {
+      _stdoutTriggerCallback = callback
+    }
+
+    function triggerChangesToJSandCSSFiles ( done ) {
       // reset log
       // console.log( 'clearing log' )
       log = ''
@@ -88,15 +102,13 @@ test( 'test -w,--watch', function ( t ) {
       var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.js' ), 'utf8' )
       fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
 
-      setTimeout( function () {
+      _triggerOnStdout( function () {
         // rewrite file to trigger file watcher and target-build event
         var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
         fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
 
-        setTimeout( function () {
-          done()
-        }, 1000 * 2 )
-      }, 1000 * 2 )
+        _triggerOnStdout( done )
+      } )
     }
 
     function end () {
