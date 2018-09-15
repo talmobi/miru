@@ -18,7 +18,7 @@ require( './on-exit.js' )( function () {
 const pkgj = require( '../package.json' )
 
 test( 'miru --version', function ( t ) {
-  t.timeoutAfter( 3000 )
+  t.timeoutAfter( 1000 * 5 )
 
   const spawn = cp.spawn(
     miruPath,
@@ -49,7 +49,7 @@ test( 'miru --version', function ( t ) {
 } )
 
 test( 'miru -V', function ( t ) {
-  t.timeoutAfter( 3000 )
+  t.timeoutAfter( 1000 * 5 )
 
   const spawn = cp.spawn(
     miruPath,

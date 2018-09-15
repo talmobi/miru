@@ -45,7 +45,7 @@ function prepareStage ( done ) {
 }
 
 test( 'test -w,--watch', function ( t ) {
-  t.timeoutAfter( 1000 * 20 )
+  t.timeoutAfter( 1000 * 25 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )

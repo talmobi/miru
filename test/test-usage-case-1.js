@@ -52,7 +52,7 @@ function prepareStage ( done ) {
 }
 
 test( 'puppeteer', function ( t ) {
-  t.timeoutAfter( 1000 * 45 )
+  t.timeoutAfter( 1000 * 25 * 2 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
