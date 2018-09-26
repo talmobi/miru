@@ -86,7 +86,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
 
         setTimeout( function () {
           fn()
-        }, 1000 * 3 ) // TODO unsure of this timeout, dynamically set through arg?
+        }, 1000 * 5 ) // TODO unsure of this timeout, dynamically set through arg?
       }
     }
 
@@ -100,17 +100,17 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       // console.log( 'clearing log' )
       log = ''
 
-      // rewrite file to trigger file watcher and target-build event
-      var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.js' ), 'utf8' )
-      fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
-
       setTimeout( function () {
+        // rewrite file to trigger file watcher and target-build event
+        var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.js' ), 'utf8' )
+        fs.writeFileSync( path.join( __dirname, 'stage', 'app.js' ), text, 'utf8' )
+
         // rewrite file to trigger file watcher and target-build event
         var text = fs.readFileSync( path.join( __dirname, 'stage', 'app.styl' ), 'utf8' )
         fs.writeFileSync( path.join( __dirname, 'stage', 'app.styl' ), text, 'utf8' )
 
         _triggerOnStdout( start )
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     function start () {
