@@ -105,6 +105,7 @@ function sendLogs () {
 
       sendLogsLastSentTime = Date.now()
 
+      // TODO hmm.. do we want to reset or keep here?
       // var logs = window.__miru.logs.slice( -100 )
       // window.__miru.logs = []
 
