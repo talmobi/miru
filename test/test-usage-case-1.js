@@ -97,7 +97,7 @@ test( 'puppeteer', function ( t ) {
           // reset log
           log = ''
           updateJs()
-        }, 1000 * 2 )
+        }, 1000 * 3 )
       } )()
     }
 
@@ -124,7 +124,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         checkJs()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     function checkJs () {
@@ -168,7 +168,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         checkCss()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     async function checkCss () {
@@ -194,7 +194,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         jsError()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     function jsError () {
@@ -225,7 +225,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         cssError()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     function cssError () {
@@ -256,7 +256,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         startFixes()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     async function startFixes () {
@@ -301,7 +301,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         checkFixJs()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     async function checkFixJs () {
@@ -343,7 +343,7 @@ test( 'puppeteer', function ( t ) {
 
       setTimeout( function () {
         checkFixCss()
-      }, 1000 * 2 )
+      }, 1000 * 3 )
     }
 
     async function checkFixCss () {
