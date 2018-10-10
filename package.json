@@ -57,7 +57,7 @@
     "express": "~4.16.3",
     "find-root": "~1.1.0",
     "kiite": "0.0.6",
-    "miteru": "~0.6.5",
+    "miteru": "~0.6.6",
     "path-shorten": "0.0.3",
     "redom": "~3.4.0",
     "string-width": "~2.1.1",

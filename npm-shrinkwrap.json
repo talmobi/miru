@@ -4840,9 +4840,9 @@
       "integrity": "sha1-o1AIsg9BOD7sH7kU9M1d95omQoQ="
     },
     "miteru": {
-      "version": "0.6.5",
-      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.6.5.tgz",
-      "integrity": "sha1-73BauQnaVSvfXybYgKvNoxDs6mo=",
+      "version": "0.6.6",
+      "resolved": "https://registry.npmjs.org/miteru/-/miteru-0.6.6.tgz",
+      "integrity": "sha512-H1czF6alwd55+SYgGRk0ZAN2+bxEFOf0Yn7WcDlKwAri68DyJKMzslZ8nIDBjN6Ilho0ALfaJRRITCqyjR6zBA==",
       "requires": {
         "minimatch": "~3.0.4",
         "minimist": "~1.2.0",
