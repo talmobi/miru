@@ -329,3 +329,7 @@ npm install
 npm start
 open localhost:4040
 ```
+
+## Test
+
+`npm test`
