@@ -1851,7 +1851,7 @@ module.exports = function ( assets ) {
         var t = targets[ target ]
         if ( t.output && t.error ) {
 
-          // TODO remember last errror and dont clear if too close in time
+          // remember last error and dont clear if too close in time
           t.errorTimestamp = Date.now()
 
           io.emit( 'terminal-error', {
