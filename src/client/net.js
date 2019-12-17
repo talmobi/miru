@@ -50,6 +50,12 @@ socket.on( 'disconnect', function () {
   window.__miru.connected = false
 } )
 
+socket.on( 'info', function ( text ) {
+  // used to send info and usage recommendations
+  // to the developer.
+  console.log( '[miru][INFO]: ' + text )
+} )
+
 let _reloadTimeout
 function triggerReload () {
   clearTimeout( _reloadTimeout )
