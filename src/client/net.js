@@ -229,7 +229,9 @@ let _lastErrorTimestamp = 0
 let _handleErrorAttempts = 0
 export function handleError ( err ) {
   if ( err.timestamp <= _lastErrorTimestamp ) {
-    // console.log( 'ignoring old error' )
+    if ( window.__miru.verbose ) {
+      console.log( '[miru] ignoring old/repeated error' )
+    }
     return // ignore same errors
   }
   _lastErrorTimestamp = err.timestamp
