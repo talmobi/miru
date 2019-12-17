@@ -1477,6 +1477,14 @@ module.exports = function ( assets ) {
 
                 console.log( msg )
                 io.emit( 'info', msg )
+
+                // send to connected clients
+                io.emit( 'terminal-error', {
+                  target: t.target,
+                  timestamp: t.errorTimestamp || Date.now(),
+                  output: t.output,
+                  error: t.error
+                } )
               }
             }
           }
