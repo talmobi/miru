@@ -200,6 +200,12 @@ socket.on( 'target-build', function ( evt ) {
 } )
 
 socket.on( 'terminal-error', function ( error ) {
+  // emitted as {
+  //   (target: target),
+  //   (timestamp: timestamp),
+  //   output: t.output,
+  //   error: t.error
+  // }
   handleError( error )
 } )
 
