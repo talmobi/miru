@@ -34,7 +34,7 @@ module.exports = function ( assets ) {
   // bundle close after does not reflect a successful build without errors.
   // Handling this exception like this is most likely a better default user
   // experience, however, it is recommended to always use a -r regex flag instead.
-  var BUILD_SUCCESS_AFTER_ERROR_DELAY = 500 // milliseconds
+  var BUILD_SUCCESS_AFTER_ERROR_DELAY = 200 // milliseconds
 
   // var pino = require( 'pino' )()
 
