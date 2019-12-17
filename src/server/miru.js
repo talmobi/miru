@@ -1306,6 +1306,7 @@ module.exports = function ( assets ) {
       // print and send only after errors.timeout
       var timestamp = ( Date.now() )
 
+      clearTimeout( errors.timeout ) // error debounce
       errors.timeout = setTimeout( function () {
         var t = targets[ target ]
 
