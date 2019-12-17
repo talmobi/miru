@@ -687,6 +687,8 @@ module.exports = function ( assets ) {
 
         console.log( target )
 
+        t.errorTimestamp = Date.now()
+
         socket.emit( 'terminal-error', {
           timestamp: Date.now(),
           output: t.output,
@@ -1302,6 +1304,8 @@ module.exports = function ( assets ) {
         clearConsole()
         print( t.output ) // print to terminal
 
+        t.errorTimestamp = Date.now()
+
         // send to connected clients
         io.emit( 'terminal-error', {
           target: target,
@@ -1846,6 +1850,10 @@ module.exports = function ( assets ) {
       Object.keys( targets ).forEach( function ( target ) {
         var t = targets[ target ]
         if ( t.output && t.error ) {
+
+          // TODO remember last errror and dont clear if too close in time
+          t.errorTimestamp = Date.now()
+
           io.emit( 'terminal-error', {
             timestamp: Date.now(),
             output: t.output,
