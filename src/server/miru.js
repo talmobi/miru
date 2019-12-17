@@ -1426,6 +1426,8 @@ module.exports = function ( assets ) {
 
           var target = path.resolve( filepath )
           var t = target && targets[ target ]
+          t.target = target
+
           var w = t && t.w // not all target files have a watcher process attached
 
           if ( w && w.regex ) {
