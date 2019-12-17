@@ -1276,6 +1276,9 @@ module.exports = function ( assets ) {
       while ( errors.history.length > 20 ) errors.history.shift() // cap history
 
       log( 'debouncing error' )
+
+      // make sure the error.timeout doesn't trigger while
+      // we are creating a new error.timeout
       clearTimeout( errors.timeout ) // error debounce
 
       /*
