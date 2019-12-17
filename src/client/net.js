@@ -238,10 +238,15 @@ export function handleError ( err ) {
 
   _text += '\n'
 
+  // console.log( ' === TERMINAL ERROR ' )
+  // console.log( err.message )
+  // console.log( err.output )
+  // console.log( ' ===            === ' )
+
   let html = stripAnsi( ansiToHtml( _text ) )
 
   var fn = function () {
-    // updat the modal with html content
+    // update the modal with html content
     modal.update( {
       name: 'Terminal Error',
       text: _text
