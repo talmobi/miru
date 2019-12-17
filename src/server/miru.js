@@ -21,6 +21,21 @@ module.exports = function ( assets ) {
     parse: require( 'ua-parser-js' )
   }
 
+  // Only applies when no -r regex flag is used during the -w []
+  // command flag.
+  //
+  // ms delay after error on target/output filechange to
+  // consider as a succesfful build and clear errors for that
+  // target/output
+  //
+  // Reasoning: Some build watchers rewrite the target/output bundle
+  // to include or output the error that it detected during its build
+  // process and therefore a filechange detected in the target/output
+  // bundle close after does not reflect a successful build without errors.
+  // Handling this exception like this is most likely a better default user
+  // experience, however, it is recommended to always use a -r regex flag instead.
+  var BUILD_SUCCESS_AFTER_ERROR_DELAY = 500 // milliseconds
+
   // var pino = require( 'pino' )()
 
   /*
