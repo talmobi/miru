@@ -285,6 +285,7 @@ module.exports = function ( assets ) {
   var THROTTLE = 0
 
   var errors = {
+    timeout: undefined, // used for debouncing errors
     DEBOUNCE: 33,
     THROTTLE: 1000,
     history: []
@@ -1311,6 +1312,8 @@ module.exports = function ( assets ) {
 
       clearTimeout( errors.timeout ) // error debounce
       errors.timeout = setTimeout( function () {
+        errors.timeout = undefined
+
         var t = targets[ target ]
 
         if ( !t || !t.output || !t.error ) {
@@ -1446,7 +1449,14 @@ module.exports = function ( assets ) {
           } else {
             // by default without regex treat a change
             // in target file as a success and clear errors
-            if ( t ) {
+            if ( errors.timeout ) {
+              const msg = ( `  Ignoring output/target bundle (${ t.target }) because an error was being debounced. ~${ errors.DEBOUNCE } milliseconds ago.` )
+
+              console.log( msg )
+              io.emit( 'info', msg )
+            }
+
+            if ( t && !errors.timeout ) {
               const now = Date.now()
               const delta = ( now - t.errorTimestamp )
 
