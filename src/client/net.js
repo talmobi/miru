@@ -211,6 +211,9 @@ socket.on( 'terminal-error', function ( error ) {
     return console.log( '[miru] ignoring terminal error: missing output' )
   }
 
+  // console.log( ' -- terminal error -- ' )
+  // console.log( error )
+
   handleError( error )
 } )
 
