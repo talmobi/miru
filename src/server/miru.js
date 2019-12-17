@@ -1274,9 +1274,11 @@ module.exports = function ( assets ) {
       }
 
       var output = ''
+
       // make it easy to distinguish changes/builds
       // that produce the same error or similar errors
       output += ( getIterationErrorBox() + ' ' )
+
       output += error.text
 
       // update target watcher error
