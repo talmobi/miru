@@ -1336,7 +1336,6 @@ module.exports = function ( assets ) {
         // send again to clients redundantly to
         // improve consistency
         ;[ 33, 100, 300, 500 ].forEach( function ( ms ) {
-          // print( t.output )
           log( 'delay repeated terminal error broadcast: ' + ms )
 
           setTimeout( function () {
