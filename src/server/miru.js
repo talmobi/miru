@@ -1448,10 +1448,27 @@ module.exports = function ( assets ) {
             // by default without regex treat a change
             // in target file as a success and clear errors
             if ( t ) {
-              log( 'clearing errors on target change without regex' )
+              const now = Date.now()
+              const delta = ( now - t.errorTimestamp )
 
-              t.error = undefined
-              t.output = undefined
+              if ( delta > BUILD_SUCCESS_AFTER_ERROR_DELAY ) {
+                const msg = ( `
+    Clearing errors on any output/target bundle (${ t.target }) file-changes detected without specified regex ( -r flag ) arguments.
+    For best use please attach a regex ( -r flag ) argument to your watch command ( -w [ ... ] ) to parse successful builds.
+    E.g.  'miru -w [ npm run watch:js -o bundle.js -r /bytes.written/ ]'
+                ` )
+
+                console.log( msg )
+                io.emit( 'info', msg )
+
+                t.error = undefined
+                t.output = undefined
+              } else {
+                const msg = ( `  Ignoring output/target bundle (${ t.target }) because an error was detected ${ BUILD_SUCCESS_AFTER_ERROR_DELAY } milliseconds ago.` )
+
+                console.log( msg )
+                io.emit( 'info', msg )
+              }
             }
           }
 
