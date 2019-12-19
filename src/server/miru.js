@@ -618,23 +618,26 @@ module.exports = function ( assets ) {
     }
 
     // only send/show DOM errors when there are no terminal errors
+    // change: always parse and send DOM Errors, let client
+    // side code determine when/if to show.
+    // intent: save DOM Errors client side and show them
+    // when terminal errors have been cleared.
+    // e.g. not all CSS targets reload the page ( only refresh CSS )
+    // and therefore we want to show the DOM Errors that have been
+    // saved.
+
+    // only print to console when no terminal-errors active
     if ( !hasTerminalErrors() ) {
-      // clearConsole()
-
-      console.log( 'no Terminal Errors detected' )
-
-      print( message )
-      // console.log( 'sending woosterify response length: ' + parsedMessage.length )
-
-      res.status( 200 ).json( {
-        target: 'DOM',
-        name: 'Error',
-        message: message,
-        origin: origin
-      } ).end()
-    } else {
-      console.log( 'Terminal Errors detected, ignoring DOM Error' )
+      // TODO rely on `io.on( 'print-dom-error-message', ... )` instead?
+      // print( message )
     }
+
+    res.status( 200 ).json( {
+      target: 'DOM',
+      name: 'Error',
+      message: message,
+      origin: origin
+    } ).end()
   } )
 
   app.post( '/__miru/console', bodyParser.json( { limit: '50mb' } ), function ( req, res ) {
