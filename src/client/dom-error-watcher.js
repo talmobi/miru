@@ -110,7 +110,7 @@ window.addEventListener( 'error', function ( domError ) {
           window.__miru.debug( '[miru] error.target basename: ' + basename )
 
           var fn = function () {
-            // updat the modal with html content
+            // update the modal with html content
             modal.update( {
               title: 'DOM Error (' + filename + ')',
               messages: messages
