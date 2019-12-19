@@ -143,14 +143,17 @@ function handleDOMError ( domError )
             data: data
           })
 
-          var terminalErrorCount = Object.keys( window.__miru.terminalErrors )
-          if ( terminalErrorCount.length === 0 ) {
-            // no terminal errors -> display the DOM Error now
-            // ( terminal errors are more important/relevant
-            //   so we don't want them to show up unless all
-            //   terminal errors have been cleared )
-            fn()
-          }
+          // show DOM Error if no terminal errors are currently being shown
+          setTimeout( function () {
+            var terminalErrorCount = Object.keys( window.__miru.terminalErrors )
+            if ( terminalErrorCount.length === 0 ) {
+              // no terminal errors -> display the DOM Error now
+              // ( terminal errors are more important/relevant
+              //   so we don't want them to show up unless all
+              //   terminal errors have been cleared )
+              fn()
+            }
+          }, 16 )
         }
       } )
     } // attempt
