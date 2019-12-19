@@ -336,7 +336,6 @@ module.exports = function ( assets ) {
       fileWatcher.add( file )
     } )
 
-    // TODO
     log( 'watched files:' )
     log( fileWatcher.getWatched() )
 
@@ -344,7 +343,7 @@ module.exports = function ( assets ) {
   }
 
   /*
-  * Execute arbitrary commands on certain events TODO
+  * Execute arbitrary commands on certain events
   *
   * The commands/processes are expected to exit quickly.
   */
@@ -435,7 +434,6 @@ module.exports = function ( assets ) {
         w.RegExp = RegExp( r )
       }
 
-      // TODO
       console.log( 'command: ' + w.command )
       console.log( 'target file: ' + w.target )
       console.log( 'regex: ' + w.regex )
@@ -662,7 +660,6 @@ module.exports = function ( assets ) {
   */
   var acks = {}
   io.on( 'connect', function ( socket ) {
-    // TODO
     var clientID = parseClientID( socket.request.headers[ 'user-agent' ])
     var client = {
       id: clientID
@@ -682,7 +679,6 @@ module.exports = function ( assets ) {
       'client connected: ' +  clientID
     )
 
-    // TODO batch incoming client connections?
     process.stdout.write( '\n' )
 
     // turn on pesticide if it's set
@@ -720,70 +716,6 @@ module.exports = function ( assets ) {
         delete acks[ id ]
       }, 1000 * 30 )
     } )
-
-    /*
-    * client wants to woosterify something ( usually DOM error )
-    */
-    /*
-     * TODO unused/delete/old
-    socket.on( 'woosterify', function ( id, opts, callback ) {
-      // console.log( 'pre-woosterify' )
-
-      if ( !acks[ id ] ) {
-        // var wp = wooster.parse( text )
-
-        // console.log( opts )
-        acks[ id ] = true
-
-        var ctx = wooster.parseContext( {
-          prettify: true,
-          text: opts.text,
-          filename: opts.filename,
-          lineno: opts.lineno,
-          colno: opts.colno
-        } )
-
-        var clientID = socket.miru.client.id
-
-        var message = wooster.createMessage( {
-          postintro: ( ' ' + clc.bgWhite( 'DOM Error' ) + ' [' + clientID + ']' ),
-          message: opts.message,
-          filename: ctx.filename,
-          ctx: ctx
-        } )
-
-        var origin = undefined
-        if ( ctx.usedSourceMap ) {
-          var originCtx = wooster.parseContext( {
-            prettify: true,
-            disableSourceMaps: true,
-            text: opts.text,
-            filename: opts.filename,
-            lineno: opts.lineno,
-            colno: opts.colno
-          } )
-
-          origin = wooster.createMessage( {
-            message: opts.message,
-            filename: originCtx.filename,
-            ctx: originCtx
-          } )
-        }
-
-        clearConsole()
-
-        print( message )
-        // console.log( 'sending woosterify response length: ' + parsedMessage.length )
-
-        callback( {
-          target: 'DOM',
-          name: 'Error',
-          message: message,
-          origin: origin
-        } )
-      }
-    } )
-    */
 
     /*
     * gather logs form clients
@@ -947,7 +879,6 @@ module.exports = function ( assets ) {
     var timeout
     var buffer = ''
 
-    // TODO
     var handler = function ( chunk ) {
       var str = chunk.toString( 'utf8' )
       buffer += str
@@ -1071,7 +1002,7 @@ module.exports = function ( assets ) {
     spawn.stdout.on( 'data', handler )
     spawn.stderr.on( 'data', handler )
 
-    // TODO recovery handlers
+    // recovery handlers
     spawn.on( 'exit', function () {
       setTimeout( function () {
         console.log( '  watcher exited [ ' + w.command + ' ], target: ' + w.target )
@@ -1159,7 +1090,6 @@ module.exports = function ( assets ) {
     }
   }
 
-  // TODO
   function handleError ( target, text, ranking ) {
     var now = Date.now()
 
@@ -1172,7 +1102,6 @@ module.exports = function ( assets ) {
       ranking: ( ranking || 0 )
     }
 
-    // TODO
     if ( argv[ 'no-wooster' ] ) {
       error.text = text
     } else {
@@ -1744,7 +1673,6 @@ module.exports = function ( assets ) {
 
   /*
   * listen for standard input
-  * TODO
   */
 
   var commands = {
