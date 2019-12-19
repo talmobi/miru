@@ -50,7 +50,7 @@ add `miru-connect.js` script to your index-dev.html (index.html) ( created by mi
 * parses and prettifies inline source maps automatically
 * parses and prettifies DOM Errors and displays them also on the terminal
 * live reloading and css quick refreshing across all connected browsers
-* css debugging on/off (using [pesticide](https://github.com/mrmrs/pesticide)) across all connected browsers ( browser: `F8`, STDIN `pest on` )
+* CSS debugging on/off (using [pesticide](https://github.com/mrmrs/pesticide)) across all connected browsers ( browser: `F8`, STDIN `pest on` )
 * watch arbitrary files and execute shell scripts on changes
 * inspect console output from any of the connected browsers ( including mobile )
 * turn css quick refeshing off ( will page reload instead ) ( on by default )
@@ -184,7 +184,7 @@ $ miru --help
   files                     prints watch files ( set by --files )
   executions                prints executions ( set by --execute )
   error                     prints active watcher errors ( or empty if nothing is active )
-  pesticide <bool>          enable or disable pesticide ( css debugger ) on all connected clients
+  pesticide <bool>          enable or disable pesticide ( CSS debugger ) on all connected clients
 ```
 
 ## Installation
