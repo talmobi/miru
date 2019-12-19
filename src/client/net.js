@@ -95,7 +95,16 @@ socket.on( 'target-build', function ( evt ) {
     var keys = Object.keys( window.__miru.terminalErrors )
     if ( keys.length === 0 ) {
       console.log( 'clearing modal' )
-      modal.update()
+
+      // TODO check DOM Errors
+      var domError = window.__miru.domErrors[ 0 ]
+      if ( domError ) {
+        // call the pre-prepared modal.update(...) function
+        domError.fn()
+      } else {
+        // no DOM Errors, clear the error modal
+        modal.update()
+      }
     } else {
       console.log( 'old errors still active' )
       var errFn = window.__miru.terminalErrors[ keys[ 0 ] ]
