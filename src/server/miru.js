@@ -742,6 +742,7 @@ module.exports = function ( assets ) {
     // handle disconnect
     socket.on( 'disconnect', function () {
       var clientID = socket.miru.client.id
+      // TODO handle/print disconnection? delete from
       // console.log( 'disconnected: ' +  clientID )
     } )
 
