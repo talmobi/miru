@@ -8,7 +8,12 @@ import getFile from './dom-get-file.js'
 
 import dasu from 'dasu'
 
-window.addEventListener( 'error', function ( domError ) {
+
+// reset and keep track of DOM Errors after a reload
+window.__miru.domErrors = []
+
+function handleDOMError ( domError )
+{
   var message = domError.message
   var filename = domError.filename || domError.source
   var lineno = domError.lineno
@@ -117,12 +122,30 @@ window.addEventListener( 'error', function ( domError ) {
             } )
           }
           fn.error = data
-          window.__miru.terminalErrors[ basename ] = fn
 
-          fn()
+          console.log( '[miru] saving dom error' )
+          // save the DOM Error
+          window.__miru.domErrors.push({
+            basename: basename,
+            fn: fn,
+            data: data
+          })
+
+          var terminalErrorCount = Object.keys( window.__miru.terminalErrors )
+          if ( terminalErrorCount.length === 0 ) {
+            // no terminal errors -> display the DOM Error now
+            // ( terminal errors are more important/relevant
+            //   so we don't want them to show up unless all
+            //   terminal errors have been cleared )
+            fn()
+          }
         }
       } )
     } // attempt
   } ) // getFile
+}
+
+window.addEventListener( 'error', function ( domError ) {
+  handleDOMError( domError )
 } ) // window.addEventListener
 
