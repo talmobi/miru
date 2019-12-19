@@ -37,7 +37,7 @@ export function enablePesticide () {
   var href = PESTICIDE_URL + cachebuster
 
   if ( !el ) {
-    console.log( '[miru] adding pesticide' )
+    console.log( '[miru] adding pesticide ( CSS debugger )' )
     var linkEl = document.createElement( 'link' )
     linkEl.id = PESTICIDE_ID
     linkEl.rel = 'stylesheet'
@@ -58,7 +58,7 @@ export function isEnabled () {
 export function disablePesticide () {
   var el = document.getElementById( PESTICIDE_ID )
   if ( el ) {
-    console.log( '[miru] removing pesticide' )
+    console.log( '[miru] removing pesticide ( CSS debugger )' )
     el.parentNode.removeChild( el )
   }
 }

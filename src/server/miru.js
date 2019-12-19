@@ -1760,7 +1760,7 @@ module.exports = function ( assets ) {
           bool = true // turn on
 
       }
-      console.log( 'sending pesticide: ' + bool )
+      console.log( 'sending pesticide ( CSS debugger ): ' + bool )
       // set pesticide for newly connected clients
       _lastPesticide = bool
       io.emit( 'pesticide', bool )
