@@ -114,6 +114,8 @@ function handleDOMError ( domError )
           )
           window.__miru.debug( '[miru] error.target basename: ' + basename )
 
+          // create a helper function to display this error
+          // ( for use now and later )
           var fn = function () {
             // update the modal with html content
             modal.update( {
