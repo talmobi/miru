@@ -122,6 +122,16 @@ function handleDOMError ( domError )
               title: 'DOM Error (' + filename + ')',
               messages: messages
             } )
+
+            console.log( 'in DOM error function' )
+            console.log( 'miru connection status: ' + window.__miru.connected )
+            console.log( data.message )
+            // send the error message we received from the server as is
+            // so that it can print it to the terminal at the same time
+            // as it is shown in here on the client side error modal UI
+            if ( window.__miru.socket && window.__miru.connected ) {
+              window.__miru.socket.emit( 'print-dom-error-message', data.message )
+            }
           }
           fn.error = data
 

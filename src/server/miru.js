@@ -741,6 +741,14 @@ module.exports = function ( assets ) {
       var clientID = socket.miru.client.id
       // console.log( 'disconnected: ' +  clientID )
     } )
+
+    socket.on( 'print-dom-error-message', function ( message ) {
+      // delay a bit to so recent print messages don't overwrite the
+      // error message in the terminal
+      setTimeout( function () {
+        print( message )
+      }, 250 )
+    } )
   } )
 
   function parseClientID ( userAgent ) {
