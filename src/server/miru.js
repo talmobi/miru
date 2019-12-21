@@ -497,7 +497,8 @@ module.exports = function ( assets ) {
         throw err
       }
 
-
+      // TODO unnecessary? use -t dist/miru-connect.js or
+      // similar instead?
       if ( argv[ 'development' ] ) {
         var w = miteru.watch(
           miruConnectSource,
