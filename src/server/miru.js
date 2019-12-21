@@ -184,6 +184,7 @@ module.exports = function ( assets ) {
       'no-wooster': [],
       'no-miru-connect': [],
       'no-clear': [],
+      'no-info': [ 'noinfo' ],
 
       'development': [ 'D' ],
 
@@ -205,6 +206,7 @@ module.exports = function ( assets ) {
       'no-wooster',
       'no-miru-connect',
       'no-clear', // disable terminal clearing
+      'no-info', // don't show the info modal
       'development'
     ],
     unknown: function ( arg ) {
@@ -214,6 +216,8 @@ module.exports = function ( assets ) {
   } )
 
   var _lastCSSReload = !!argv.reload
+  console.log( 'noinfo: ' + argv[ 'noinfo' ] )
+  var _lastHideInfo = !!argv[ 'noinfo' ]
 
   // console.dir( argv )
   // console.dir( argv.watch )
@@ -550,6 +554,7 @@ module.exports = function ( assets ) {
           verbose: ${ !!verbose },
           enableLogs: ${ !!argv[ 'logs' ] },
           forceReload: ${ _lastCSSReload },
+          hideInfo: ${ _lastHideInfo },
           styleFlicker: ${ !argv[ 'noflicker' ] },
           targets: ${ JSON.stringify( targetWatcher.getWatched() ) }
         }
@@ -693,6 +698,11 @@ module.exports = function ( assets ) {
     // turn on CSSReload if it's set
     if ( _lastCSSReload ) {
       socket.emit( 'cssreload', _lastCSSReload )
+    }
+
+    // disable info if it's set
+    if ( _lastHideInfo ) {
+      socket.emit( 'hide-info', _lastHideInfo )
     }
 
     // if there's an uncleared error, send it to the new client
@@ -1735,6 +1745,28 @@ module.exports = function ( assets ) {
       // set pesticide for newly connected clients
       _lastCSSReload = bool
       io.emit( 'cssreload', bool )
+    },
+    'noinfo': function ( args ) {
+      /*
+      * turn on/off showing info modal
+      */
+      var bool = false
+      var arg = String( args[ 0 ] || '' ).trim()
+      switch ( arg ) {
+        case 'false':
+        case 'off':
+        case '0':
+        case '':
+          bool = false // turn off
+          break
+        default:
+          bool = true // turn on
+
+      }
+      console.log( 'sending noinfo: ' + bool )
+      // set pesticide for newly connected clients
+      _lastHideInfo = bool
+      io.emit( 'hide-info', bool )
     },
     'reload': function () {
       /*

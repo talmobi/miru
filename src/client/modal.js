@@ -7,12 +7,15 @@ import ansiToHtml from './ansi-to-html.js'
 import stripAnsi from './strip-ansi.js'
 
 const MODAL_ID = '__miru-error-modal-id'
+const INFO_MODAL_ID = '__miru-info-modal-id'
 
 let _isVisible = false
 
 const modal = Modal()
+const infoModal = InfoModal()
 
 mount( document.body, modal )
+mount( document.body, infoModal )
 
 export default modal
 
@@ -163,6 +166,81 @@ function Modal () {
     el: _el,
     update
   }
+}
+
+function InfoModal () {
+  const _el = el(
+    // used to display build process help/suggestions
+    '.__miru-error-modal__info',
+    'INFO TEXT',
+    {
+      id: INFO_MODAL_ID,
+      style: {
+        'margin': 0,
+        'padding': '2px',
+
+        'transition': 0,
+        'opacity': 0,
+        'display': 'none',
+
+        'position': 'fixed',
+        'top': 0,
+        'right': 0,
+
+        'width': '',
+        'height': '',
+
+        'background-color': '#442fb6',
+        'color': '#eee',
+
+        'opacity': 0.9725,
+        'white-space': 'pre-wrap',
+        'z-index': 2147483646 - 2,
+
+        'font-family': "'Monaco', 'Space Mono', 'Anonymous Pro', monospace",
+        'font-size': '16px',
+        'line-height': '1.25em'
+      }
+    }
+  )
+
+  let _fadeTimeout = undefined
+  function update ( text, timeout, color ) {
+    window.__miru.debug( '[miru] modal info called' )
+    _el.style.display = 'block'
+
+    if ( color ) {
+      _el.style.color = color
+    }
+
+    clearTimeout( _fadeTimeout )
+    _fadeTimeout = setTimeout( function () {
+      _el.style.display = 'none'
+
+      // reset colors if they were overriden
+      // 'background-color': '#442fb6',
+      // 'color': '#eee',
+      _el.style.color = '#eee'
+    }, timeout || 3000 )
+
+    _el.innerHTML = text
+  }
+
+  return {
+    el: _el,
+    update
+  }
+}
+
+// TODO attach info modal to global context for debugging
+window.__miru.info = infoModal
+
+export function showInfo ( text, time, color ) {
+  if ( window.__miru.hideInfo ) {
+    return console.log( 'ignoring info as it is turned off' )
+  }
+
+  infoModal.update( text, time, color )
 }
 
 export function showModal () {

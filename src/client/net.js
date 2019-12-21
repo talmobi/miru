@@ -2,6 +2,8 @@ import modal from './modal.js'
 import ansiToHtml from './ansi-to-html.js'
 import stripAnsi from './strip-ansi.js'
 
+import { showInfo } from './modal.js'
+
 import * as pesticide from './pesticide.js'
 
 // import io from 'socket.io-client'
@@ -126,6 +128,19 @@ socket.on( 'target-build', function ( evt ) {
     } )
   )
 
+  var infoMessage = ''
+  ;[].forEach.call( styles, function ( el ) {
+    var target = el.href.split( '?' )[ 0 ]
+    var basename = (
+      target
+        .split( '/' )
+        .filter( function ( f ) { return f.trim() } )
+        .pop()
+    )
+
+    infoMessage += '\n' + basename
+  } )
+
   if ( styles.length > 0 ) {
     // matched a link tag ( style )
     console.log( '[miru] found matching style tags -- refreshing styles [ ' + styles.length + ' ]' )
@@ -179,6 +194,10 @@ socket.on( 'target-build', function ( evt ) {
       } )
     }
 
+    // TODO popup info that styles has been refreshed?
+    infoMessage = 'refreshed styles' + infoMessage
+    showInfo( infoMessage, 1000, 'palegreen' )
+
     return
   }
 
@@ -193,6 +212,7 @@ socket.on( 'target-build', function ( evt ) {
   )
 
   if ( script ) {
+    showInfo( 'reloading javascript\n' + basename, 1000, 'skyblue' )
     console.log( '[miru] found matching script tag -- reloading page' )
     clearTimeout( _reloadTimeout )
     _reloadTimeout = setTimeout( function () {
@@ -233,6 +253,10 @@ socket.on( 'pesticide', function ( isEnabled ) {
 
 socket.on( 'cssreload', function ( isEnabled ) {
   window.__miru.forceReload = !!isEnabled
+} )
+
+socket.on( 'hide-info', function ( isEnabled ) {
+  window.__miru.hideInfo = !!isEnabled
 } )
 
 let _lastErrorTimestamp = 0
