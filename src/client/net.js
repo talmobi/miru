@@ -135,7 +135,7 @@ socket.on( 'target-build', function ( evt ) {
       * reload slightly will force the styles to fully reload
       * and reset -- usually you can just simply overwrite
       * the style.href directly but certain things like
-      * animations and transformation may reload and/or
+      * animations and transformations will not reload and/or
       * take effect.
       */
       ;[].forEach.call( styles, function ( el ) {
