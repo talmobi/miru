@@ -228,7 +228,7 @@ socket.on( 'target-build', function ( evt ) {
   )
 
   if ( script ) {
-    showInfo( 'reloading javascript...\n' + basename, 1000, 'yellow' )
+    showInfo( 'reloading...\n', 1000, 'yellow' )
     storage.set( '__miru_showInfoOnPageLoad', [
       'reloaded javascript\n' + basename,
       1000,
