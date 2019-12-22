@@ -2,7 +2,23 @@ import modal from './modal.js'
 import ansiToHtml from './ansi-to-html.js'
 import stripAnsi from './strip-ansi.js'
 
+import storage from './storage.js'
+
 import { showInfo } from './modal.js'
+
+// check for info messaged save to be shown on page load
+let showInfoOnPageLoad = storage.get( '__miru_showInfoOnPageLoad' )
+// clear the message and don't show it again
+storage.set( '__miru_showInfoOnPageLoad', undefined )
+
+// show the info message
+if ( showInfoOnPageLoad ) {
+  showInfo(
+    showInfoOnPageLoad[ 0 ],
+    showInfoOnPageLoad[ 1 ],
+    showInfoOnPageLoad[ 2 ]
+  )
+}
 
 import * as pesticide from './pesticide.js'
 
@@ -212,7 +228,13 @@ socket.on( 'target-build', function ( evt ) {
   )
 
   if ( script ) {
-    showInfo( 'reloading javascript\n' + basename, 1000, 'skyblue' )
+    showInfo( 'reloading javascript...\n' + basename, 1000, 'yellow' )
+    storage.set( '__miru_showInfoOnPageLoad', [
+      'reloaded javascript\n' + basename,
+      1000,
+      'skyblue'
+    ] )
+
     console.log( '[miru] found matching script tag -- reloading page' )
     clearTimeout( _reloadTimeout )
     _reloadTimeout = setTimeout( function () {
