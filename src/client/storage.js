@@ -1,4 +1,4 @@
-/* gobal window */
+/* global window */
 
 var api = {}
 
