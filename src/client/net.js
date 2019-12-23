@@ -215,7 +215,7 @@ socket.on( 'target-build', function ( evt ) {
 
     // TODO popup info that styles has been refreshed?
     infoMessage = 'refreshed styles' + infoMessage
-    showInfo( infoMessage, 1500, 'palegreen' )
+    showInfo( infoMessage, 1500, 'yellowgreen' )
 
     return
   }
