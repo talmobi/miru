@@ -27,7 +27,7 @@
     "postuglify": "npm run pass",
     "uglify:server": "uglifyjs dist/miru.js -cmo dist/miru.js",
     "uglify:client": "uglifyjs dist/miru-connect.js -cmo dist/miru-connect.js",
-    "srccli": "./srccli.js -p test/stage/ -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html -t dist/miru-connect.js",
+    "srccli": "./srccli.js -p test/stage/ --development -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "srcclil": "./srccli.js --logs -p test/stage/ --development -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "watch:stage": "./srccli.js --port 4050 -p test/stage/ -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "watch:stage:js": "watchify --bare --verbose --debug -t [ babelify --presets [ env ] ] test/stage/app.js -o test/stage/bundle.js",
