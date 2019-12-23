@@ -40,7 +40,7 @@ let _connected = false
 
 // only send connecting message if connecting takesl longer than
 // 1500 milliseconds -- in order to reduce console.log bloat
-let _sendConnectingMessageTimeout
+let _sendConnectingMessageTimeout = undefined
 if ( !window.__miru.verbose ) {
   _sendConnectingMessageTimeout = setTimeout( function () {
     console.log( '[miru] Connecting...   ' + getUri() )
