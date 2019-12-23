@@ -1414,7 +1414,7 @@ module.exports = function ( assets ) {
               const now = Date.now()
               const delta = ( now - t.errorTimestamp )
 
-              if ( delta > BUILD_SUCCESS_AFTER_ERROR_DELAY ) {
+              if ( !t.errorTimestamp || delta > BUILD_SUCCESS_AFTER_ERROR_DELAY ) {
                 const msg = ( `
     Clearing errors on any output/target bundle (${ t.target }) file-changes detected without specified regex ( -r flag ) arguments.
     For best use please attach a regex ( -r flag ) argument to your watch command ( -w [ ... ] ) to parse successful builds.
