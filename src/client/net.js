@@ -110,7 +110,7 @@ socket.on( 'target-build', function ( evt ) {
 
     showInfo( '[miru] force reloading...\n', 1500, 'yellow' )
     storage.set( '__miru_showInfoOnPageLoad', [
-      '[miru] force reloaded\n' + basename,
+      '[miru] reloaded (forced)',
       1500,
       'skyblue'
     ] )
