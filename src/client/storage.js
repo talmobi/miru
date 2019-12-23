@@ -13,6 +13,15 @@ api.get = function ( key ) {
   return undefined
 }
 
+api.clear = function ( key ) {
+  if ( window && window.localStorage ) {
+    try {
+      localStorage.removeItem( key )
+    } catch ( err ) { /* ignore */ }
+  }
+  return undefined
+}
+
 api.set = function ( key, data ) {
   if ( window && window.localStorage ) {
     if ( typeof data === 'object' ) {
