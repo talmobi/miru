@@ -224,7 +224,7 @@ socket.on( 'target-build', function ( evt ) {
     }
 
     // TODO popup info that styles has been refreshed?
-    infoMessage = 'refreshed styles' + infoMessage
+    infoMessage = '[miru] refreshed styles' + infoMessage
     showInfo( infoMessage, 1500, 'yellowgreen' )
 
     return
@@ -241,9 +241,9 @@ socket.on( 'target-build', function ( evt ) {
   )
 
   if ( script ) {
-    showInfo( 'reloading...\n', 1500, 'yellow' )
+    showInfo( '[miru] reloading...\n', 1500, 'yellow' )
     storage.set( '__miru_showInfoOnPageLoad', [
-      'reloaded javascript\n' + basename,
+      '[miru] reloaded (javascript)\n' + basename,
       1500,
       'skyblue'
     ] )
