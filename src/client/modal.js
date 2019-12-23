@@ -205,7 +205,10 @@ function InfoModal () {
   )
 
   let _fadeTimeout = undefined
-  function update ( text, timeout, color ) {
+  function update ( text, timeout, color, noreplace ) {
+    // ignore if a message is already active
+    if ( _el.style.display !== 'none' && noreplace ) return
+
     window.__miru.debug( '[miru] modal info called' )
     _el.style.display = 'block'
 
@@ -235,12 +238,12 @@ function InfoModal () {
 // TODO attach info modal to global context for debugging
 window.__miru.info = infoModal
 
-export function showInfo ( text, time, color ) {
+export function showInfo ( text, time, color, noreplace ) {
   if ( window.__miru.hideInfo ) {
     return console.log( 'ignoring info as it is turned off' )
   }
 
-  infoModal.update( text, time, color )
+  infoModal.update( text, time, color, noreplace )
 }
 
 export function showModal () {
