@@ -503,6 +503,8 @@ module.exports = function ( assets ) {
 
       // TODO unnecessary? use -t dist/miru-connect.js or
       // similar instead?
+      // -> not unnecessary -> on by default instead to
+      // reload when miru-connect.js has changed?
       if ( argv[ 'development' ] ) {
         var w = miteru.watch(
           miruConnectSource,
