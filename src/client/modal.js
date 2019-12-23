@@ -169,6 +169,8 @@ function Modal () {
 }
 
 function InfoModal () {
+  let _lastPriority = 0
+
   const _el = el(
     // used to display build process help/suggestions
     '.__miru-error-modal__info',
@@ -205,9 +207,16 @@ function InfoModal () {
   )
 
   let _fadeTimeout = undefined
-  function update ( text, timeout, color, noreplace ) {
-    // ignore if a message is already active
-    if ( _el.style.display !== 'none' && noreplace ) return
+  function update ( text, timeout, color, priority ) {
+    // normalize priority
+    priority = priority || 0
+
+    // ignore if a message with higher priority is being shown
+    if ( _el.style.display !== 'none' ) {
+      if ( priority < _lastPriority ) return
+    }
+
+    _lastPriority = priority
 
     window.__miru.debug( '[miru] modal info called' )
     _el.style.display = 'block'
@@ -238,12 +247,12 @@ function InfoModal () {
 // TODO attach info modal to global context for debugging
 window.__miru.info = infoModal
 
-export function showInfo ( text, time, color, noreplace ) {
+export function showInfo ( text, time, color, priority ) {
   if ( window.__miru.hideInfo ) {
     return console.log( 'ignoring info as it is turned off' )
   }
 
-  infoModal.update( text, time, color, noreplace )
+  infoModal.update( text, time, color, priority )
 }
 
 export function showModal () {

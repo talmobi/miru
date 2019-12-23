@@ -60,7 +60,7 @@ socket.on( 'connect', function () {
   var uri = ( 'http://' + window.location.hostname + ':' + window.__miru.port )
 
   console.log( '[miru] Connected!      ' + uri )
-  showInfo( '[miru] Connected!', 1500, 'yellowgreen', true )
+  showInfo( '[miru] Connected!   ', 1500, 'yellowgreen', -1 )
 
   _connected = true
   window.__miru.connected = true
