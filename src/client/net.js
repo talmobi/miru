@@ -44,9 +44,11 @@ let _sendConnectingMessageTimeout = undefined
 if ( !window.__miru.verbose ) {
   _sendConnectingMessageTimeout = setTimeout( function () {
     console.log( '[miru] Connecting...   ' + getUri() )
+    showInfo( '[miru] Connecting...', 1500, 'yellow', -1 )
   }, 1500 )
 } else {
   window.__miru.debug( '[miru] Connecting...   ' + getUri() )
+  showInfo( '[miru] Connecting...', 1500, 'yellow', -1 )
 }
 
 socket.on( 'connect', function () {
