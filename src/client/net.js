@@ -9,7 +9,7 @@ import { showInfo } from './modal.js'
 // check for info messaged save to be shown on page load
 let showInfoOnPageLoad = storage.get( '__miru_showInfoOnPageLoad' )
 // clear the message and don't show it again
-storage.set( '__miru_showInfoOnPageLoad', undefined )
+storage.set( '__miru_showInfoOnPageLoad', '' )
 
 // show the info message
 if ( showInfoOnPageLoad ) {
