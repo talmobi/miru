@@ -99,6 +99,14 @@ socket.on( 'target-build', function ( evt ) {
 
   if ( window.__miru.forceReload ) {
     console.log( '[miru] forcing reload!' )
+
+    showInfo( '[miru] force reloading...\n', 1500, 'yellow' )
+    storage.set( '__miru_showInfoOnPageLoad', [
+      '[miru] force reloaded\n' + basename,
+      1500,
+      'skyblue'
+    ] )
+
     return triggerReload()
   }
 
