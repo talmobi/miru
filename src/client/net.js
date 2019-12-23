@@ -89,6 +89,14 @@ function triggerReload () {
 
 socket.on( 'reload', function ( evt ) {
   console.log( '[miru] reloading the page now!' )
+
+  showInfo( '[miru] reloading...\n', 1500, 'yellow' )
+  storage.set( '__miru_showInfoOnPageLoad', [
+    '[miru] reloaded (socket event)',
+    1500,
+    'skyblue'
+  ] )
+
   triggerReload()
 } )
 
