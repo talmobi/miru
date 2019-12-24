@@ -69,6 +69,11 @@ socket.on( 'connect', function () {
 } )
 
 socket.on( 'disconnect', function () {
+  var uri = ( 'http://' + window.location.hostname + ':' + window.__miru.port )
+
+  console.log( '[miru] Disconnected.   ' + uri )
+  showInfo( '[miru] Disconnected.   ', 5000, 'tomato', -1 )
+
   _connected = false
   window.__miru.connected = false
 } )
