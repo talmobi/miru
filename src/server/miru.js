@@ -1486,7 +1486,12 @@ module.exports = function ( assets ) {
   * Mainly page reload, error and style refresh events.
   */
   function emit ( action, data ) {
-    console.log( 'emitting: ' + action + ', ' + data )
+    if ( data ) {
+      console.log( `emitting: '${ action }', ${ data }` )
+    } else {
+      console.log( `emitting: '${ action }'` )
+    }
+
     io.emit( action, data )
   }
 
