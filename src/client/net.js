@@ -184,6 +184,11 @@ socket.on( 'target-build', function ( evt ) {
   } )
 
   if ( styles.length > 0 ) {
+    // remember window scroll y position and reset it after styles
+    // have been refreshed ( sometimes y scroll bugs out during css
+    // refreshing )
+    var scrollY = window.scrollY
+
     // matched a link tag ( style )
     console.log( '[miru] found matching style tags -- refreshing styles [ ' + styles.length + ' ]' )
 
@@ -239,6 +244,14 @@ socket.on( 'target-build', function ( evt ) {
     // TODO popup info that styles has been refreshed?
     infoMessage = '[miru] refreshed styles' + infoMessage
     showInfo( infoMessage, 1500, 'yellowgreen' )
+
+    // reset scroll y position
+    setTimeout( function () {
+      if ( window.scrollY != Number( scrollY ) ) {
+        console.log( '[miru] reset scrollY position' )
+        window.scroll( 0, Number( scrollY ) )
+      }
+    }, 100 )
 
     return
   }
