@@ -13,6 +13,7 @@ import storage from './storage.js' // save scroll position
 // otherwise 'Space Mono' or monospace
 var fontLinkEl = document.createElement( 'link' )
 fontLinkEl.rel = 'stylesheet'
+// TODO download and provide from local files instead?
 fontLinkEl.href = 'https://fonts.googleapis.com/css?family=Space+Mono'
 setTimeout( function () {
   document.head.appendChild( fontLinkEl )
