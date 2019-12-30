@@ -78,12 +78,12 @@
     "ncp": "~2.0.0",
     "nib": "~1.1.2",
     "passlint": "0.0.13",
-    "puppeteer": "~1.7.0",
+    "puppeteer": "~2.0.0",
     "rimraf": "~2.6.2",
     "spacestandard": "0.0.6",
     "stylus": "~0.54.5",
     "tape": "~4.8.0",
     "uglify-js": "~3.1.10",
-    "watchify": "~3.11.0"
+    "watchify": "~3.11.1"
   }
 }
