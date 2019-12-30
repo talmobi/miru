@@ -229,7 +229,7 @@ socket.on( 'target-build', function ( evt ) {
         // setTimeout( function () {
         //   document.documentElement.style.background = background
         // }, 33 )
-      }, 0 )
+      }, 8 )
     } else {
       /*
        * With directly re-setting the href the css will reload
@@ -239,11 +239,15 @@ socket.on( 'target-build', function ( evt ) {
        *  2. Certain things will not be reloaded such as
        *     certain animation or animation keyframes.
        */
-      ;[].forEach.call( styles, function ( el ) {
-        el.href = (
-          el.href.split( '?' )[ 0 ] + '?cachebuster=' + Date.now()
-        )
-      } )
+
+      setTimeout( function () {
+        ;[].forEach.call( styles, function ( el ) {
+          el.href = (
+            el.href.split( '?' )[ 0 ] + '?cachebuster=' + Date.now()
+          )
+          delete el.__miru_href
+        } )
+      }, 8 )
     }
 
     // TODO popup info that styles has been refreshed?
