@@ -216,7 +216,7 @@ module.exports = function ( assets ) {
   } )
 
   var _lastCSSReload = !!argv.reload
-  console.log( 'noinfo: ' + argv[ 'noinfo' ] )
+  // console.log( 'noinfo: ' + argv[ 'noinfo' ] )
   var _lastHideInfo = !!argv[ 'noinfo' ]
 
   // console.dir( argv )
