@@ -48,13 +48,13 @@ setTimeout( function () {
   var y = storage.get( '__miru-scroll-y' ) || 0
 
   if ( y ) {
-    console.log( ' == MIRU == y scroll position reset: ' + y )
+    console.log( '[miru] scroll position reset: ' + y )
     window.scroll( 0, Number( y ) )
   }
 
   // remember scroll position before reloading
   window.addEventListener( 'beforeunload', function () {
-    console.log( ' == MIRU == beforeunload' )
+    console.log( '[miru] beforeunload' )
     var y = window.scrollY
     storage.set( '__miru-scroll-y', y )
   } )
