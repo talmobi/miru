@@ -514,7 +514,7 @@ module.exports = function ( assets ) {
               case 'change':
                 writeMiruConnect()
                 console.log( 'emitting reload on miru-connect.js change' )
-                emit( 'reload' )
+                emit( 'reload', 'reloaded\nmiru-connect.js updated' )
                 break;
             }
           }
