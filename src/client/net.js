@@ -297,8 +297,6 @@ socket.on( 'target-build', function ( evt ) {
     'skyblue'
   ] )
 
-    console.log( '[miru] found matching script tag -- reloading page' )
-
   clearTimeout( _reloadTimeout )
   _reloadTimeout = setTimeout( function () {
     window.location.reload()
