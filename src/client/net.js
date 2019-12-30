@@ -284,6 +284,16 @@ socket.on( 'target-build', function ( evt ) {
   }
 
   console.log('[miru] no matches found -- reloading page' )
+
+  showInfo( '[miru] reloading...\n', 1500, 'yellow' )
+  storage.set( '__miru_showInfoOnPageLoad', [
+    '[miru] reloaded (*)\n' + basename,
+    1500,
+    'skyblue'
+  ] )
+
+    console.log( '[miru] found matching script tag -- reloading page' )
+
   clearTimeout( _reloadTimeout )
   _reloadTimeout = setTimeout( function () {
     window.location.reload()
