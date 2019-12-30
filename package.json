@@ -58,13 +58,13 @@
     "find-root": "~1.1.0",
     "kiite": "~0.3.3",
     "miteru": "~0.6.7",
-    "path-shorten": "0.0.3",
+    "path-shorten": "0.0.6",
     "redom": "~3.4.0",
     "string-width": "~2.1.1",
     "subarg": "~1.0.0",
     "tree-kill": "~1.2.0",
     "ua-parser-js": "~0.7.17",
-    "wooster": "~0.3.8"
+    "wooster": "~0.3.9"
   },
   "devDependencies": {
     "babel-core": "~6.26.0",
