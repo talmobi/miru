@@ -205,10 +205,12 @@ miru works best with bundling tools like `browserify`, `webpack`, `rollup` or `s
 eg:
 
   `miru --path public --watch [ 'watchify -v src/app.js -o public/bundle.js' -o public/bundle.js ]`
+
   `miru -p public -w [ 'webpack -w -e src/app.js -o public/bundle.js' -o public/bundle.js ]`
 
-combine watchers ( usually 1 for css and 1 for js )
-  `miru -p public -w [ 'rollup -w src/app.js -o public/bundle.js' -o public/bundle.js ] --watch [ 'stylus -w -r src/app.styl -o public/bundle.css' -o public/bundle.js ]`
+combine watchers ( usually 1 for css and 1 for js ):
+
+  `miru -p public -w [ 'rollup -w src/app.js -o public/bundle.js' -o public/bundle.js ] --watch [ 'stylus -w -r src/app.styl -o public/bundle.css' -o public/bundle.css ]`
 
 
 miru can also work with bundlers without a `--watch` mode relying on the built-in recovery watcher. But this isn't ideal.
