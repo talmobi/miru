@@ -12,6 +12,24 @@ module.exports = function ( assets ) {
   // var npmWhich = require( 'npm-which' )( process.cwd() )
   var findRoot = require( 'find-root' )
 
+  var nz = require( 'nozombie' )()
+
+  /*
+  * Make sure no zombie spawns are left behind.
+  */
+  onExit( function () {
+    try {
+      clearTimeout( fileWatcherInitTimeout )
+      clearTimeout( fileWatcherInitTimeout2 )
+    } catch ( err ) {
+      /* ignore */
+    }
+
+    nz.kill()
+
+    kill( process.pid )
+  } )
+
   // var faviconBase64 = Buffer.from( require( './favicon.json' ).base64, 'base64' )
 
   var pathShorten = require( 'path-shorten' )
@@ -911,6 +929,7 @@ module.exports = function ( assets ) {
 
     // var spawn = childProcess.spawn( cmd, args )
     var spawn = crossSpawn( cmd, args )
+    nz.add( spawn )
 
     var timeout
     var buffer = ''
@@ -1536,28 +1555,6 @@ module.exports = function ( assets ) {
 
     io.emit( action, data )
   }
-
-  /*
-  * Make sure no zombie spawns are left behind.
-  */
-  onExit( function () {
-    kill( process.pid )
-
-    spawns.forEach( function ( spawn ) {
-      try {
-        spawn.kill()
-      } catch ( err ) {
-        /* ignore */
-      }
-    } )
-
-    try {
-      clearTimeout( fileWatcherInitTimeout )
-      clearTimeout( fileWatcherInitTimeout2 )
-    } catch ( err ) {
-      /* ignore */
-    }
-  } )
 
   function onExit ( callback ) {
     let called = false
