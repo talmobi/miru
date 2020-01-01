@@ -16,6 +16,11 @@ module.exports = function ( assets ) {
 
   var pathShorten = require( 'path-shorten' )
 
+  // optionally turn on js/css linting
+  // after target-builds -> this may be usefl to catch
+  // hard-to-notice css errors
+  var passlint = require( 'passlint' )
+
   // var useragent = require( 'useragent' )
   var useragent = {
     parse: require( 'ua-parser-js' )
@@ -165,6 +170,12 @@ module.exports = function ( assets ) {
 
       // watch arbitrary files as build targets -- will trigger a live reload or refresh
       'targets': [ 't', 'targets' ],
+
+      // use passlint to lint css/js targets
+      'csslint': [ 'lintcss' ],
+      'jslint': [ 'lintjs' ],
+
+      'lint': [], // lint both js and css
 
       // always force a reload instead of attempting to refresh css files
       'reload': [ 'force-reload', 'r', 'cssreload' ],
@@ -1002,6 +1013,8 @@ module.exports = function ( assets ) {
                 io.emit( 'target-build', {
                   target: w.target
                 } )
+
+                lintTarget( w.target )
               } )
             } else {
               log( ' -- no regex match --' )
@@ -1112,6 +1125,33 @@ module.exports = function ( assets ) {
           console.log( 'recovery watcher watching ' + _recoveryFiles.length + ' files - type \'recovery\' to see list' )
         }, 300 )
       }
+    }
+  }
+
+  function lintTarget ( filepath ) {
+    filepath = path.resolve( filepath )
+    var input = fs.readFileSync( filepath, 'utf8' )
+
+    // detected error in target file
+    var errline = undefined
+
+    var suffix = path.extname( filepath ).toLowerCase()
+    if ( suffix === '.css' || suffix === 'css' ) {
+      // don't lint unless args set
+      if ( !( argv[ 'csslint' ] || argv[ 'lint' ] ) ) return
+
+      // lint as css file
+      errline = passlint( input, 'css' )
+    } else {
+      // don't lint unless args set
+      if ( !( argv[ 'jslint' ] || argv[ 'lint' ] ) ) return
+
+      // lint as javascript file
+      errline = passlint( input )
+    }
+
+    if ( errline ) {
+      return handleError( filepath, filepath + ':' + errline )
     }
   }
 
@@ -1471,6 +1511,8 @@ module.exports = function ( assets ) {
               io.emit( 'target-build', {
                 target: filepath
               } )
+
+              lintTarget( w.target )
             }
           } else {
             log( ' === target error detected [' + target + '] ignoring === ' )
