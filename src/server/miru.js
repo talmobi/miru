@@ -1465,7 +1465,7 @@ module.exports = function ( assets ) {
             if ( errors.timeout ) {
               const msg = ( `  Ignoring output/target bundle (${ t.target }) because an error was being debounced. ~${ errors.DEBOUNCE } milliseconds ago.` )
 
-              console.log( msg )
+              // console.log( msg )
               io.emit( 'info', msg )
             }
 
@@ -1488,7 +1488,7 @@ module.exports = function ( assets ) {
               } else {
                 const msg = ( `  Ignoring output/target bundle (${ t.target }) because an error was detected ${ BUILD_SUCCESS_AFTER_ERROR_DELAY } milliseconds ago.` )
 
-                console.log( msg )
+                // console.log( msg )
                 io.emit( 'info', msg )
 
                 // send to connected clients
