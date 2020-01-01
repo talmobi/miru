@@ -8,6 +8,7 @@
   },
   "files": [
     "cli.js",
+    "assets.js",
     "dist/miru.js",
     "dist/miru-connect.js",
     "dist/index.html",
