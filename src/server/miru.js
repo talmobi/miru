@@ -20,16 +20,16 @@ var nz = require( 'nozombie' )()
 /*
 * Make sure no zombie spawns are left behind.
 */
-onExit( function () {
-  try {
-    clearTimeout( fileWatcherInitTimeout )
-    clearTimeout( fileWatcherInitTimeout2 )
-  } catch ( err ) {
-    /* ignore */
-  }
-
+function kill () {
   nz.kill()
+}
 
+process.on( 'SIGTERM', kill )
+process.on( 'SIGINT', kill )
+
+process.on( 'exit', function () {
+  clearTimeout( fileWatcherInitTimeout )
+  nz.kill()
   treeKill( process.pid )
 } )
 
@@ -1558,19 +1558,6 @@ function emit ( action, data ) {
   }
 
   io.emit( action, data )
-}
-
-function onExit ( callback ) {
-  let called = false
-  function once () {
-    if ( !called ) {
-      called = true
-      callback && callback()
-    }
-  }
-
-  process.on( 'SIGINT', once )
-  process.on( 'exit', once )
 }
 
 function printSuccess ( type, filepath ) {
