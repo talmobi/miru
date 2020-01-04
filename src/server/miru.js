@@ -2,11 +2,9 @@ var fs = require( 'fs' )
 var path = require( 'path' )
 
 var childProcess = require( 'child_process' )
-var spawns = [] // keep track of all spawns
 
 var crossSpawn = require( 'cross-spawn-with-kill' )
 var treeKill = require( 'tree-kill' )
-// var npmWhich = require( 'npm-which' )( process.cwd() )
 var findRoot = require( 'find-root' )
 
 // load static module assets ( favicon, usage.txt etc )
@@ -20,8 +18,8 @@ var nz = require( 'nozombie' )()
 var fileWatcherInitTimeout
 
 /*
-* Make sure no zombie spawns are left behind.
-*/
+ * Make sure no zombie spawns are left behind.
+ */
 function kill () {
   clearTimeout( fileWatcherInitTimeout )
   nz.kill()
@@ -37,9 +35,10 @@ process.on( 'exit', function () {
 
 var pathShorten = require( 'path-shorten' )
 
-// optionally turn on js/css linting
-// after target-builds -> this may be usefl to catch
-// hard-to-notice css errors
+/* optionally turn on js/css linting
+ * after target-builds -> this may be usefl to catch
+ * hard-to-notice css errors
+ */
 var passlint = require( 'passlint' )
 
 // var useragent = require( 'useragent' )
@@ -47,40 +46,39 @@ var useragent = {
   parse: require( 'ua-parser-js' )
 }
 
-// Only applies when no -r regex flag is used during the -w []
-// command flag.
-//
-// ms delay after error on target/output filechange to
-// consider as a succesfful build and clear errors for that
-// target/output
-//
-// Reasoning: Some build watchers rewrite the target/output bundle
-// to include or output the error that it detected during its build
-// process and therefore a filechange detected in the target/output
-// bundle close after does not reflect a successful build without errors.
-// Handling this exception like this is most likely a better default user
-// experience, however, it is recommended to always use a -r regex flag instead.
+/* Only applies when no -r regex flag is used during the -w []
+ * command flag.
+ *
+ * ms delay after error on target/output filechange to
+ * consider as a succesfful build and clear errors for that
+ * target/output
+ *
+ * Reasoning: Some build watchers rewrite the target/output bundle
+ * to include or output the error that it detected during its build
+ * process and therefore a filechange detected in the target/output
+ * bundle close after does not reflect a successful build without errors.
+ * Handling this exception like this is most likely a better default user
+ * experience, however, it is recommended to always use a -r regex flag instead.
+ */
 var BUILD_SUCCESS_AFTER_ERROR_DELAY = 200 // milliseconds
 
-/*
-* miteru is a simplified basic file watcher with an API similar to chokidar.
-*
-* miteru uses a hot and cold file polling system optimized to fit
-* development workflow for super fast and consistent file watch events.
-*
-* Intended for fast and consistent file events.
-*/
+/* miteru is a simplified basic file watcher with an API similar to chokidar.
+ *
+ * miteru uses a hot and cold file polling system optimized to fit
+ * development workflow for super fast and consistent file watch events.
+ *
+ * Intended for fast and consistent file events.
+ */
 var miteru = require( 'miteru' )
 // miteru = require( '../../../miteru/src/index.js' )
 
-/*
-*  wooster tries to find the source file of the error,
-*  get its context and prettify the information into
-*  a consice, easy to understand text output.
-*
-*  If it fails the output text is left unchanged from the
-*  original input text.
-*/
+/* wooster tries to find the source file of the error,
+ * get its context and prettify the information into
+ * a consice, easy to understand text output.
+ *
+ * If it fails the output text is left unchanged from the
+ * original input text.
+ */
 var wooster = require( 'wooster' )
 // wooster = require( '../../../wooster/src/version2.js' )
 
@@ -253,11 +251,12 @@ var _lastHideInfo = !!argv[ 'noinfo' ]
 
 var verbose = !!argv[ 'verbose' ]
 
-// target files -- files that emit reload events to clients ( or css refreshes )
-// when they are changed.
-// some targets have --watch processes attached and can be used in --regex
-// mode where an event is emitted only when the regex matches the stdout
-// of the watcher process
+/* target files -- files that emit reload events to clients ( or css refreshes )
+ * when they are changed.
+ * some targets have --watch processes attached and can be used in --regex
+ * mode where an event is emitted only when the regex matches the stdout
+ * of the watcher process
+ */
 var targets = {}
 
 // watch arbitrary files as build targets without an associated watch process
@@ -297,13 +296,12 @@ function log () {
 
 log( 'verbose: ' + verbose )
 
-/*
-* set publicPath
-*
-* publicPath is the destination where miru-connect.js is saved in and
-* it's also the static directory miru will serve and look for
-* an index.html.
-*/
+/* set publicPath
+ *
+ * publicPath is the destination where miru-connect.js is saved in and
+ * it's also the static directory miru will serve and look for
+ * an index.html.
+ */
 var publicPath = ( argv[ 'public-path' ] )
 if ( !publicPath ) {
   publicPath = process.cwd()
@@ -322,12 +320,6 @@ var errors = {
   history: []
 }
 
-// debugging
-// setInterval( function () {
-//   var keys = Object.keys( targets )
-//   console.log( 'TARGETS LENGTH: ' + keys.length )
-// }, 1000 )
-
 // client hosts
 var clients = {}
 
@@ -335,8 +327,8 @@ var PORT = ( argv[ 'port' ] || 4040 )
 var ADDRESS = ( argv[ 'address' ] || '0.0.0.0' )
 
 /*
-* Parse args
-*/
+ * Parse args
+ */
 if ( argv[ 'version' ] ) {
   console.log( 'miru version: ' + ( packageJson[ 'version' ] ) )
   process.exit( 0 ) // exit success
@@ -374,10 +366,10 @@ if ( argv[ 'file' ] ) {
 }
 
 /*
-* Execute arbitrary commands on certain events
-*
-* The commands/processes are expected to exit quickly.
-*/
+ * Execute arbitrary commands on certain events
+ *
+ * The commands/processes are expected to exit quickly.
+ */
 if ( argv[ 'execute' ] ) {
   var execs = argv[ 'execute' ]
 
@@ -397,11 +389,11 @@ log( 'executions: ' )
 log( executions )
 
 /*
-* Watch a daemon process ( bundler ) and listen for its
-* stdio and stderr for interesting stuff ( mainly errors ).
-*
-* The commands/processes are expected to keep running indefinitely/forever.
-*/
+ * Watch a daemon process ( bundler ) and listen for its
+ * stdio and stderr for interesting stuff ( mainly errors ).
+ *
+ * The commands/processes are expected to keep running indefinitely/forever.
+ */
 var watchers = []
 if ( argv[ 'watch' ] ) {
   watchers = argv[ 'watch' ]
@@ -500,9 +492,9 @@ log( 'watchers: ' )
 log( watchers )
 
 /*
-* Save miru-connect.js inside public-path for the user to then
-* link to from his/her html page/pages
-*/
+ * Save miru-connect.js inside public-path for the user to then
+ * link to from his/her html page/pages
+ */
 var miruConnectSource = assets.miruConnectSource
 var miruConnectDestination = path.join( publicPath, 'miru-connect.js' )
 
@@ -595,8 +587,8 @@ function injectMiruConnect () {
 }
 
 /*
-* setup and start express server
-*/
+ * setup and start express server
+ */
 log( '[express]: cors' )
 app.options( cors() ) // enable pre-flight
 app.use( cors() ) // allow cors
@@ -652,14 +644,15 @@ app.post( '/__miru/woosterify', bodyParser.json( { limit: '50mb' } ), function (
     } )
   }
 
-  // only send/show DOM errors when there are no terminal errors
-  // change: always parse and send DOM Errors, let client
-  // side code determine when/if to show.
-  // intent: save DOM Errors client side and show them
-  // when terminal errors have been cleared.
-  // e.g. not all CSS targets reload the page ( only refresh CSS )
-  // and therefore we want to show the DOM Errors that have been
-  // saved.
+  /* only send/show DOM errors when there are no terminal errors
+   * change: always parse and send DOM Errors, let client
+   * side code determine when/if to show.
+   * intent: save DOM Errors client side and show them
+   * when terminal errors have been cleared.
+   * e.g. not all CSS targets reload the page ( only refresh CSS )
+   * and therefore we want to show the DOM Errors that have been
+   * saved.
+   */
 
   // only print to console when no terminal-errors active
   if ( !hasTerminalErrors() ) {
@@ -694,8 +687,8 @@ app.get( '/', function ( req, res, next ) {
 } )
 
 /*
-* setup socket.io
-*/
+ * setup socket.io
+ */
 var acks = {}
 io.on( 'connect', function ( socket ) {
   var clientID = parseClientID( socket.request.headers[ 'user-agent' ])
@@ -870,8 +863,8 @@ function printNetworkIpAddresses () {
 }
 
 /*
-* Run watchers
-*/
+ * Run watchers
+ */
 watchers.forEach( function ( w ) {
   watchCommandAndTarget( w )
 } )
@@ -1190,15 +1183,15 @@ function handleError ( target, text, ranking ) {
     error.text = text
   } else {
     /*
-    *  Attempt to parse the error log with wooster.
-    *
-    *  wooster tries to find the source file of the error,
-    *  get its context and prettify the information into
-    *  a consice, easy to understand text output.
-    *
-    *  If it fails the output text is left unchanged from the
-    *  original input text.
-    */
+     * Attempt to parse the error log with wooster.
+     *
+     * wooster tries to find the source file of the error,
+     * get its context and prettify the information into
+     * a consice, easy to understand text output.
+     *
+     * If it fails the output text is left unchanged from the
+     * original input text.
+     */
     var wp = wooster.parse( text, { intro: ' ' } )
     if ( wp ) {
       error.text = wp.text
@@ -1265,20 +1258,21 @@ function handleError ( target, text, ranking ) {
       )
     ) {
       if ( error.ranking > prevError.ranking ) {
-        // duplicate error has better ranking, this means
-        // that the duplicate error probably has a better
-        // error message/description, update the text
-        // with the better alternative
+        /* duplicate error has better ranking, this means
+         * that the duplicate error probably has a better
+         * error message/description, update the text
+         * with the better alternative
+         */
         prevError.text = error.text
         log( 'duplicate error outranked' )
       }
 
       /*
-      * Ignore the same error if within errors.THROTTLE time.
-      * This can sometimes happen e.g. during watchify destination
-      * write and watchify stderr output the same error or
-      * multiple file change events or quick bundles or delayed stderr output.
-      */
+       * Ignore the same error if within errors.THROTTLE time.
+       * This can sometimes happen e.g. during watchify destination
+       * write and watchify stderr output the same error or
+       * multiple file change events or quick bundles or delayed stderr output.
+       */
       log( clc.blackBright( 'ignoring duplicate error' ) )
       shouldSkip = true
     }
@@ -1296,8 +1290,8 @@ function handleError ( target, text, ranking ) {
     clearTimeout( errors.timeout ) // error debounce
 
     /*
-      * create the error object before debouncing
-      **/
+     * create the error object before debouncing
+     */
 
     // reset target watcher error
     log( 'handleError target: ' + target )
@@ -1373,16 +1367,16 @@ function handleError ( target, text, ranking ) {
 }
 
 /*
-* function getIterationErrorBox ()
-*
-* A visual indicator intended for easy distinguishing between calls.
-*
-* Makes it easy to distinguish changes/builds that produce the same error.
-*
-* In other words, avoids the problem when you are trying to fix an error
-* by making changes/rebuilds but the error output is the same so you are not sure
-* if your change/rebuild took place or not.
-*/
+ * function getIterationErrorBox ()
+ *
+ * A visual indicator intended for easy distinguishing between calls.
+ *
+ * Makes it easy to distinguish changes/builds that produce the same error.
+ *
+ * In other words, avoids the problem when you are trying to fix an error
+ * by making changes/rebuilds but the error output is the same so you are not sure
+ * if your change/rebuild took place or not.
+ */
 var progressBox = require( 'cli-progress-box' )
 var _iterationBox = {
   colors: [ 'bgMagentaBright', 'bgBlueBright' ],
@@ -1395,12 +1389,12 @@ var _iterationBox = {
 var getIterationErrorBox = progressBox( _iterationBox )
 
 /*
-* Handle file change events.
-*
-* Mainly used to handle file change events on destination bundles that
-* the --watch'ed processes produce
-* ( like watchify, webpack --watch or rollup --watch )
-*/
+ * Handle file change events.
+ *
+ * Mainly used to handle file change events on destination bundles that
+ * the --watch'ed processes produce
+ * ( like watchify, webpack --watch or rollup --watch )
+ */
 function handleTargetWatchEvent ( evt, filepath ) {
   log( 'evt: ' + evt + ', filepath: ' + filepath )
 
@@ -1408,29 +1402,28 @@ function handleTargetWatchEvent ( evt, filepath ) {
     // handle add/change
     case 'add':
     case 'change':
-      /*
-        * We can not be sure that a change on the target
-        * destination file indicates a successful build.
-        * This is because sometimes bundlers like webpack
-        * or watchify embeds an error to the target bundle
-        * that executes in the browser.
-        * The generate bundle with the embedded error
-        * is hard to parse since it varies a lot not only
-        * across watchers but also the plugins and
-        * configurations used.
-        *
-        * in 0.11.x some of these embedded errors were detected for webpack
-        * and browserify -- but instead for 0.12.x we are removing those
-        * in favour of a user defined RegExp to test against the watchers
-        * std output to determine when a successful build has taken place
-        * and trigger reload events.
-        *
-        * We will rely on the regex inspecting the watchers
-        * stdout stream to determine a successful build.
-        *
-        * If a regex is not defined then a change in the
-        * target bundle is assumed as a successful build.
-      */
+      /* We can not be sure that a change on the target
+       * destination file indicates a successful build.
+       * This is because sometimes bundlers like webpack
+       * or watchify embeds an error to the target bundle
+       * that executes in the browser.
+       * The generate bundle with the embedded error
+       * is hard to parse since it varies a lot not only
+       * across watchers but also the plugins and
+       * configurations used.
+       *
+       * in 0.11.x some of these embedded errors were detected for webpack
+       * and browserify -- but instead for 0.12.x we are removing those
+       * in favour of a user defined RegExp to test against the watchers
+       * std output to determine when a successful build has taken place
+       * and trigger reload events.
+       *
+       * We will rely on the regex inspecting the watchers
+       * stdout stream to determine a successful build.
+       *
+       * If a regex is not defined then a change in the
+       * target bundle is assumed as a successful build.
+       */
       fs.readFile( filepath, 'utf8', function ( err, text ) {
         var hasErrors = false
 
@@ -1446,19 +1439,20 @@ function handleTargetWatchEvent ( evt, filepath ) {
         var w = t && t.w // not all target files have a watcher process attached
 
         if ( w && w.regex ) {
-          //  let regex parsing of stdout to handle clearing
-          //  more info:
-          //  a regex flag ( eg: --watch [ <command> -o <targetFile> -r foo.*bar ] )
-          //  has been set for this target file -- default behavour will be overriden
-          //  and no longer will a change in the target file trigger a successful build
-          //  and reload/refresh by itself -- a success trigger will only trigger if the
-          //  regex matches any standard output (stdout) of the watcher process.
-          //  eg:
-          //    regex :   -r compiled
-          //    stdout:   "bla blah compiled in 80ms" ( like stylus )
-          //   or "{main} [built]"
-          //    regex :   -r main.*built
-          //    stdout:   "{main} [built]" ( like webpack )
+          /* let regex parsing of stdout to handle clearing
+           * more info:
+           * a regex flag ( eg: --watch [ <command> -o <targetFile> -r foo.*bar ] )
+           * has been set for this target file -- default behavour will be overriden
+           * and no longer will a change in the target file trigger a successful build
+           * and reload/refresh by itself -- a success trigger will only trigger if the
+           * regex matches any standard output (stdout) of the watcher process.
+           * eg:
+           *   regex :   -r compiled
+           *   stdout:   "bla blah compiled in 80ms" ( like stylus )
+           *  or "{main} [built]"
+           *   regex :   -r main.*built
+           *   stdout:   "{main} [built]" ( like webpack )
+           */
         } else {
           // by default without regex treat a change
           // in target file as a success and clear errors
@@ -1541,11 +1535,11 @@ function handleTargetWatchEvent ( evt, filepath ) {
 } // handleWatchEvent
 
 /*
-* Broadcast events to the listening devices that are
-* connecting with the help of miru-connect.js
-*
-* Mainly page reload, error and style refresh events.
-*/
+ * Broadcast events to the listening devices that are
+ * connecting with the help of miru-connect.js
+ *
+ * Mainly page reload, error and style refresh events.
+ */
 function emit ( action, data ) {
   if ( data ) {
     console.log( `emitting: '${ action }', ${ data }` )
@@ -1728,8 +1722,8 @@ function onceFileStable ( filepath, callback ) {
 }
 
 /*
-* listen for standard input
-*/
+ * listen for standard input
+ */
 
 var commands = {
   'devices': function ( args ) {
@@ -1755,12 +1749,9 @@ var commands = {
   },
   'cssreload': function ( args ) {
     /*
-    * turn on force reload when css changes
-    */
-    /*
-    * Enable or Disable reload when css changes
-    * to all connected clients
-    */
+     * Enable or Disable reload when css changes
+     * to all connected clients
+     */
     var bool = false
     var arg = String( args[ 0 ] || '' ).trim()
     switch ( arg ) {
@@ -1781,8 +1772,8 @@ var commands = {
   },
   'noinfo': function ( args ) {
     /*
-    * turn on/off showing info modal
-    */
+     * turn on/off showing info modal
+     */
     var bool = false
     var arg = String( args[ 0 ] || '' ).trim()
     switch ( arg ) {
@@ -1803,8 +1794,8 @@ var commands = {
   },
   'reload': function () {
     /*
-    * force reload on all clients
-    */
+     * force reload on all clients
+     */
     io.emit( 'reload' )
   },
   'recovery': function () {
@@ -1822,9 +1813,9 @@ var commands = {
   },
   'pesticide': function ( args ) {
     /*
-    * Enable or Disable pesticide remotely
-    * to all connected clients
-    */
+     * Enable or Disable pesticide remotely
+     * to all connected clients
+     */
     var bool = false
     var arg = String( args[ 0 ] || '' ).trim()
     switch ( arg ) {
