@@ -1154,7 +1154,9 @@ function lintTarget ( filepath ) {
 
     // lint as css file
     errline = passlint( input, 'css' )
-  } else {
+  }
+
+  if ( suffix === '.js' || suffix === 'js' ) {
     // don't lint unless args set
     if ( !( argv[ 'jslint' ] || argv[ 'lint' ] ) ) return
 
