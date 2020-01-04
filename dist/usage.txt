@@ -59,7 +59,15 @@ Options:
                                       eg:
                                           miru -f package.json -e 'echo $evt: $file'
 
+--csslint                             Lint ( and show errors ) target css files after changes.
+--jslint                              Lint ( and show errors ) target js files after changes.
+--lint                                Lint both css and js target file errors
+                                      ( same as setting both --csslint, --jslint )
+
 -v, --verbose                         Enable verbose mode
+
+-P, --port                            Set port to run on (default port 4040)
+-A, --address                         Set address to run on (default 0.0.0.0)
 
 -V, --version                         Display miru version
 -h, --help                            Display help information (this text)

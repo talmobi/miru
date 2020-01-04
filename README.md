@@ -3,16 +3,15 @@
 [![npm](https://img.shields.io/npm/l/miru.svg?maxAge=3600)](https://www.npmjs.com/package/miru)
 
 #  見る miru
-development CLI utility tool and web server for module bundlers (eg: webpack, browserify ) and/or static files
+development CLI utility tool and web server for bundlers ( ex: webpack, browserify ) and/or static files
 
 ## Easy to use
 ```bash
 npm install -g miru
-# miru -w [ <watch command>, <target bundle filepath> ]
-miru --path public -w [ webpack -w src/app.js -o public/bundle.js, public/bundle.js ]
-```
 
-![](https://i.imgur.com/HmLQzqV.gif)
+# miru -w [ <watch command> -o <target bundle filepath> [-r /stdout:regex/ ] ]
+miru --path public -w [ "webpack -w src/app.js -o public/bundle.js" -o public/bundle.js ]
+```
 
 > TIP! make an npm script of each step!
 
@@ -28,7 +27,13 @@ miru --path public -w [ webpack -w src/app.js -o public/bundle.js, public/bundle
 }
 ```
 
-add `miru-connect.js` script to your index-dev.html (index.html) ( created by miru at start inside the `--path` directory or current working directory by default )
+![](https://i.imgur.com/HmLQzqV.gif)
+
+just add `miru-connect.js` script to your index.html
+
+`miru-connect.js` is created by miru at start inside the `--path` directory ( current directory by default )
+
+###### Sample index.html
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -38,6 +43,8 @@ add `miru-connect.js` script to your index-dev.html (index.html) ( created by mi
   <link href="bundle.css" rel="stylesheet">
 </head>
 <body>
+  <!-- miru-connect.js connects to http:// + window.location.hostname + :4040 -->
+  <!-- you can change the port by setting the -P, --port argv -->
   <script src="miru-connect.js"></script>
   <script src="bundle.js"></script>
 </body>
@@ -83,7 +90,7 @@ miru creates a `miru-connect.js` file on startup in the `--path` directory (curr
 
 miru serves the `-p, --path` directory but you'll probably want to run your own http server to serve your content and simply have the miru dev server (running on port 4040) available for the `miru-connect.js` script to connect to.
 
-## Sample index.html
+#### Sample index.html
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -167,7 +174,15 @@ $ miru --help
                                         eg:
                                             miru -f package.json -e 'echo $evt: $file'
 
+  --csslint                             Lint ( and show errors ) target css files after changes.
+  --jslint                              Lint ( and show errors ) target js files after changes.
+  --lint                                Lint both css and js target file errors
+                                        ( same as setting both --csslint, --jslint )
+
   -v, --verbose                         Enable verbose mode
+
+  -P, --port                            Set port to run on (default port 4040)
+  -A, --address                         Set address to run on (default 0.0.0.0)
 
   -V, --version                         Display miru version
   -h, --help                            Display help information (this text)
