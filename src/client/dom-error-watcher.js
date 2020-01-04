@@ -129,7 +129,8 @@ function handleDOMError ( domError )
             // send the error message we received from the server as is
             // so that it can print it to the terminal at the same time
             // as it is shown in here on the client side error modal UI
-            if ( window.__miru.socket && window.__miru.connected ) {
+            if ( !window.__miru._reloading && window.__miru.socket && window.__miru.connected ) {
+              window.__miru.debug( '[miru] sending DOM Error' )
               window.__miru.socket.emit( 'print-dom-error-message', data.message )
             }
           }

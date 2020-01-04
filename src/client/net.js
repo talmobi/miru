@@ -87,6 +87,7 @@ socket.on( 'info', function ( text ) {
 let _reloadTimeout
 function triggerReload () {
   clearTimeout( _reloadTimeout )
+  window.__miru._reloading = true
   _reloadTimeout = setTimeout( function () {
     window.location.reload()
   }, 16 )
@@ -284,10 +285,7 @@ socket.on( 'target-build', function ( evt ) {
     ] )
 
     console.log( '[miru] found matching script tag -- reloading page' )
-    clearTimeout( _reloadTimeout )
-    _reloadTimeout = setTimeout( function () {
-      window.location.reload()
-    }, 16 )
+    triggerReload()
 
     return
   }
@@ -301,10 +299,7 @@ socket.on( 'target-build', function ( evt ) {
     'skyblue'
   ] )
 
-  clearTimeout( _reloadTimeout )
-  _reloadTimeout = setTimeout( function () {
-    window.location.reload()
-  }, 16 )
+  triggerReload()
 } )
 
 socket.on( 'terminal-error', function ( error ) {

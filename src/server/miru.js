@@ -780,9 +780,11 @@ io.on( 'connect', function ( socket ) {
   } )
 
   socket.on( 'print-dom-error-message', function ( message ) {
+    log( 'evt: print-dom-error-message' )
     // delay a bit to so recent print messages don't overwrite the
     // error message in the terminal
     setTimeout( function () {
+      log( 'printing DOM Error (evt: print-dom-error-message)' )
       print( message )
     }, 250 )
   } )
