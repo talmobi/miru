@@ -17,6 +17,8 @@ var assets = require(
 // child_process spawn hunter/killer
 var nz = require( 'nozombie' )()
 
+var fileWatcherInitTimeout
+
 /*
 * Make sure no zombie spawns are left behind.
 */
@@ -85,25 +87,19 @@ var wooster = require( 'wooster' )
 // watch arbitrary files and execute commands when they change
 var executions = []
 
-var fileWatcherInitTimeout
-var fileWatcherInitTimeout2
-var fileWatcherInitWatchedCount = 0
 var fileWatcher = miteru.watch( function ( evt, filepath ) {
-  clearTimeout( fileWatcherInitTimeout )
-  clearTimeout( fileWatcherInitTimeout2 )
-
-  fileWatcherInitTimeout = setTimeout( function () {
+  if ( evt === 'add' || evt === 'init' ) {
     var len = fileWatcher.getWatched().length
-    fileWatcherInitWatchedCount = len
-    console.log( 'number of --files watched: ' + len )
-  }, 1000 )
+    clearTimeout( fileWatcherInitTimeout )
+    fileWatcherInitTimeout = setTimeout( function () {
+      var newlen = fileWatcher.getWatched().length
 
-  fileWatcherInitTimeout2 = setTimeout( function () {
-    var len = fileWatcher.getWatched().length
-    if ( fileWatcherInitWatchedCount !== len ) {
-      console.log( 'number of --files watched: ' + len )
-    }
-  }, 6000 )
+      // file count is stable, print length
+      if ( len === newlen ) {
+        console.log( 'number of --files watched: ' + len )
+      }
+    }, 200 )
+  }
 
   if ( evt === 'add' || evt === 'change' ) {
     var file = path.relative( process.cwd(), filepath )
