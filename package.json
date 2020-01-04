@@ -36,9 +36,9 @@
     "lint": "spacestandard src/**/*.js",
     "pass": "passlint dist/miru.js dist/miru-connect.js",
     "pretest": "npm run pass",
-    "test:cli": "cd test && tape 'test-cli-*' | faucet",
-    "test:client": "cd test && tape 'test-usage-case-*' | faucet",
-    "test": "npm run test:cli && npm run test:client"
+    "test:cli": "cd test && tape 'test-cli-*'",
+    "test:client": "cd test && tape 'test-usage-case-*'",
+    "test": "npm run test:cli | faucet && npm run test:client | faucet"
   },
   "repository": {
     "type": "git",
