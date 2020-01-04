@@ -120,7 +120,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(stdout regex matched) broadcasting: test/stage/bundle.js' ) >= 0,
+        stripAnsi( log ).indexOf( '(stdout regex matched) \nbroadcasting: test/stage/bundle.js' ) >= 0,
         'app.js target-build watch OK!'
       )
 
@@ -130,7 +130,7 @@ test( 'test -w,--watch with syntax error reporting', function ( t ) {
       )
 
       t.ok(
-        stripAnsi( log ).indexOf( '(file change detected) broadcasting: test/stage/bundle.css' ) >= 0,
+        stripAnsi( log ).indexOf( '(file change detected) \nbroadcasting: test/stage/bundle.css' ) >= 0,
         'app.styl target-build watch OK!'
       )
 
