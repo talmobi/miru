@@ -110,7 +110,7 @@ var fileWatcher = miteru.watch( function ( evt, filepath ) {
 
     // handle executions
     executions.forEach( function ( command ) {
-      // console.log( 'command: ' + command )
+      console.log( 'command: ' + command )
 
       // pass in watch event info to the command string if applicable
       command = (
