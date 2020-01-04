@@ -23,14 +23,14 @@ var fileWatcherInitTimeout
 * Make sure no zombie spawns are left behind.
 */
 function kill () {
+  clearTimeout( fileWatcherInitTimeout )
   nz.kill()
+  process.exit()
 }
 
 process.on( 'SIGTERM', kill )
 process.on( 'SIGINT', kill )
-
 process.on( 'exit', function () {
-  clearTimeout( fileWatcherInitTimeout )
   nz.kill()
   treeKill( process.pid )
 } )
