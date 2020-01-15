@@ -24,6 +24,7 @@
     "build:client": "browserify --bare -t [ babelify --presets [ env ] ] src/client/main.js -o dist/miru-connect.js 2>&1 | wooster",
     "deps:client": "browserify --list --bare -t [ babelify --presets [ env ] ] src/client/main.js -o dist/miru-connect.js",
     "watch:client": "watchify -v -t [ babelify --presets [ env ] ] src/client/main.js -o dist/miru-connect.js 2>&1 | wooster",
+    "watch:miru-connect": "watchify -v -t [ babelify --presets [ env ] ] src/client/main.js -o dist/miru-connect.js 2>&1 | wooster",
     "uglify": "npm run uglify:client && npm run uglify:server",
     "postuglify": "npm run pass",
     "uglify:server": "uglifyjs dist/miru.js -cmo dist/miru.js",
