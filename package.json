@@ -48,7 +48,7 @@
   "author": "talmobi <talmo.christian@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "ansi-to-html": "~0.6.3",
+    "ansi-to-html": "~0.6.14",
     "body-parser": "~1.18.2",
     "cli-color": "~1.2.0",
     "cli-progress-box": "0.0.2",
@@ -61,7 +61,7 @@
     "kiite": "~0.4.0",
     "miteru": "~0.6.7",
     "nozombie": "~0.5.1",
-    "passlint": "~0.3.2",
+    "passlint": "~0.4.0",
     "path-shorten": "0.0.6",
     "redom": "~3.4.0",
     "string-width": "~2.1.1",
@@ -71,22 +71,22 @@
     "wooster": "~0.3.9"
   },
   "devDependencies": {
-    "babel-core": "~6.26.0",
-    "babel-preset-env": "~1.6.1",
-    "babelify": "~7.3.0",
-    "brfs": "~1.4.3",
-    "browserify": "~14.5.0",
+    "@babel/core": "~7.11.1",
+    "@babel/preset-env": "~7.11.0",
+    "@talmobi/faucet": "0.0.3",
+    "@talmobi/watchify": "~3.12.0",
+    "babelify": "~10.0.0",
+    "brfs": "~2.0.2",
+    "browserify": "~16.5.2",
     "cpy": "~7.0.1",
-    "faucet": "0.0.1",
     "mkdirp": "~0.5.1",
     "ncp": "~2.0.0",
     "nib": "~1.1.2",
-    "puppeteer": "~2.0.0",
-    "rimraf": "~2.6.2",
-    "spacestandard": "0.0.6",
-    "stylus": "~0.54.5",
-    "tape": "~4.8.0",
-    "uglify-js": "~3.1.10",
-    "watchify": "~3.11.1"
+    "puppeteer": "~5.2.1",
+    "rimraf": "~3.0.2",
+    "spacestandard": "~0.3.0",
+    "stylus": "~0.54.8",
+    "tape": "~5.0.1",
+    "uglify-js": "~3.10.1"
   }
 }
