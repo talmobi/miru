@@ -17,7 +17,7 @@
     "dist/usage.txt"
   ],
   "scripts": {
-    "prepublish": "npm run build && npm run pass",
+    "prepublishOnly": "npm run build && npm run pass",
     "build": "npm run build:source && npm run uglify",
     "build:source": "npm run build:miru-connect && npm run build:server",
     "build:server": "browserify --node --no-bundle-external --standalone miru -t [ babelify --presets [ @babel/preset-env ] ] src/server/miru.js -o dist/miru.js",
