@@ -19,16 +19,15 @@
   "scripts": {
     "prepublish": "npm run build && npm run pass",
     "build": "npm run build:source && npm run uglify",
-    "build:source": "npm run build:client && npm run build:server",
+    "build:source": "npm run build:miru-connect && npm run build:server",
     "build:server": "browserify --node --no-bundle-external --standalone miru -t [ babelify --presets [ @babel/preset-env ] ] src/server/miru.js -o dist/miru.js",
-    "build:client": "browserify -t [ babelify --presets [ @babel/preset-env ] ] src/client/main.js -o dist/miru-connect.js 2>&1 | wooster",
-    "deps:client": "browserify --list -t [ babelify --presets [ @babel/preset-env ] ] src/client/main.js -o dist/miru-connect.js",
-    "watch:client": "watchify -v -t [ babelify --presets [ @babel/preset-env ] ] src/client/main.js -o dist/miru-connect.js 2>&1 | wooster",
-    "watch:miru-connect": "watchify -v -t [ babelify --presets [ @babel/preset-env ] ] src/client/main.js -o dist/miru-connect.js 2>&1 | wooster",
-    "uglify": "npm run uglify:client && npm run uglify:server",
+    "build:miru-connect": "browserify -t [ babelify --presets [ @babel/preset-env ] ] src/miru-connect/main.js -o dist/miru-connect.js 2>&1 | wooster",
+    "deps:miru-connect": "browserify --list -t [ babelify --presets [ @babel/preset-env ] ] src/miru-connect/main.js -o dist/miru-connect.js",
+    "watch:miru-connect": "watchify -v -t [ babelify --presets [ @babel/preset-env ] ] src/miru-connect/main.js -o dist/miru-connect.js 2>&1 | wooster",
+    "uglify": "npm run uglify:miru-connect && npm run uglify:server",
     "postuglify": "npm run pass",
     "uglify:server": "uglifyjs dist/miru.js -cmo dist/miru.js",
-    "uglify:client": "uglifyjs dist/miru-connect.js -cmo dist/miru-connect.js",
+    "uglify:miru-connect": "uglifyjs dist/miru-connect.js -cmo dist/miru-connect.js",
     "srccli": "./srccli.js -p test/stage/ --development -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "srcclil": "./srccli.js --logs -p test/stage/ --development -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
     "watch:stage": "./srccli.js --port 4050 -p test/stage/ -w [ npm run watch:stage:js -o test/stage/bundle.js -r bytes.written ] -w [ npm run watch:stage:css -o test/stage/bundle.css ] -t test/stage/index.html",
@@ -38,8 +37,8 @@
     "pass": "passlint dist/miru.js dist/miru-connect.js",
     "pretest": "npm run pass",
     "test:cli": "cd test && tape 'test-cli-*'",
-    "test:client": "cd test && tape 'test-usage-case-*'",
-    "test": "npm run test:cli | faucet && npm run test:client | faucet"
+    "test:miru-connect": "cd test && tape 'test-usage-case-*'",
+    "test": "npm run test:cli | faucet && npm run test:miru-connect | faucet"
   },
   "repository": {
     "type": "git",
