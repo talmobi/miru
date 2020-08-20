@@ -46,7 +46,7 @@ function prepareStage ( done ) {
 
 test( 'test -w,--watch', function ( t ) {
   t.timeoutAfter( 1000 * 25 )
-  t.plan( 5 )
+  t.plan( 6 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
@@ -137,9 +137,14 @@ test( 'test -w,--watch', function ( t ) {
       kill( spawn.pid )
     }
 
+    var exited = false
     spawn.on( 'exit', function () {
-      console.log( 'spawn exited.' )
-      t.end()
+      if ( !exited ) {
+        exited = true
+        console.log( 'spawn exited.' )
+        t.pass( 'spawn exited' )
+        t.end()
+      }
     } )
   } )
 } )

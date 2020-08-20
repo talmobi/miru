@@ -46,7 +46,7 @@ function prepareStage ( done ) {
 
 test( 'test -t,--target', function ( t ) {
   t.timeoutAfter( 1000 * 25 )
-  t.plan( 3 )
+  t.plan( 4 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
@@ -133,16 +133,20 @@ test( 'test -t,--target', function ( t ) {
       kill( spawn.pid )
     }
 
+    var exited = false
     spawn.on( 'exit', function () {
-      console.log( 'spawn exited.' )
-      t.end()
+      if ( !exited ) {
+        console.log( 'spawn exited.' )
+        t.pass( 'spawn exited' )
+        t.end()
+      }
     } )
   } )
 } )
 
 test( 'test single -t,--target', function ( t ) {
   t.timeoutAfter( 1000 * 25 )
-  t.plan( 2 )
+  t.plan( 3 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
@@ -211,9 +215,13 @@ test( 'test single -t,--target', function ( t ) {
       kill( spawn.pid )
     }
 
+    var exited = false
     spawn.on( 'exit', function () {
-      console.log( 'spawn exited.' )
-      t.end()
+      if ( !exited ) {
+        console.log( 'spawn exited.' )
+        t.pass( 'spawn exited' )
+        t.end()
+      }
     } )
   } )
 } )

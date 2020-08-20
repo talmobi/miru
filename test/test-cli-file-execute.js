@@ -51,7 +51,7 @@ function prepareStage ( done ) {
 
 test( 'test -f,--file and -e,--execute', function ( t ) {
   t.timeoutAfter( 1000 * 25 )
-  t.plan( 6 )
+  t.plan( 7 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
@@ -70,9 +70,13 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
     // console.log( 'process PID: ' + process.pid )
     // console.log( 'spawn PID: ' + spawn.pid )
 
+    var exited = false
     spawn.on( 'exit', function () {
-      console.log( 'spawn exited.' )
-      t.end()
+      if ( !exited ) {
+        console.log( 'spawn exited.' )
+        t.pass( 'spawn exited' )
+        t.end()
+      }
     } )
 
     spawn.stdout.on( 'data', out )
