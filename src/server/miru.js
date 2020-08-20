@@ -1529,7 +1529,7 @@ function handleTargetWatchEvent ( evt, filepath ) {
               target: filepath
             } )
 
-            lintTarget( w.target )
+            lintTarget( t.target )
           }
         } else {
           log( ' === target error detected [' + target + '] ignoring === ' )
