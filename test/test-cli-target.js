@@ -54,6 +54,7 @@ test( 'test -t,--target', function ( t ) {
     const spawn = cp.spawn(
       miruPath,
       `
+      -P ${ 40666 }
       -p ${ publicPath }
       -t ${ path.join( publicPath, 'app.js' ) }
       -t ${ path.join( publicPath, 'app.css' ) }

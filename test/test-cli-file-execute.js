@@ -59,6 +59,7 @@ test( 'test -f,--file and -e,--execute', function ( t ) {
     const spawn = cp.spawn(
       miruPath,
       [
+        '-P', 40666,
         '-p', `${ publicPath }`,
         '-f', `${ path.join( publicPath, 'app.js' ) }`,
         '-e', 'echo "giraffes are great"'
