@@ -19,6 +19,7 @@ const usage = fs.readFileSync( '../dist/usage.txt', 'utf8' ).trim()
 
 test( 'miru --help', function ( t ) {
   t.timeoutAfter( 1000 * 5 )
+  t.plan( 1 )
 
   const spawn = cp.spawn(
     miruPath,
@@ -50,6 +51,7 @@ test( 'miru --help', function ( t ) {
 
 test( 'miru -h', function ( t ) {
   t.timeoutAfter( 1000 * 5 )
+  t.plan( 1 )
 
   const spawn = cp.spawn(
     miruPath,

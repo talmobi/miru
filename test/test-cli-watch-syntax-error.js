@@ -46,6 +46,7 @@ function prepareStage ( done ) {
 
 test( 'test -w,--watch with syntax error reporting', function ( t ) {
   t.timeoutAfter( 1000 * 25 )
+  t.plan( 11 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )

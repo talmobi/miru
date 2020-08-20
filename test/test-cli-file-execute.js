@@ -51,6 +51,7 @@ function prepareStage ( done ) {
 
 test( 'test -f,--file and -e,--execute', function ( t ) {
   t.timeoutAfter( 1000 * 25 )
+  t.plan( 6 )
 
   prepareStage( function ( err ) {
     t.error( err, 'stage prepared without errors' )
