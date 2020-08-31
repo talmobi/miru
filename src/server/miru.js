@@ -22,15 +22,12 @@ var fileWatcherInitTimeout
  */
 function kill () {
   clearTimeout( fileWatcherInitTimeout )
-  nz.kill()
   process.exit()
 }
 
 process.on( 'SIGTERM', kill )
 process.on( 'SIGINT', kill )
 process.on( 'exit', function () {
-  nz.kill()
-  treeKill( process.pid )
 } )
 
 var pathShorten = require( 'path-shorten' )
@@ -924,7 +921,7 @@ function watchCommandAndTarget ( w ) {
 
   // var spawn = childProcess.spawn( cmd, args )
   var spawn = crossSpawn( cmd, args )
-  nz.add( spawn )
+  nz.add( spawn.pid )
 
   var timeout
   var buffer = ''
