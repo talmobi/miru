@@ -234,7 +234,7 @@ var argv = require( 'subarg' )( process.argv.slice( 2 ), {
     'development'
   ],
   unknown: function ( arg ) {
-    console.log( 'uknown argument: ' + arg )
+    console.log( 'unknown argument: ' + arg )
     // process.exit( 1 )
   }
 } )
