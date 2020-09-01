@@ -12,6 +12,8 @@ var assets = require(
   path.join( findRoot( __dirname ), 'assets.js' )
 )
 
+const glob = require( 'redstar' )
+
 // child_process spawn hunter/killer
 var nz = require( 'nozombie' )()
 
@@ -269,7 +271,9 @@ if ( argv[ 'targets' ] ) {
     process.exit( 1 )
   }
 
-  files.forEach( function ( file ) {
+  let filecounter = 0
+
+  function addFile ( file ) {
     log( 'adding watch target: ' + file )
     targetWatcher.add( file )
 
@@ -279,12 +283,36 @@ if ( argv[ 'targets' ] ) {
       // w: w // no watcher process attached to this target file
       error: undefined, // for watcher
       output: undefined, // for watcher
-      emit_timestamp: 0
+      emit_timestamp: 0,
+      targetfilepath: filepath,
+    }
+
+    if ( --filecounter === 0 ) {
+      finishfiles()
+    }
+  }
+
+  files.forEach( function ( file ) {
+    if ( glob.hasMagic( file ) ) {
+      const pattern = file.trim()
+      filecounter++
+      glob( pattern, function ( err, files, dir ) {
+        filecounter--
+        ;( files || [] ).forEach( function ( file ) {
+          filecounter++
+          addFile( file )
+        } )
+      } )
+    } else {
+      filecounter++
+      addFile( file )
     }
   } )
 
-  log( 'target files watched :' )
-  log( targetWatcher.getWatched() )
+  function finishfiles () {
+    log( 'target files watched :' )
+    log( targetWatcher.getWatched() )
+  }
 }
 
 function log () {
@@ -437,7 +465,7 @@ if ( argv[ 'watch' ] ) {
 
     var w = {
       command: command.trim(),
-      target: w.o.trim(),
+      targetfilepath: w.o.trim(),
       regex: w.r
     }
 
@@ -455,29 +483,30 @@ if ( argv[ 'watch' ] ) {
     }
 
     log( 'command: ' + w.command )
-    log( 'target file: ' + w.target )
+    log( 'target file: ' + w.targetfilepath )
     log( 'regex: ' + w.regex )
 
     list.push( w )
 
-    var targetPath = path.resolve( w.target )
-    log( 'initializing target: ' + w.target )
+    var targetPath = path.resolve( w.targetfilepath )
+    log( 'initializing target: ' + w.targetfilepath )
     targets[ targetPath ] = {
       w: w,
       error: undefined,
       output: undefined,
-      emit_timestamp: 0
+      emit_timestamp: 0,
+      targetfilepath: targetPath,
     }
 
     targetWatcher.add( targetPath )
 
     try {
-      fs.statSync( path.resolve( w.target ) )
+      fs.statSync( path.resolve( w.targetfilepath ) )
     } catch ( err ) {
       if ( err.code === 'ENOENT' ) {
-        console.error( 'warning: watcher target file does not exist: ' + w.target )
+        console.error( 'warning: watcher target file does not exist: ' + w.targetfilepath )
       } else {
-        console.error( 'warning: could not access watcher target file: ' + w.target )
+        console.error( 'warning: could not access watcher target file: ' + w.targetfilepath )
       }
     }
   } )
@@ -882,10 +911,10 @@ function watchCommandAndTarget ( w ) {
   }
 
   var commands = w.command
-  var target = path.resolve( w.target )
+  var target = path.resolve( w.targetfilepath )
 
   // console.log( '__WATCH TARGET: ' + target )
-  // console.log( '__WATCH w.TARGET: ' + w.target )
+  // console.log( '__WATCH w.targetfilepath: ' + w.targetfilepath )
 
   if ( typeof commands === 'string' ) commands = commands.split( /\s+/ )
 
@@ -952,7 +981,7 @@ function watchCommandAndTarget ( w ) {
       if ( hasErrors ) {
         log( ' == Errors found == ' )
         var text = lines.join( '\n' )
-        handleError( path.resolve( w.target ), text )
+        handleError( path.resolve( w.targetfilepath ), text )
       } else { // no errors, output as is
 
         if ( !w.regex ) {
@@ -999,7 +1028,7 @@ function watchCommandAndTarget ( w ) {
             log( ' ========= REGEX MATCHED ======= ' )
             log( ' ========= REGEX MATCHED ======= ' )
 
-            var target = path.resolve( w.target )
+            var target = path.resolve( w.targetfilepath )
 
             // clear target errors
             var t = targets[ target ]
@@ -1022,10 +1051,10 @@ function watchCommandAndTarget ( w ) {
               // notify of successful target build
               t.emit_timestamp = Date.now()
               io.emit( 'target-build', {
-                target: w.target
+                target: w.targetfilepath
               } )
 
-              lintTarget( w.target )
+              lintTarget( w.targetfilepath )
             } )
           } else {
             log( ' -- no regex match --' )
@@ -1035,12 +1064,12 @@ function watchCommandAndTarget ( w ) {
         }
 
         // warn the user if the target is not recognized
-        fs.stat( path.resolve( w.target ), function ( err, stats ) {
+        fs.stat( path.resolve( w.targetfilepath ), function ( err, stats ) {
           if ( err ) {
             if ( err.code === 'ENOENT' ) {
-              console.error( 'warning: watcher target file does not exist: ' + w.target )
+              console.error( 'warning: watcher target file does not exist: ' + w.targetfilepath )
             } else {
-              console.error( 'warning: could not access watcher target file: ' + w.target )
+              console.error( 'warning: could not access watcher target file: ' + w.targetfilepath )
             }
           }
         } )
@@ -1054,7 +1083,7 @@ function watchCommandAndTarget ( w ) {
   // recovery handlers
   spawn.on( 'exit', function () {
     setTimeout( function () {
-      console.log( '  watcher exited [ ' + w.command + ' ], target: ' + w.target )
+      console.log( '  watcher exited [ ' + w.command + ' ], target: ' + w.targetfilepath )
 
       launchRecoveryWatcher( w )
     }, 100 )
@@ -1062,9 +1091,9 @@ function watchCommandAndTarget ( w ) {
 }
 
 function launchRecoveryWatcher ( w ) {
-  console.log( 'launching recovery watcher for [ ' + w.command + ' ], target: ' + w.target )
+  console.log( 'launching recovery watcher for [ ' + w.command + ' ], target: ' + w.targetfilepath )
 
-  var target = w.target
+  var target = w.targetfilepath
 
   var _timeout
   function recover ( evt, filepath ) {
@@ -1397,7 +1426,7 @@ var getIterationErrorBox = progressBox( _iterationBox )
  * ( like watchify, webpack --watch or rollup --watch )
  */
 function handleTargetWatchEvent ( evt, filepath ) {
-  log( 'evt: ' + evt + ', filepath: ' + filepath )
+  console.log( 'evt: ' + evt + ', filepath: ' + filepath )
 
   switch ( evt ) {
     // handle add/change
@@ -1433,9 +1462,8 @@ function handleTargetWatchEvent ( evt, filepath ) {
           console.log( err )
         }
 
-        var target = path.resolve( filepath )
-        var t = target && targets[ target ]
-        t.target = target
+        var targetfilepath = path.resolve( filepath )
+        var t = targets[ targetfilepath ]
 
         var w = t && t.w // not all target files have a watcher process attached
 
@@ -1458,7 +1486,7 @@ function handleTargetWatchEvent ( evt, filepath ) {
           // by default without regex treat a change
           // in target file as a success and clear errors
           if ( errors.timeout ) {
-            const msg = ( `  Ignoring output/target bundle (${ t.target }) because an error was being debounced. ~${ errors.DEBOUNCE } milliseconds ago.` )
+            const msg = ( `  Ignoring output/target bundle (${ t.targetfilepath }) because an error was being debounced. ~${ errors.DEBOUNCE } milliseconds ago.` )
 
             // console.log( msg )
             io.emit( 'info', msg )
@@ -1470,7 +1498,7 @@ function handleTargetWatchEvent ( evt, filepath ) {
 
             if ( !t.errorTimestamp || delta > BUILD_SUCCESS_AFTER_ERROR_DELAY ) {
               const msg = ( `
-  Clearing errors on any output/target bundle (${ t.target }) file-changes detected without specified regex ( -r flag ) arguments.
+  Clearing errors on any output/target bundle (${ t.targetfilepath }) file-changes detected without specified regex ( -r flag ) arguments.
   For best use please attach a regex ( -r flag ) argument to your watch command ( -w [ ... ] ) to parse successful builds.
   E.g.  'miru -w [ npm run watch:js -o bundle.js -r /bytes.written/ ]'
               ` )
@@ -1481,14 +1509,14 @@ function handleTargetWatchEvent ( evt, filepath ) {
               t.error = undefined
               t.output = undefined
             } else {
-              const msg = ( `  Ignoring output/target bundle (${ t.target }) because an error was detected ${ BUILD_SUCCESS_AFTER_ERROR_DELAY } milliseconds ago.` )
+              const msg = ( `  Ignoring output/target bundle (${ t.targetfilepath }) because an error was detected ${ BUILD_SUCCESS_AFTER_ERROR_DELAY } milliseconds ago.` )
 
               // console.log( msg )
               io.emit( 'info', msg )
 
               // send to connected clients
               io.emit( 'terminal-error', {
-                target: t.target,
+                target: t.targetfilepath,
                 timestamp: t.errorTimestamp || Date.now(),
                 output: t.output,
                 error: t.error
@@ -1526,7 +1554,7 @@ function handleTargetWatchEvent ( evt, filepath ) {
               target: filepath
             } )
 
-            lintTarget( t.target )
+            lintTarget( t.targetfilepath )
           }
         } else {
           log( ' === target error detected [' + target + '] ignoring === ' )
@@ -1851,12 +1879,12 @@ var commands = {
       var shift = ( maxCommandLength - w.command.length + 4 )
       process.stdout.write( '  ' + w.command )
       for ( var i = 0; i < shift; i++ ) process.stdout.write( ' ' )
-      process.stdout.write( w.target )
+      process.stdout.write( w.targetfilepath )
 
       // status
       process.stdout.write( ', status: ' )
 
-      var t = targets[ path.resolve( w.target ) ]
+      var t = targets[ path.resolve( w.targetfilepath ) ]
       if ( t && t.error ) {
         process.stdout.write( 'error' )
       } else {
