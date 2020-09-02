@@ -1426,7 +1426,7 @@ var getIterationErrorBox = progressBox( _iterationBox )
  * ( like watchify, webpack --watch or rollup --watch )
  */
 function handleTargetWatchEvent ( evt, filepath ) {
-  console.log( 'evt: ' + evt + ', filepath: ' + filepath )
+  // console.log( 'evt: ' + evt + ', filepath: ' + filepath )
 
   switch ( evt ) {
     // handle add/change
